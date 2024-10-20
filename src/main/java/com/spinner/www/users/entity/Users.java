@@ -1,4 +1,4 @@
-package com.spinner.www.entity;
+package com.spinner.www.users.entity;
 
 import jakarta.persistence.*;
 
