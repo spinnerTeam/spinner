@@ -15,7 +15,9 @@ public enum CommonResultCode {
     /**
      * DB 조회 후 데이터 미존재
      */
-    DATA_NOT_FOUND(50001, "데이터를 찾을 수 없음");
+    DATA_NOT_FOUND(50001, "데이터를 찾을 수 없음"),
+
+    DUPLICATE(40900, "데이터 중복");
 
     /**
      * 변수 설정
@@ -49,4 +51,5 @@ public enum CommonResultCode {
     public String message() {
         return message.replace("{}", "").trim();
     }
+
 }
