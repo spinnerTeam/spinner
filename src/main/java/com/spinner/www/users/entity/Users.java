@@ -3,6 +3,7 @@ package com.spinner.www.users.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +23,8 @@ public class Users {
     @JoinColumn(name = "roIdx")
     private UserRole userRole;
 
-    private String uEmail;
-    private String uPw;
+    private String email;
+    private String uPassword;
     private String uName;
     private String uNickname;
     private LocalDate uBirth;

@@ -12,8 +12,8 @@ import java.time.LocalDate;
 public class UserRequestDto {
 
     private UserRole userRole;
-    private String uEmail;
-    private String uPw;
+    private String email;
+    private String uPassword;
     private String uName;
     private String uNickname;
     private LocalDate uBirth;

@@ -9,8 +9,15 @@ public interface UserRepo extends JpaRepository<Users, Long> {
 
     /**
      *  user 이메일 조회
-     * @param uEmail String
+     * @param email String
      * @return boolean
      */
-    boolean existsByUEmail(String uEmail);
+    boolean existsByEmail(String email);
+
+    /**
+     * user 객체 조회
+     * @param email String
+     * @return User
+     */
+    Users findByEmail(String email);
 }
