@@ -51,5 +51,4 @@ public enum CommonResultCode {
     public String message() {
         return message.replace("{}", "").trim();
     }
-
 }

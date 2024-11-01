@@ -1,7 +1,10 @@
-package com.spinner.www.users.dto;
+package com.spinner.www.users.io;
 
 import com.spinner.www.users.entity.UserRole;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -9,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
-public class UserRequestDto {
+public class UserRequest {
 
     private UserRole userRole;
     private String email;

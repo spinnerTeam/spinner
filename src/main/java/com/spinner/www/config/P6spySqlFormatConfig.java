@@ -8,6 +8,10 @@ import org.hibernate.engine.jdbc.internal.FormatStyle;
 
 import java.util.Locale;
 
+/**
+ * Utils
+ * P6spy SQL log 포맷팅
+ */
 public class P6spySqlFormatConfig implements MessageFormattingStrategy {
 
     @PostConstruct
