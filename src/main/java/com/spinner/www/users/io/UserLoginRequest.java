@@ -1,11 +1,10 @@
-package com.spinner.www.users.dto;
+package com.spinner.www.users.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-public class UserLoginDto {
+public class UserLoginRequest {
 
     private String email;
     @JsonProperty("upassword")

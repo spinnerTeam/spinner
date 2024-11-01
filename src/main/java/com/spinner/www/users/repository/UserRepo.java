@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepo extends JpaRepository<Users, Long> {
 
     /**
-     *  user 이메일 조회
+     * user 이메일 조회
      * @param email String
      * @return boolean
      */

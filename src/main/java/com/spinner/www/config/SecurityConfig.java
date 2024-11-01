@@ -8,6 +8,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Spring Security
+ * 스프링 시큐리티 설정
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -35,5 +39,4 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable);  // CSRF 비활성화
         return http.build();
     }
-
 }

@@ -9,5 +9,4 @@ public class SpinnerApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpinnerApplication.class, args);
     }
-
 }

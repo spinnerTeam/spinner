@@ -19,7 +19,9 @@ public class ResponseVOUtils {
      * @return CommonResponse
      */
     public static CommonResponse getSuccessResponse(Object results) {
+
         CommonResultCode resultCode = CommonResultCode.SUCCESS;
+
         return CommonResponse.builder()
                 .code(resultCode.code())
                 .message(resultCode.message())
@@ -33,7 +35,9 @@ public class ResponseVOUtils {
      * @return CommonResponse
      */
     public static CommonResponse getSuccessResponse() {
+
         CommonResultCode resultCode = CommonResultCode.SUCCESS;
+
         return CommonResponse.builder()
                 .code(resultCode.code())
                 .message(resultCode.message())
