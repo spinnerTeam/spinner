@@ -25,7 +25,7 @@ public class EncryptionUtils {
      * @param password String
      * @return boolean
      */
-    public boolean invalidatePassword(String prePassword,String password){
+    public boolean invalidatePassword(String prePassword,String password) {
         return bCryptPasswordEncoder.matches(prePassword, password);
     }
 }

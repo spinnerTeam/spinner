@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 public class Users {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long uIdx;
