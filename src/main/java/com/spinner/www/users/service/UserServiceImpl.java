@@ -67,6 +67,11 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
     }
 
+    /**
+     *
+     * @param userLoginRequest UserLoginDto 로그인 요청 데이터
+     * @return ResponseEntity<CommonResponse> 로그인 결과
+     */
     @Override
     public ResponseEntity<CommonResponse> loginUser(UserLoginRequest userLoginRequest) {
 
@@ -79,13 +84,11 @@ public class UserServiceImpl implements UserService {
 
         boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getUPassword(), users.getUPassword());
 
-        if (invalidatePassword) {
-            SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
-            session.setAttribute("sessionInfo", sessionInfo);
-        } else {
+        if(!invalidatePassword){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
         }
-
+        SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
+        session.setAttribute("sessionInfo", sessionInfo);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }
