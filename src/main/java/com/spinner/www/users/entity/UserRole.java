@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Comment;
 
+
 @Entity
 @Table(name = "userRole")
 @Comment("유저 권한 테이블")

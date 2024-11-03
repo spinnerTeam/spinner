@@ -89,6 +89,13 @@ public class UserServiceImpl implements UserService {
         }
         SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
         session.setAttribute("sessionInfo", sessionInfo);
+        if (invalidatePassword) {
+            SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
+            session.setAttribute("sessionInfo", sessionInfo);
+        } else {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }
