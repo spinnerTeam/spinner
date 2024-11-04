@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Comment("유저 테이블")
-public class Users {
+public class Users extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

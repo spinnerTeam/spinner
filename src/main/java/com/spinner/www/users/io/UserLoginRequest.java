@@ -7,5 +7,6 @@ import lombok.Getter;
 public class UserLoginRequest {
 
     private String email;
+    @JsonProperty("upassword")
     private String uPassword;
 }

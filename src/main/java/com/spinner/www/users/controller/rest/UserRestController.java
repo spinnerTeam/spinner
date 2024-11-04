@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserRestController {
 
     private final UserService userService;
-    private final HttpSession session;
+    private final SessionInfo sessionInfo;
 
     /**
      * 회원가입
@@ -38,14 +38,5 @@ public class UserRestController {
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
         return userService.loginUser(userLoginRequest);
-    }
-
-    /**
-     * 세션확인 테스트
-     * @return SessionInfo
-     */
-    @GetMapping("/session")
-    public SessionInfo getSessionInfo() {
-        return (SessionInfo) session.getAttribute("sessionInfo");
     }
 }
