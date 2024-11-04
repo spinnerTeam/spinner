@@ -23,9 +23,10 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
-    private final EncryptionUtils encryptionUtils;
-    private final SessionInfo sessionInfo;
 
+    @Autowired
+    private EncryptionUtils encryptionUtils;
+    private final HttpSession session;
 
     /**
      * user 이메일 중복검사
@@ -86,7 +87,15 @@ public class UserServiceImpl implements UserService {
         if(!invalidatePassword){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
         }
-        sessionInfo.Login(users);
+        SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
+        session.setAttribute("sessionInfo", sessionInfo);
+        if (invalidatePassword) {
+            SessionInfo sessionInfo = new SessionInfo(users.getUIdx(), users.getUNickname(), users.getEmail());
+            session.setAttribute("sessionInfo", sessionInfo);
+        } else {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }

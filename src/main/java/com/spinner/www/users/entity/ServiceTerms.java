@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+
 import org.hibernate.annotations.Comment;
 
 import java.time.ZonedDateTime;
