@@ -4,6 +4,7 @@ import com.spinner.www.common.CommonResponse;
 import com.spinner.www.users.dto.SessionInfo;
 import com.spinner.www.users.io.UserLoginRequest;
 import com.spinner.www.users.io.UserRequest;
+import com.spinner.www.users.service.TokenService;
 import com.spinner.www.users.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserRestController {
 
     private final UserService userService;
     private final SessionInfo sessionInfo;
+    private final TokenService tokenService;
 
     /**
      * 회원가입
@@ -38,5 +40,15 @@ public class UserRestController {
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
         return userService.loginUser(userLoginRequest);
+    }
+
+    /**
+     * 토큰 조회
+     * @param uIdx
+     * @return
+     */
+    @PostMapping("/refreshToken")
+    public String getRefreshToken(@RequestParam String uIdx){
+        return tokenService.getRefreshToken(uIdx);
     }
 }

@@ -28,7 +28,7 @@ public class SessionInfo implements Serializable {
      * 로그인 세션 등록
      * @param users Users
      */
-    public void Login (Users users) {
+    public void Login (UserLoginDto users) {
         this.uIdx = users.getUIdx();
         this.nickName = users.getUNickname();
         this.email = users.getEmail();
