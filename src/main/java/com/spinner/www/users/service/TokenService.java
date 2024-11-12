@@ -1,8 +1,6 @@
 package com.spinner.www.users.service;
 
-import com.spinner.www.common.CommonResponse;
 import com.spinner.www.users.dto.UserLoginDto;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
