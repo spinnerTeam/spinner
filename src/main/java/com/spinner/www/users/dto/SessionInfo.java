@@ -33,4 +33,14 @@ public class SessionInfo implements Serializable {
         this.nickName = users.getUNickname();
         this.email = users.getEmail();
     }
+
+    /**
+     * 로그아웃 세션 초기화
+     * [note] redis 세션값 초기화 되지만 세션 ID는 만료시간까지 살아있음.
+     */
+    public void logout () {
+        this.uIdx = null;
+        this.nickName = null;
+        this.email = null;
+    }
 }
