@@ -9,3 +9,10 @@ spring:
 
       # 기본 리스너들을 위한 로깅 사용 [slf4j, sysout, file, custom]
       logging: slf4j
+
+  servlet:
+    multipart:
+      enabled: true                  # 멀티파트 요청 활성화
+      max-file-size: 10MB            # 단일 파일 업로드의 최대 크기
+      max-request-size: 20MB         # 전체 요청에 대한 최대 크기
+      file-size-threshold: 2KB       # 메모리로 저장하기 전에 파일이 넘어야 하는 최소 크기

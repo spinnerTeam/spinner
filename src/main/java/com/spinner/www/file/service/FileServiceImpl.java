@@ -31,7 +31,8 @@ public class FileServiceImpl implements FileService {
     /**
      * [MEMO:hyper] PATH 추후 작업 예정
      */
-    private final static String FILE_PATH = Paths.get("D:", "service", "media").toString();
+    //private final static String FILE_PATH = Paths.get("D:", "service", "media").toString();
+    private final static String FILE_PATH = Paths.get("/tmp", "uploads").toString();
 
     /**
      * 파일 서버 업로드
