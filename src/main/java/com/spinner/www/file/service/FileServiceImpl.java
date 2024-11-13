@@ -1,6 +1,7 @@
 package com.spinner.www.file.service;
 
 import com.spinner.www.common.CommonResponse;
+import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.mapper.FileMapper;
@@ -38,21 +39,25 @@ public class FileServiceImpl implements FileService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) throws IOException {
+    public ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) {
         // 파일 저장 ID 확인 리스트 세팅
         List<Long> fileUploadResults = new ArrayList<>();
 
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
-                //(1) 파일 서버 저장
-                //(1-1) 폴더가 없으면 폴더 생성
-                String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
-                //(1-2) 파일 저장
-                file.transferTo(new File(fileUploadPath));
+                try {
+                    //(1) 파일 서버 저장
+                    //(1-1) 폴더가 없으면 폴더 생성
+                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
+                    //(1-2) 파일 저장
+                    file.transferTo(new File(fileUploadPath));
 
-                //(2) 파일 정보 DB 저장
-                FileDto fileDto = convertFileDto(file, fileUploadPath);
-                fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
+                    //(2) 파일 정보 DB 저장
+                    FileDto fileDto = convertFileDto(file, fileUploadPath);
+                    fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
+                } catch (IOException e) {
+                    return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
+                }
             }
         }
 
