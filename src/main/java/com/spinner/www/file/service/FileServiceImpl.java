@@ -9,6 +9,7 @@ import com.spinner.www.file.repository.FileRepository;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,8 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private final FileMapper fileMapper;
 
-    /**
-     * [MEMO:hyper] PATH 추후 작업 예정
-     */
-    private final static String FILE_PATH = Paths.get("/tmp", "uploads").toString();
+    @Value("${file.upload.path}")
+    private String FILE_PATH;
 
     /**
      * 파일 서버 업로드
