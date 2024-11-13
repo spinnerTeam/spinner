@@ -31,7 +31,6 @@ public class FileServiceImpl implements FileService {
     /**
      * [MEMO:hyper] PATH 추후 작업 예정
      */
-    //private final static String FILE_PATH = Paths.get("D:", "service", "media").toString();
     private final static String FILE_PATH = Paths.get("/tmp", "uploads").toString();
 
     /**
@@ -51,10 +50,11 @@ public class FileServiceImpl implements FileService {
                     //(1-1) 폴더가 없으면 폴더 생성
                     String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
                     //(1-2) 파일 저장
-                    file.transferTo(new File(fileUploadPath));
+                    FileDto fileDto = convertFileDto(file, fileUploadPath);
+                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
+                    file.transferTo(new File(fileUploadPathName));
 
                     //(2) 파일 정보 DB 저장
-                    FileDto fileDto = convertFileDto(file, fileUploadPath);
                     fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
                 } catch (IOException e) {
                     return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
