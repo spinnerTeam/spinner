@@ -3,6 +3,7 @@ package com.spinner.www.file.service;
 import com.spinner.www.common.CommonResponse;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +25,13 @@ public interface FileService {
      * @return Long
      */
     Long saveFile(Files file);
+
+    /**
+     * 파일 다운로드
+     * @param id Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<Resource> downloadFile(Long id) throws IOException;
 
     /**
      * 파일 이름 변경

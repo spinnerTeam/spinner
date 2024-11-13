@@ -10,13 +10,20 @@ import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
@@ -72,6 +79,27 @@ public class FileServiceImpl implements FileService {
     @Override
     public Long saveFile(Files fileDBString) {
         return fileRepository.save(fileDBString).getId();
+    }
+
+    /**
+     * 파일 다운로드
+     * @param id Long
+     * @return ResponseEntity<Resource>
+     */
+    @Override
+    public ResponseEntity<Resource> downloadFile(Long id) throws IOException {
+
+        Files file = fileRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("File not found with id: " + id));
+        Path path = Paths.get(file.getFilePath() + "/" + file.getFileConvertName());
+        Resource resource = new InputStreamResource(java.nio.file.Files.newInputStream(path));
+
+        // 파일 이름 인코딩 처리 (UTF-8)
+        String encodedFileName = URLEncoder.encode(file.getFileOriginName(), StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;  filename=\"" + encodedFileName + "\"")
+                .body(resource);
     }
 
     /**

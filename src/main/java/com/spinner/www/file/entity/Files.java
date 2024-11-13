@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -36,14 +37,9 @@ public class Files {
     @Comment("파일 경로")
     private String filePath;
 
-    @CreatedBy
-    @Column(updatable = false)
-    private String createdAt;
+    @Comment("파일 생성 날짜")
+    private LocalDateTime createdDatetime;
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDate createdDate;
-
-    @Column(updatable = false, columnDefinition = "TIME(0)")
-    private LocalTime createdTime;
+    @Comment("파일 업로드")
+    private LocalTime createAt;
 }
