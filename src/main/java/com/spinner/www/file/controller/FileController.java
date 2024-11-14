@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
-@Controller
+@RestController
 @RequestMapping("/common/file")
 public class FileController {
 
