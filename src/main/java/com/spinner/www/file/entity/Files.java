@@ -6,10 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -22,6 +18,10 @@ import java.time.LocalTime;
 @Comment("파일 테이블")
 public class Files {
 
+    /**
+     * [MEMO:hyper]
+     * 멤버 추가 후 파일 업로더 작업
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fileIdx")
@@ -40,6 +40,6 @@ public class Files {
     @Comment("파일 생성 날짜")
     private LocalDateTime createdDatetime;
 
-    @Comment("파일 업로드")
+    @Comment("파일 업로더")
     private LocalTime createAt;
 }

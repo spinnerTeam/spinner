@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -160,6 +161,7 @@ public class FileServiceImpl implements FileService {
                 .fileOriginName(fileName)
                 .fileConvertName(convertFileName(fileName))
                 .filePath(fileUploadPath)
+                .createdDatetime(LocalDateTime.now())
                 .build();
     }
 }

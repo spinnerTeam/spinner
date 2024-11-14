@@ -1,16 +1,11 @@
 package com.spinner.www.file.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comment;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -21,8 +16,6 @@ public class FileDto {
     private String fileOriginName;
     private String fileConvertName;
     private String filePath;
-
+    private LocalDateTime createdDatetime;
     private String createdAt;
-    private LocalDate createdDate;
-    private LocalTime createdTime;
 }
