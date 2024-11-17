@@ -1,23 +1,23 @@
 package com.spinner.www.users.repository;
 
-import com.spinner.www.users.entity.Users;
+import com.spinner.www.users.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepo extends JpaRepository<Users, Long> {
+public interface UserRepo extends JpaRepository<Member, Long> {
 
     /**
      * user 이메일 조회
-     * @param email String
+     * @param memberEmail String
      * @return boolean
      */
-    boolean existsByEmail(String email);
+    boolean existsByMemberEmail(String memberEmail);
 
     /**
      * user 객체 조회
-     * @param email String
+     * @param memberEmail String
      * @return User
      */
-    Users findByEmail(String email);
+    Member findByMemberEmail(String memberEmail);
 }

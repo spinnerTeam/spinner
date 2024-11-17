@@ -1,18 +1,13 @@
 package com.spinner.www.users.entity;
 
-import com.spinner.www.constants.Mtype;
-import com.spinner.www.constants.StType;
+import com.spinner.www.constants.ServiceTermsType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
 
 import org.hibernate.annotations.Comment;
-
-import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "serviceTerms")
@@ -22,11 +17,11 @@ public class ServiceTerms {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("약관PK")
-    private Long stIdx;
+    private Long serviceTermsIdx;
 
     @Comment("이메일 수신 동의 or 앱 푸쉬 동의 ")
-    private StType stType;
+    private ServiceTermsType serviceTermsType;
     @Comment("약관내용")
-    private String stContent;
+    private String serviceTermsContent;
 
 }

@@ -1,6 +1,6 @@
 package com.spinner.www.users.entity;
 
-import com.spinner.www.constants.Stype;
+import com.spinner.www.constants.SocialType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +24,9 @@ public class Social {
     @ManyToOne
     @JoinColumn(name = "uIdx")
     @Comment("유저 테이블")
-    private Users users;
+    private Member member;
     @Comment("소셜 분류")
-    private Stype stype;
+    private SocialType socialtype;
     @Comment("식별번호")
-    private String Snum;
+    private String socialNum;
 }

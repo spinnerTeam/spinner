@@ -1,6 +1,5 @@
 package com.spinner.www.users.dto;
 
-import com.spinner.www.users.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,18 +19,18 @@ import java.io.Serializable;
 @Component
 public class SessionInfo implements Serializable {
 
-    private Long uIdx;
-    private String nickName;
-    private String email;
+    private Long memberIdx;
+    private String memberNickName;
+    private String memberEmail;
 
     /**
      * 로그인 세션 등록
      * @param users Users
      */
     public void Login (UserLoginDto users) {
-        this.uIdx = users.getUIdx();
-        this.nickName = users.getUNickname();
-        this.email = users.getEmail();
+        this.memberIdx = users.getMemberIdx();
+        this.memberNickName = users.getMemberNickname();
+        this.memberEmail = users.getMemberEmail();
     }
 
     /**
@@ -39,8 +38,8 @@ public class SessionInfo implements Serializable {
      * [note] redis 세션값 초기화 되지만 세션 ID는 만료시간까지 살아있음.
      */
     public void logout () {
-        this.uIdx = null;
-        this.nickName = null;
-        this.email = null;
+        this.memberIdx = null;
+        this.memberNickName = null;
+        this.memberEmail = null;
     }
 }

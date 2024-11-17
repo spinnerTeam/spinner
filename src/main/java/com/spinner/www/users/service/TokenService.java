@@ -17,17 +17,17 @@ public interface TokenService {
 
     /**
      * 토큰 레디스에 저장
-     * @param uIdx String
+     * @param memberIdx String
      * @param refreshToken String
      * @param days int
      * @param timeUnit TimeUnit
      */
-    void saveRefreshToken(String uIdx, String refreshToken, int days, TimeUnit timeUnit);
+    void saveRefreshToken(String memberIdx, String refreshToken, int days, TimeUnit timeUnit);
 
     /**
      * 레디스에서 회원 번호로 토큰 조회
-     * @param uIdx String
+     * @param memberIdx String
      * @return refreshToken String
      */
-    String getRefreshToken(String uIdx);
+    String getRefreshToken(String memberIdx);
 }

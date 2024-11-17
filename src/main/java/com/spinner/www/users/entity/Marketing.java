@@ -1,7 +1,6 @@
 package com.spinner.www.users.entity;
 
 
-import jakarta.persistence.*;
 import org.hibernate.annotations.Comment;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,21 +23,21 @@ public class Marketing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("마케팅 PK")
-    private Long mIdx;
+    private Long marketingIdx;
 
     @ManyToOne
-    @JoinColumn(name = "stIdx")
+    @JoinColumn(name = "serviceTermsIdx")
     @Comment("약관 테이블")
     private ServiceTerms serviceTerms;
 
     @Comment("동의 or 거절 날짜")
-    private ZonedDateTime mDate;
+    private ZonedDateTime marketingDate;
 
     @ManyToOne
-    @JoinColumn(name = "uIdx")
+    @JoinColumn(name = "memberIdx")
     @Comment("유저 테이블")
-    private Users users;
+    private Member member;
 
     @Comment("동의 여부")
-    private boolean mConsent;
+    private boolean marketingConsent;
 }

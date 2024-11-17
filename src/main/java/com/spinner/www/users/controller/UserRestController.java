@@ -1,4 +1,4 @@
-package com.spinner.www.users.controller.rest;
+package com.spinner.www.users.controller;
 
 import com.spinner.www.common.CommonResponse;
 import com.spinner.www.users.dto.SessionInfo;
@@ -6,7 +6,6 @@ import com.spinner.www.users.io.UserLoginRequest;
 import com.spinner.www.users.io.UserRequest;
 import com.spinner.www.users.service.TokenService;
 import com.spinner.www.users.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -51,4 +50,9 @@ public class UserRestController {
     public String getRefreshToken(@RequestParam String uIdx){
         return tokenService.getRefreshToken(uIdx);
     }
+
+//    @PostMapping("/sendEmail")
+//    public ResponseEntity<CommonResponse> sendEmail(@RequestParam String email){
+//        return userService.
+//    }
 }
