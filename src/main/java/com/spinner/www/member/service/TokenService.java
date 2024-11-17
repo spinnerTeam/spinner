@@ -1,6 +1,6 @@
-package com.spinner.www.users.service;
+package com.spinner.www.member.service;
 
-import com.spinner.www.users.dto.UserLoginDto;
+import com.spinner.www.member.dto.MemberLoginDto;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -10,10 +10,10 @@ public interface TokenService {
     /**
      * 토큰 생성
      * @param expiration Date
-     * @param userLoginDto UserLoginDto
+     * @param memberLoginDto UserLoginDto
      * @return token
      */
-    String makeToken(Date expiration, UserLoginDto userLoginDto);
+    String makeToken(Date expiration, MemberLoginDto memberLoginDto);
 
     /**
      * 토큰 레디스에 저장

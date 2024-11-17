@@ -1,14 +1,14 @@
-package com.spinner.www.users.service;
+package com.spinner.www.member.service;
 
 import com.spinner.www.common.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
-import com.spinner.www.users.dto.SessionInfo;
-import com.spinner.www.users.dto.UserLoginDto;
-import com.spinner.www.users.entity.Member;
-import com.spinner.www.users.io.UserLoginRequest;
-import com.spinner.www.users.io.UserRequest;
-import com.spinner.www.users.mapper.UserMapper;
-import com.spinner.www.users.repository.UserRepo;
+import com.spinner.www.member.dto.MemberLoginDto;
+import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.member.io.MemberLogin;
+import com.spinner.www.member.io.MemberCreate;
+import com.spinner.www.member.mapper.MemberMapper;
+import com.spinner.www.member.repository.UserRepo;
 import com.spinner.www.util.EncryptionUtils;
 import com.spinner.www.util.ResponseVOUtils;
 import jakarta.servlet.http.Cookie;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class UserServiceImpl implements UserService {
+public class MemberServiceImpl implements MemberService {
 
     // 토큰 만료 시간
     private static final int DEFAULT_ACCESS_EXPIRATION_MINUTES = 30;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final EncryptionUtils encryptionUtils;
     private final SessionInfo sessionInfo;
-    private final UserMapper userMapper;
+    private final MemberMapper memberMapper;
     private final TokenService tokenService;
     private final HttpServletResponse response;
 
@@ -53,28 +53,28 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원가입
-     * @param userRequest UserRequestDto 회원가입 요청 데이터
+     * @param memberRequest UserRequestDto 회원가입 요청 데이터
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @Override
-    public ResponseEntity<CommonResponse> insertUser(UserRequest userRequest) {
+    public ResponseEntity<CommonResponse> insertUser(MemberCreate memberRequest) {
 
         // 이메일 중복검사
-        boolean isEmailInvalid = isEmailInvalid(userRequest.getMemberEmail());
+        boolean isEmailInvalid = isEmailInvalid(memberRequest.getMemberEmail());
 
         if (isEmailInvalid) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE),HttpStatus.CONFLICT);
         }
 
         // 비밀번호 암호화
-        String pw = encryptionUtils.encrypt(userRequest.getMemberPassword());
+        String pw = encryptionUtils.encrypt(memberRequest.getMemberPassword());
 
         Member user = Member.builder()
-                .memberEmail(userRequest.getMemberEmail())
-                .memberName(userRequest.getMemberName())
+                .memberEmail(memberRequest.getMemberEmail())
+                .memberName(memberRequest.getMemberName())
                 .memberPassword(pw)
-                .memberBirth(userRequest.getMemberBirth())
-                .memberNickname(userRequest.getMemberNickname())
+                .memberBirth(memberRequest.getMemberBirth())
+                .memberNickname(memberRequest.getMemberNickname())
                 .build();
         userRepo.save(user);
 
@@ -86,9 +86,9 @@ public class UserServiceImpl implements UserService {
      * @param memberEmail String
      * @return userLoginDto
      */
-    public UserLoginDto getUserLoginDto(String memberEmail) {
+    public MemberLoginDto getUserLoginDto(String memberEmail) {
         Member user = userRepo.findByMemberEmail(memberEmail);
-        return userMapper.usersToUserLoginDTO(user);
+        return memberMapper.memberToMemberLoginDTO(user);
     }
 
     /**
@@ -97,16 +97,16 @@ public class UserServiceImpl implements UserService {
      * @return ResponseEntity<CommonResponse> 로그인 결과
      */
     @Override
-    public ResponseEntity<CommonResponse> loginUser(UserLoginRequest userLoginRequest) {
+    public ResponseEntity<CommonResponse> loginUser(MemberLogin userLoginRequest) {
 
         // 이메일로 회원 객체 조회
-        UserLoginDto userLoginDto = getUserLoginDto(userLoginRequest.getMemberEmail());
+        MemberLoginDto memberLoginDto = getUserLoginDto(userLoginRequest.getMemberEmail());
 
-        if (userLoginDto == null)  {
+        if (memberLoginDto == null)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
         }
 
-        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getMemberPassword(), userLoginDto.getMemberPassword());
+        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getMemberPassword(), memberLoginDto.getMemberPassword());
 
         if(!invalidatePassword)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
@@ -114,18 +114,18 @@ public class UserServiceImpl implements UserService {
 
         // acessToken 생성
         String accessToken =
-                tokenService.makeToken(new Date(System.currentTimeMillis() + Duration.ofMinutes(DEFAULT_ACCESS_EXPIRATION_MINUTES).toMillis()), userLoginDto);
-        userLoginDto.setAcessToken(accessToken);
+                tokenService.makeToken(new Date(System.currentTimeMillis() + Duration.ofMinutes(DEFAULT_ACCESS_EXPIRATION_MINUTES).toMillis()), memberLoginDto);
+        memberLoginDto.setAcessToken(accessToken);
         // refreshToken 생성
         String refreshToken =
-                tokenService.makeToken(new Date(System.currentTimeMillis() + Duration.ofDays(DEFAULT_REFRESH_EXPIRATION_DAYS).toMillis()), userLoginDto);
+                tokenService.makeToken(new Date(System.currentTimeMillis() + Duration.ofDays(DEFAULT_REFRESH_EXPIRATION_DAYS).toMillis()), memberLoginDto);
 
         // refreshToken redis에 저장
-        tokenService.saveRefreshToken(String.valueOf(userLoginDto.getMemberIdx()), refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS , TimeUnit.DAYS);
+        tokenService.saveRefreshToken(String.valueOf(memberLoginDto.getMemberIdx()), refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS , TimeUnit.DAYS);
         // refreshToken http쿠키에 저장
         setRefreshTokenCookie(response, refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS);
 
-        sessionInfo.Login(userLoginDto);
+        sessionInfo.Login(memberLoginDto);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(accessToken), HttpStatus.OK);
     }
 

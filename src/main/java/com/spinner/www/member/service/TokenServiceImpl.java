@@ -1,7 +1,7 @@
-package com.spinner.www.users.service;
+package com.spinner.www.member.service;
 
-import com.spinner.www.users.dto.JwtProperties;
-import com.spinner.www.users.dto.UserLoginDto;
+import com.spinner.www.member.dto.JwtProperties;
+import com.spinner.www.member.dto.MemberLoginDto;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,19 +22,19 @@ public class TokenServiceImpl implements TokenService{
     /**
      * 토큰 생성
      * @param expiration Date
-     * @param userLoginDto userLoginDto
+     * @param memberLoginDto userLoginDto
      * @return 만들어진 토큰 반환
      */
     @Override
-    public String makeToken(Date expiration, UserLoginDto userLoginDto) {
+    public String makeToken(Date expiration, MemberLoginDto memberLoginDto) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .setSubject(userLoginDto.getMemberEmail())
-                .claim("nickname", userLoginDto.getMemberNickname())
+                .setSubject(memberLoginDto.getMemberEmail())
+                .claim("nickname", memberLoginDto.getMemberNickname())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }

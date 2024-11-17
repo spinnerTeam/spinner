@@ -1,6 +1,6 @@
-package com.spinner.www.users.repository;
+package com.spinner.www.member.repository;
 
-import com.spinner.www.users.entity.Member;
+import com.spinner.www.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

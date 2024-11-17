@@ -1,12 +1,12 @@
-package com.spinner.www.users.dto;
+package com.spinner.www.member.dto;
 
-import com.spinner.www.users.entity.MemberRole;
+import com.spinner.www.member.entity.MemberRole;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserLoginDto {
+public class MemberLoginDto {
 
     private Long memberIdx;
     private MemberRole memberRole;

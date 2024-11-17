@@ -1,10 +1,10 @@
-package com.spinner.www.users.io;
+package com.spinner.www.member.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class UserLoginRequest {
+public class MemberLogin {
 
     private String memberEmail;
     @JsonProperty("memberPassword")
