@@ -1,5 +1,6 @@
 package com.spinner.www.file.entity;
 
+import com.spinner.www.member.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Comment("파일 테이블")
-public class Files {
+public class Files extends BaseEntity {
 
     /**
      * [MEMO:hyper]
@@ -37,9 +38,4 @@ public class Files {
     @Comment("파일 경로")
     private String filePath;
 
-    @Comment("파일 생성 날짜")
-    private LocalDateTime createdDatetime;
-
-    @Comment("파일 업로더")
-    private LocalTime createAt;
 }
