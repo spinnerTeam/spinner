@@ -100,13 +100,13 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<CommonResponse> loginUser(UserLoginRequest userLoginRequest) {
 
         // 이메일로 회원 객체 조회
-        UserLoginDto userLoginDto = getUserLoginDto(userLoginRequest.getEmail());
+        UserLoginDto userLoginDto = getUserLoginDto(userLoginRequest.getMemberEmail());
 
         if (userLoginDto == null)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
         }
 
-        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getUPassword(), userLoginDto.getMemberPassword());
+        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getMemberPassword(), userLoginDto.getMemberPassword());
 
         if(!invalidatePassword)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);

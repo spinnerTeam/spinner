@@ -9,7 +9,7 @@ import org.hibernate.annotations.Comment;
 
 
 @Entity
-@Table(name = "userRole")
+@Table(name = "memberRole")
 @Comment("유저 권한 테이블")
 public class MemberRole {
 

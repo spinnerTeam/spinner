@@ -10,7 +10,7 @@ import org.hibernate.annotations.Comment;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "users")
+@Table(name = "member")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
