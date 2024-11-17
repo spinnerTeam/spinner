@@ -33,31 +33,31 @@ public class TokenServiceImpl implements TokenService{
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .setSubject(userLoginDto.getEmail())
-                .claim("nickname", userLoginDto.getUNickname())
+                .setSubject(userLoginDto.getMemberEmail())
+                .claim("nickname", userLoginDto.getMemberNickname())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
 
     /**
      * 레디스에 토큰 저장
-     * @param uIdx String
+     * @param memberIdx String
      * @param refreshToken String
      * @param days int
      */
     @Override
-    public void saveRefreshToken(String uIdx, String refreshToken, int days , TimeUnit timeUnit) {
-        redisTemplate.opsForValue().set(uIdx, refreshToken, days, TimeUnit.DAYS);
+    public void saveRefreshToken(String memberIdx, String refreshToken, int days , TimeUnit timeUnit) {
+        redisTemplate.opsForValue().set(memberIdx, refreshToken, days, TimeUnit.DAYS);
     }
 
     /**
      * 레디스에서 토큰 조회
-     * @param uIdx String
+     * @param memberIdx String
      * @return refreshToken
      */
     @Override
-    public String getRefreshToken(String uIdx) {
-        return redisTemplate.opsForValue().get(uIdx);
+    public String getRefreshToken(String memberIdx) {
+        return redisTemplate.opsForValue().get(memberIdx);
     }
 
 

@@ -1,7 +1,6 @@
 package com.spinner.www.users.dto;
 
-import com.spinner.www.users.entity.UserRole;
-import lombok.AllArgsConstructor;
+import com.spinner.www.users.entity.MemberRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,11 +8,11 @@ import lombok.Setter;
 @Setter
 public class UserLoginDto {
 
-    private Long uIdx;
-    private UserRole userRole;
-    private String email;
-    private String uPassword;
-    private String uNickname;
+    private Long memberIdx;
+    private MemberRole memberRole;
+    private String memberEmail;
+    private String memberPassword;
+    private String memberNickname;
     private String acessToken;
 
 }

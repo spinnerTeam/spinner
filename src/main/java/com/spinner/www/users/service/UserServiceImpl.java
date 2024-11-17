@@ -4,9 +4,9 @@ import com.spinner.www.common.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.users.dto.SessionInfo;
 import com.spinner.www.users.dto.UserLoginDto;
+import com.spinner.www.users.entity.Member;
 import com.spinner.www.users.io.UserLoginRequest;
 import com.spinner.www.users.io.UserRequest;
-import com.spinner.www.users.entity.Users;
 import com.spinner.www.users.mapper.UserMapper;
 import com.spinner.www.users.repository.UserRepo;
 import com.spinner.www.util.EncryptionUtils;
@@ -15,7 +15,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private static final int DEFAULT_ACCESS_EXPIRATION_MINUTES = 30;
     // 토큰 만료 일
     private static final int DEFAULT_REFRESH_EXPIRATION_DAYS = 7;
+    // redis 만료
+    private static final int DEFAULT_SESSION_EXPIRATION_MINUTES = 60 * 24 * 7;
 
     private final UserRepo userRepo;
     private final EncryptionUtils encryptionUtils;
@@ -43,11 +44,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * user 이메일 중복검사
-     * @param uEmail String
+     * @param memberEmail String
      * @return 조회한 결과 Boolean
      */
-    private boolean isEmailInvalid (String uEmail){
-        return userRepo.existsByEmail(uEmail);
+    private boolean isEmailInvalid (String memberEmail){
+        return userRepo.existsByMemberEmail(memberEmail);
     }
 
     /**
@@ -59,21 +60,21 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<CommonResponse> insertUser(UserRequest userRequest) {
 
         // 이메일 중복검사
-        boolean isEmailInvalid = isEmailInvalid(userRequest.getEmail());
+        boolean isEmailInvalid = isEmailInvalid(userRequest.getMemberEmail());
 
         if (isEmailInvalid) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE),HttpStatus.CONFLICT);
         }
 
         // 비밀번호 암호화
-        String pw = encryptionUtils.encrypt(userRequest.getUPassword());
+        String pw = encryptionUtils.encrypt(userRequest.getMemberPassword());
 
-        Users user = Users.builder()
-                .email(userRequest.getEmail())
-                .uName(userRequest.getUName())
-                .uPassword(pw)
-                .uBirth(userRequest.getUBirth())
-                .uNickname(userRequest.getUNickname())
+        Member user = Member.builder()
+                .memberEmail(userRequest.getMemberEmail())
+                .memberName(userRequest.getMemberName())
+                .memberPassword(pw)
+                .memberBirth(userRequest.getMemberBirth())
+                .memberNickname(userRequest.getMemberNickname())
                 .build();
         userRepo.save(user);
 
@@ -82,11 +83,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * users > userLoginDto 변환
-     * @param email String
+     * @param memberEmail String
      * @return userLoginDto
      */
-    public UserLoginDto getUserLoginDto(String email) {
-        Users user = userRepo.findByEmail(email);
+    public UserLoginDto getUserLoginDto(String memberEmail) {
+        Member user = userRepo.findByMemberEmail(memberEmail);
         return userMapper.usersToUserLoginDTO(user);
     }
 
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
         }
 
-        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getUPassword(), userLoginDto.getUPassword());
+        boolean invalidatePassword = encryptionUtils.invalidatePassword(userLoginRequest.getUPassword(), userLoginDto.getMemberPassword());
 
         if(!invalidatePassword)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.BAD_REQUEST);
@@ -120,7 +121,7 @@ public class UserServiceImpl implements UserService {
                 tokenService.makeToken(new Date(System.currentTimeMillis() + Duration.ofDays(DEFAULT_REFRESH_EXPIRATION_DAYS).toMillis()), userLoginDto);
 
         // refreshToken redis에 저장
-        tokenService.saveRefreshToken(String.valueOf(userLoginDto.getUIdx()), refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS , TimeUnit.DAYS);
+        tokenService.saveRefreshToken(String.valueOf(userLoginDto.getMemberIdx()), refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS , TimeUnit.DAYS);
         // refreshToken http쿠키에 저장
         setRefreshTokenCookie(response, refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS);
 

@@ -16,25 +16,25 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Comment("유저 테이블")
-public class Users extends BaseEntity{
+public class Member extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("유저PK")
-    private Long uIdx;
+    private Long memberIdx;
 
     @ManyToOne
     @JoinColumn(name = "roIdx")
     @Comment("유저 권한")
-    private UserRole userRole;
+    private MemberRole memberRole;
     @Comment("이메일")
-    private String email;
+    private String memberEmail;
     @Comment("비밀번호")
-    private String uPassword;
+    private String memberPassword;
     @Comment("이름")
-    private String uName;
+    private String memberName;
     @Comment("닉네임")
-    private String uNickname;
+    private String memberNickname;
     @Comment("생년월일")
-    private LocalDate uBirth;
+    private LocalDate memberBirth;
 }
