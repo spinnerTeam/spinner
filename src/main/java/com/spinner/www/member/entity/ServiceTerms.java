@@ -1,4 +1,4 @@
-package com.spinner.www.users.entity;
+package com.spinner.www.member.entity;
 
 import com.spinner.www.constants.ServiceTermsType;
 import jakarta.persistence.Entity;

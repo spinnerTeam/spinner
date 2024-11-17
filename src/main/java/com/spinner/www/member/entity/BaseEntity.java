@@ -1,4 +1,4 @@
-package com.spinner.www.users.entity;
+package com.spinner.www.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -10,9 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
  * BaseEntity 공통 컬럼

@@ -1,6 +1,6 @@
 package com.spinner.www.report.entity;
 
-import com.spinner.www.users.entity.BaseEntity;
+import com.spinner.www.member.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

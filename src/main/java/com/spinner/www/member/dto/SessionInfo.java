@@ -1,4 +1,4 @@
-package com.spinner.www.users.dto;
+package com.spinner.www.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class SessionInfo implements Serializable {
      * 로그인 세션 등록
      * @param users Users
      */
-    public void Login (UserLoginDto users) {
+    public void Login (MemberLoginDto users) {
         this.memberIdx = users.getMemberIdx();
         this.memberNickName = users.getMemberNickname();
         this.memberEmail = users.getMemberEmail();

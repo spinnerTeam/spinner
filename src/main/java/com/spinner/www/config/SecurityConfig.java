@@ -1,7 +1,7 @@
 package com.spinner.www.config;
 
 import com.spinner.www.config.handler.CustomerLogoutHandler;
-import com.spinner.www.users.dto.SessionInfo;
+import com.spinner.www.member.dto.SessionInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

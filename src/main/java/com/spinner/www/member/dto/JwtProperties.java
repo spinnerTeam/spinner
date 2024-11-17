@@ -1,4 +1,4 @@
-package com.spinner.www.users.dto;
+package com.spinner.www.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;

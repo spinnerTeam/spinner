@@ -1,6 +1,6 @@
 package com.spinner.www.report.dto;
 
-import com.spinner.www.users.entity.BaseEntity;
+import com.spinner.www.member.entity.BaseEntity;
 import lombok.Builder;
 import lombok.Getter;
 

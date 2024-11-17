@@ -1,11 +1,11 @@
-package com.spinner.www.users.controller;
+package com.spinner.www.member.controller;
 
 import com.spinner.www.common.CommonResponse;
-import com.spinner.www.users.dto.SessionInfo;
-import com.spinner.www.users.io.UserLoginRequest;
-import com.spinner.www.users.io.UserRequest;
-import com.spinner.www.users.service.TokenService;
-import com.spinner.www.users.service.UserService;
+import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.io.MemberLogin;
+import com.spinner.www.member.io.MemberCreate;
+import com.spinner.www.member.service.TokenService;
+import com.spinner.www.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserRestController {
 
-    private final UserService userService;
+    private final MemberService memberService;
     private final SessionInfo sessionInfo;
     private final TokenService tokenService;
 
     /**
      * 회원가입
-     * @param userRequest UserRequestDto 회원가입 요청 데이터
+     * @param memberRequest UserRequestDto 회원가입 요청 데이터
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> invalidateEmail(@RequestBody UserRequest userRequest) {
-        return userService.insertUser(userRequest);
+    public ResponseEntity<CommonResponse> invalidateEmail(@RequestBody MemberCreate memberRequest) {
+        return memberService.insertUser(memberRequest);
     }
 
     /**
@@ -37,8 +37,8 @@ public class UserRestController {
      * @return ResponseEntity<CommonResponse> 로그인 결과
      */
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
-        return userService.loginUser(userLoginRequest);
+    public ResponseEntity<CommonResponse> loginUser(@RequestBody MemberLogin userLoginRequest) {
+        return memberService.loginUser(userLoginRequest);
     }
 
     /**

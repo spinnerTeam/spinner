@@ -1,6 +1,6 @@
-package com.spinner.www.users.io;
+package com.spinner.www.member.io;
 
-import com.spinner.www.users.entity.MemberRole;
+import com.spinner.www.member.entity.MemberRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
-public class UserRequest {
+public class MemberCreate {
 
     private MemberRole memberRole;
     private String memberEmail;
