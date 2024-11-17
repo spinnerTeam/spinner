@@ -1,7 +1,7 @@
 package com.spinner.www.report.controller;
 
 import com.spinner.www.common.CommonResponse;
-import com.spinner.www.report.io.ReportTypeRequest;
+import com.spinner.www.report.io.ReportTypeCreateRequest;
 import com.spinner.www.report.service.ReportTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +22,12 @@ public class ReportTypeController {
 
     /**
      * 신고 유형 추가
-     * @param reportTypeRequest ReportTypeRequest
+     * @param reportTypeCreateRequest ReportTypeRequest
      * @return ResponseEntity<CommonResponse>
      */
     @PostMapping("/insert")
-    public ResponseEntity<CommonResponse> insertReportType(@RequestBody ReportTypeRequest reportTypeRequest) {
-        return reportTypeService.insertReportType(reportTypeRequest);
+    public ResponseEntity<CommonResponse> insertReportType(@RequestBody ReportTypeCreateRequest reportTypeCreateRequest) {
+        return reportTypeService.insertReportType(reportTypeCreateRequest);
     }
 
     /**

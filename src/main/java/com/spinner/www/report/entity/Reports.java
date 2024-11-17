@@ -22,5 +22,4 @@ public class Reports {
 
     @ManyToOne
     private ReportType reportType;
-
 }
