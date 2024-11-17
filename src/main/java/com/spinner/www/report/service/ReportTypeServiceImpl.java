@@ -2,10 +2,10 @@ package com.spinner.www.report.service;
 
 import com.spinner.www.common.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
-import com.spinner.www.report.Mapper.ReportTypeMapper;
+import com.spinner.www.report.io.ReportTypeCreateRequest;
+import com.spinner.www.report.mapper.ReportTypeMapper;
 import com.spinner.www.report.dto.ReportTypeDto;
 import com.spinner.www.report.entity.ReportType;
-import com.spinner.www.report.io.ReportTypeRequest;
 import com.spinner.www.report.io.ReportTypeResponse;
 import com.spinner.www.report.repository.ReportTypeRepository;
 import com.spinner.www.util.ResponseVOUtils;
@@ -25,14 +25,14 @@ public class ReportTypeServiceImpl implements ReportTypeService {
 
     /**
      * 신고 유형 추가
-     * @param reportTypeRequest ResponseEntity<CommonResponse>
+     * @param reportTypeCreateRequest ResponseEntity<CommonResponse>
      * @return ResponseEntity<CommonResponse>
      */
 
     @Override
-    public ResponseEntity<CommonResponse> insertReportType(ReportTypeRequest reportTypeRequest) {
+    public ResponseEntity<CommonResponse> insertReportType(ReportTypeCreateRequest reportTypeCreateRequest) {
 
-        ReportTypeDto reportTypeDto = reportTypeMapper.reportTypeRequestToReportTypeDto(reportTypeRequest);
+        ReportTypeDto reportTypeDto = reportTypeCreateRequestToReportTypeDto(reportTypeCreateRequest);
         ReportType reportType = reportTypeMapper.ReportTypeDtoToReportType(reportTypeDto);
         reportTypeRepository.save(reportType);
 
@@ -53,8 +53,34 @@ public class ReportTypeServiceImpl implements ReportTypeService {
            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
-        ReportTypeResponse reportTypeResponse = reportTypeMapper.reportTypeToReportTypeResponse(reportType);
+        ReportTypeDto reportTypeDto = reportTypeMapper.ReportTypeToReportTypeDto(reportType);
+        ReportTypeResponse reportTypeResponse = reportTypeDtoToReportTypeResponse(reportTypeDto);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(reportTypeResponse), HttpStatus.OK);
+    }
+
+    /**
+     * ReportTypeCreateRequest -> ReportTypeDto 변환
+     * @param reportTypeCreateRequest ReportTypeCreateRequest
+     * @return ReportTypeDto
+     */
+    @Override
+    public ReportTypeDto reportTypeCreateRequestToReportTypeDto(ReportTypeCreateRequest reportTypeCreateRequest) {
+        return ReportTypeDto.builder()
+                .reportTypeContent(reportTypeCreateRequest.getReportTypeContent())
+                .build();
+    }
+
+    /**
+     * ReportTypeDto -> ReportTypeResponse 변환
+     * @param reportTypeDto ReportTypeDto
+     * @return ReportTypeResponse
+     */
+    @Override
+    public ReportTypeResponse reportTypeDtoToReportTypeResponse(ReportTypeDto reportTypeDto) {
+        return ReportTypeResponse.builder()
+                .id(reportTypeDto.getId())
+                .reportTypeContent(reportTypeDto.getReportTypeContent())
+                .build();
     }
 }

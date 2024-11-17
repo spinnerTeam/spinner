@@ -13,14 +13,14 @@ public enum CommonResultCode {
     ERROR(50000, "서버 에러"),
 
     /**
-     * 파일 업로드 실패
-     */
-    FILE_UPLOAD_FAIL(50001, "파일 업로드에 실패했습니다"),
-
-    /**
      * DB 조회 후 데이터 미존재
      */
     DATA_NOT_FOUND(50001, "데이터를 찾을 수 없음"),
+
+    /**
+     * 파일 업로드 실패
+     */
+    FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
 
     DUPLICATE(40900, "데이터 중복");
 
