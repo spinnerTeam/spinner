@@ -1,4 +1,4 @@
-package com.spinner.www.constants;
+package com.spinner.www.member.constants;
 
 /**
  * 소셜 로그인 타입

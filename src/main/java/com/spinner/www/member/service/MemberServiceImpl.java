@@ -8,7 +8,7 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberCreate;
 import com.spinner.www.member.mapper.MemberMapper;
-import com.spinner.www.member.repository.UserRepo;
+import com.spinner.www.member.repository.MemberRepo;
 import com.spinner.www.util.EncryptionUtils;
 import com.spinner.www.util.ResponseVOUtils;
 import jakarta.servlet.http.Cookie;
@@ -35,7 +35,7 @@ public class MemberServiceImpl implements MemberService {
     // redis 만료
     private static final int DEFAULT_SESSION_EXPIRATION_MINUTES = 60 * 24 * 7;
 
-    private final UserRepo userRepo;
+    private final MemberRepo memberRepo;
     private final EncryptionUtils encryptionUtils;
     private final SessionInfo sessionInfo;
     private final MemberMapper memberMapper;
@@ -48,7 +48,7 @@ public class MemberServiceImpl implements MemberService {
      * @return 조회한 결과 Boolean
      */
     private boolean isEmailInvalid (String memberEmail){
-        return userRepo.existsByMemberEmail(memberEmail);
+        return memberRepo.existsByMemberEmail(memberEmail);
     }
 
     /**
@@ -76,7 +76,7 @@ public class MemberServiceImpl implements MemberService {
                 .memberBirth(memberRequest.getMemberBirth())
                 .memberNickname(memberRequest.getMemberNickname())
                 .build();
-        userRepo.save(user);
+        memberRepo.save(user);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
     }
@@ -87,7 +87,7 @@ public class MemberServiceImpl implements MemberService {
      * @return userLoginDto
      */
     public MemberLoginDto getUserLoginDto(String memberEmail) {
-        Member user = userRepo.findByMemberEmail(memberEmail);
+        Member user = memberRepo.findByMemberEmail(memberEmail);
         return memberMapper.memberToMemberLoginDTO(user);
     }
 
@@ -145,5 +145,15 @@ public class MemberServiceImpl implements MemberService {
         cookie.setMaxAge(expiryDate);
 
         response.addCookie(cookie);
+    }
+
+    /**
+     * memberIdx 로 회원 조회
+     * @param memberIdx Long
+     * @return member
+     */
+    @Override
+    public Member getMember(Long memberIdx) {
+        return memberRepo.findById(memberIdx).orElse(null);
     }
 }

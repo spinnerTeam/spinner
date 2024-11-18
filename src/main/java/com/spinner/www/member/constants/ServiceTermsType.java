@@ -1,4 +1,4 @@
-package com.spinner.www.constants;
+package com.spinner.www.member.constants;
 
 /**
  * 약관동의
