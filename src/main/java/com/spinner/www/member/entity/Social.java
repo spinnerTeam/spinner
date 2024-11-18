@@ -1,6 +1,6 @@
 package com.spinner.www.member.entity;
 
-import com.spinner.www.constants.SocialType;
+import com.spinner.www.member.constants.SocialType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

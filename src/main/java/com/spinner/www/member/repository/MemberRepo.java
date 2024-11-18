@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepo extends JpaRepository<Member, Long> {
+public interface MemberRepo extends JpaRepository<Member, Long> {
 
     /**
      * user 이메일 조회

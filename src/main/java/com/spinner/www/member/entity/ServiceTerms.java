@@ -1,6 +1,6 @@
 package com.spinner.www.member.entity;
 
-import com.spinner.www.constants.ServiceTermsType;
+import com.spinner.www.member.constants.ServiceTermsType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

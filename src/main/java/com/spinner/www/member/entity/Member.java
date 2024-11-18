@@ -24,7 +24,7 @@ public class Member extends BaseEntity{
     private Long memberIdx;
 
     @ManyToOne
-    @JoinColumn(name = "roIdx")
+    @JoinColumn(name = "roleIdx")
     @Comment("유저 권한")
     private MemberRole memberRole;
     @Comment("이메일")
