@@ -1,7 +1,6 @@
 package com.spinner.www.post.service;
 
 import com.spinner.www.common.CommonResponse;
-import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.post.entity.Post;
@@ -65,7 +64,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post findByPostIdx(Long postIdx) {
         int isNotRemove = 0;
-        return postRepo.findByPostIdxAndPostIsRemoved(postIdx, isNotRemove);
+        return postRepo.findByPostIdxAndPostIsRemoved(postIdx, isNotRemove).orElse(null);
     }
 
     /**
