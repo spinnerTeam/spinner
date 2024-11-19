@@ -1,12 +1,15 @@
 package com.spinner.www.post.service;
 
 import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.io.PostCreateRequest;
+import com.spinner.www.post.io.PostListResponse;
 import com.spinner.www.post.io.PostResponse;
 import com.spinner.www.post.io.PostUpdateRequest;
+import com.spinner.www.post.repository.PostQueryRepo;
 import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -23,7 +28,7 @@ public class PostServiceImpl implements PostService {
 
     private final SessionInfo sessionInfo;
     private final PostRepo postRepo;
-
+    private final PostQueryRepo postQueryRepo;
     /**
      * 게시글 생성
      * @param postRequest PostCreateRequestIO 게시글 요청 데이터
@@ -96,10 +101,14 @@ public class PostServiceImpl implements PostService {
      * @param searchRequest SearchParamRequest 검색 조건
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
-//    @Override
-//    public ResponseEntity<CommonResponse> findByAll(SearchParamRequest searchRequest) {
-//        return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-//    }
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfPost(SearchParamRequest searchRequest) {
+        List<PostListResponse> list = this.postQueryRepo.getSliceOfPost(searchRequest.getIdx(),
+                                                                        searchRequest.getSize(),
+                                                                        searchRequest.getKeyword())
+                                                                        .stream().map(PostListResponse::new).collect(Collectors.toList());
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
 
 
     /**

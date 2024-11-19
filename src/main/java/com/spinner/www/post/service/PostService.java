@@ -35,7 +35,7 @@ public interface PostService {
      * @param searchRequest SearchParamRequest 검색 조건
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
-//    ResponseEntity<CommonResponse> findByAll(SearchParamRequest searchRequest);
+    ResponseEntity<CommonResponse> getSliceOfPost(SearchParamRequest searchRequest);
 
     /**
      * 게시글 수정

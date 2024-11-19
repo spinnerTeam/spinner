@@ -43,10 +43,10 @@ public class PostRestController {
      * @param searchRequest SearchParamRequest 검색 조건
      * @return searchParamRequest<CommonResponse> 게시글 목록
      */
-//    @GetMapping
-//    public ResponseEntity<CommonResponse> findByAll(@ModelAttribute SearchParamRequest searchRequest) {
-//        return postService.findByAll(searchRequest);
-//    }
+    @GetMapping
+    public ResponseEntity<CommonResponse> findByAll(@ModelAttribute SearchParamRequest searchRequest) {
+        return postService.getSliceOfPost(searchRequest);
+    }
 
     /**
      * 게시글 수정
