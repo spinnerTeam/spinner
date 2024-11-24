@@ -12,6 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaseResponse {
+    private String createdAt;
     protected String createdDate;
+    private String modifiedAt;
     protected String modifiedDate;
 }

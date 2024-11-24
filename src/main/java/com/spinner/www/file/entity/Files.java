@@ -1,14 +1,12 @@
 package com.spinner.www.file.entity;
 
-import com.spinner.www.member.entity.BaseEntity;
+import com.spinner.www.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "File")

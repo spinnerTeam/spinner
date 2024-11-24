@@ -1,4 +1,4 @@
-package com.spinner.www.member.entity;
+package com.spinner.www.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -25,7 +25,7 @@ public class BaseEntity {
     private String createdAt;
 
     @CreatedDate
-    @Column(updatable = false , columnDefinition = "TIMESTAMP(0)")
+    @Column(updatable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdDate;
 
     @LastModifiedBy

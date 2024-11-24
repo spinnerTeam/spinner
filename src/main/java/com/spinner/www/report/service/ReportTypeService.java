@@ -1,6 +1,6 @@
 package com.spinner.www.report.service;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.report.dto.ReportTypeDto;
 import com.spinner.www.report.io.ReportTypeCreateRequest;
 import com.spinner.www.report.io.ReportTypeResponse;

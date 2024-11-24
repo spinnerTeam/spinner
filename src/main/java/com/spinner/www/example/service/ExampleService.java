@@ -1,6 +1,6 @@
 package com.spinner.www.example.service;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.example.io.ExampleRequest;
 import org.springframework.http.ResponseEntity;
 

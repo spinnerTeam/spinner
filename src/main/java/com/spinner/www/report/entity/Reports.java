@@ -21,5 +21,6 @@ public class Reports {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "reportTypeIdx")
     private ReportType reportType;
 }

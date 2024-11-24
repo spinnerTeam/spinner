@@ -1,6 +1,6 @@
 package com.spinner.www.example.controller;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.example.io.ExampleRequest;
 import com.spinner.www.example.service.ExampleService;
 import lombok.RequiredArgsConstructor;

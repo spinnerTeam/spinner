@@ -1,6 +1,5 @@
 package com.spinner.www.post.entity;
-import com.spinner.www.member.entity.BaseEntity;
-import com.spinner.www.member.entity.Member;
+import com.spinner.www.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "post")

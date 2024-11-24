@@ -1,6 +1,6 @@
 package com.spinner.www.file.service;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
