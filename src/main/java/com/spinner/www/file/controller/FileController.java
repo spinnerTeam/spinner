@@ -24,13 +24,13 @@ public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("/upload")
+    @PostMapping
     public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
         return fileService.uploadFile(files);
     }
 
-    @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("id") Long id) throws IOException {
+    @GetMapping("/{fileIdx}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileIdx") Long id) throws IOException {
         return fileService.downloadFile(id);
     }
 }
