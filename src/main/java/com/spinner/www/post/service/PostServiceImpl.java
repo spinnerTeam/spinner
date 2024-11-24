@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class PostServiceImpl implements PostService {
                 .postIdx(post.getPostIdx())
                 .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())
-                .createdDate(post.getCreatedAt())
-                .modifiedDate(post.getModifiedAt())
+                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
+                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
@@ -89,8 +90,8 @@ public class PostServiceImpl implements PostService {
                                 .postIdx(post.getPostIdx())
                                 .postTitle(post.getPostTitle())
                                 .postContent(post.getPostContent())
-                                .createdDate(post.getCreatedAt())
-                                .modifiedDate(post.getModifiedAt())
+                                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
+                                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
                                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
