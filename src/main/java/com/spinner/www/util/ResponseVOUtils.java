@@ -1,6 +1,6 @@
 package com.spinner.www.util;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import lombok.Builder;
 import lombok.experimental.UtilityClass;

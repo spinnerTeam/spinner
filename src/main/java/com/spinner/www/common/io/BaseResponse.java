@@ -1,17 +1,25 @@
 package com.spinner.www.common.io;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
-@SuperBuilder
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaseResponse {
-    protected String createdDate;
-    protected String modifiedDate;
+    private String createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    protected LocalDateTime createdDate;
+    private String modifiedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    protected LocalDateTime modifiedDate;
 }

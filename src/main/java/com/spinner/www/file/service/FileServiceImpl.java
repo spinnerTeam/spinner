@@ -1,11 +1,11 @@
 package com.spinner.www.file.service;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.mapper.FileMapper;
-import com.spinner.www.file.repository.FileRepository;
+import com.spinner.www.file.repository.FileRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -31,9 +32,10 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class FileServiceImpl implements FileService {
 
-    private final FileRepository fileRepository;
+    private final FileRepo fileRepo;
     private final FileMapper fileMapper;
 
     @Value("${file.upload.path}")
@@ -78,7 +80,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public Long saveFile(Files fileDBString) {
-        return fileRepository.save(fileDBString).getId();
+        return fileRepo.save(fileDBString).getId();
     }
 
     /**
@@ -89,7 +91,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public ResponseEntity<Resource> downloadFile(Long id) throws IOException {
 
-        Files file = fileRepository.findById(id)
+        Files file = fileRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("File not found with id: " + id));
         Path path = Paths.get(file.getFilePath() + "/" + file.getFileConvertName());
         Resource resource = new InputStreamResource(java.nio.file.Files.newInputStream(path));

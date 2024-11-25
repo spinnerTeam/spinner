@@ -1,6 +1,6 @@
 package com.spinner.www.member.controller;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.member.io.EmailSend;
 import com.spinner.www.member.io.MemberLogin;
@@ -8,13 +8,10 @@ import com.spinner.www.member.io.MemberCreate;
 import com.spinner.www.member.service.EmailService;
 import com.spinner.www.member.service.TokenService;
 import com.spinner.www.member.service.MemberService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.UnsupportedEncodingException;
 
 @Slf4j
 @RequiredArgsConstructor

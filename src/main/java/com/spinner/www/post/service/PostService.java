@@ -1,6 +1,6 @@
 package com.spinner.www.post.service;
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.io.PostCreateRequest;

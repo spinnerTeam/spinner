@@ -1,7 +1,7 @@
 package com.spinner.www.member.service;
 
 
-import com.spinner.www.common.CommonResponse;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.EmailTemplate;
 import com.spinner.www.member.io.EmailAuthRequest;

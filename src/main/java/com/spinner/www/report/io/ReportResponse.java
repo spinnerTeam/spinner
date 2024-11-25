@@ -6,7 +6,11 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class ReportTypeResponse extends BaseResponse {
-    private Long id;
+public class ReportResponse extends BaseResponse {
+    private Long reportIdx;
     private String reportTypeContent;
+    private Long postIdx;
+    private String postTitle;
+    private String postContent;
+    private String reportMember;
 }

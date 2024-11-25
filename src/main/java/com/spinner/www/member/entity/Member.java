@@ -1,5 +1,6 @@
 package com.spinner.www.member.entity;
 
+import com.spinner.www.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Comment("유저 테이블")
-public class Member extends BaseEntity{
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

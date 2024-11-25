@@ -1,4 +1,4 @@
-package com.spinner.www.common;
+package com.spinner.www.common.io;
 
 import lombok.Builder;
 import lombok.Getter;
