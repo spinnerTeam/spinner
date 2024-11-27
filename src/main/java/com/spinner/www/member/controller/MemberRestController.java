@@ -72,4 +72,9 @@ public class MemberRestController {
     public ResponseEntity<CommonResponse> getAuthCode(@RequestBody EmailAuthRequest emailAuthRequest){
         return emailService.invalidateAuthCode(emailAuthRequest);
     }
+
+    @GetMapping("/main")
+    public String testLogin(){
+        return "로그인완료";
+    }
 }
