@@ -17,6 +17,6 @@ public class SocialServiceImpl implements SocialService{
      */
     @Override
     public boolean existsBySocialSub(String sub) {
-        return socialRepo.existsBySocialSub(sub);
+        return socialRepo.existsBySocialNum(sub);
     }
 }
