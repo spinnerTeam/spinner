@@ -2,6 +2,7 @@ package com.spinner.www.config;
 
 import com.spinner.www.config.handler.CustomerLogoutHandler;
 import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.service.OauthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class SecurityConfig {
 
     private final SessionInfo sessionInfo;
     private final CustomerLogoutHandler customerLogoutHandler;
+    private final OauthService oauthService;
 
     /**
      * 비밀번호 단방향 암호화
@@ -49,6 +51,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(info -> info
+                                .userService(oauthService)
+                        )
+                        .defaultSuccessUrl("/member/main", true)
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .addLogoutHandler((request, response, authentication) -> {

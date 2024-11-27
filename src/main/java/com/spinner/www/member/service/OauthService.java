@@ -15,7 +15,6 @@ import java.util.Map;
 public class OauthService extends DefaultOAuth2UserService {
 
     private final SocialRepo socialRepo;
-    private final MemberService memberService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest){
@@ -48,7 +47,6 @@ public class OauthService extends DefaultOAuth2UserService {
         }else{
             // 없으면 회원가입으로
         }
-
 
         return user;
     }
