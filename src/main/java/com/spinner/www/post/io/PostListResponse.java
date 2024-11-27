@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class PostListResponse extends BaseResponse {
     private Long postIdx;
-    private Long memberIdx;
     private String memberNickName;
     private String postTitle;
     private String postContent;
@@ -20,7 +19,7 @@ public class PostListResponse extends BaseResponse {
 //        TODO dto 추가 후 처리
 //        super(StringUtils.hasText(String.valueOf(entity.getCreatedDate())) ? entity.getCreatedDate().toString() : null, StringUtils.hasText(String.valueOf(entity.getModifiedDate())) ? entity.getModifiedDate().toString() : null);
         this.postIdx = entity.getPostIdx();
-        this.memberIdx = entity.getMemberIdx();
+        this.memberNickName = entity.getMember().getMemberNickname();
         this.postTitle = entity.getPostTitle();
         this.postContent = entity.getPostContent();
     }

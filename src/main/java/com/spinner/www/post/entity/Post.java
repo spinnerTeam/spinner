@@ -1,5 +1,6 @@
 package com.spinner.www.post.entity;
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,11 +24,10 @@ public class Post extends BaseEntity {
     @Comment("게시판 PK")
     private Long postIdx;
 
-//    TODO 유저 객체 가져오는 기능 구현 후 추가
-//    @ManyToOne
-//    @JoinColumn(name = "memberIdx", nullable = false)
-//    @Comment("유저 식별자")
-//    private Member member;
+    @ManyToOne
+    @JoinColumn(name = "memberIdx", nullable = false)
+    @Comment("유저 식별자")
+    private Member member;
     @Column(nullable = false)
     @Comment("유저 식별자")
     private Long memberIdx;

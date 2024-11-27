@@ -8,9 +8,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 public class PostResponse extends BaseResponse {
-    private Long postIdx;
-    private Long memberIdx;
-    private String memberNickName;
-    private String postTitle;
-    private String postContent;
+    private Long idx;
+    private String nickName;
+    private String title;
+    private String content;
 }

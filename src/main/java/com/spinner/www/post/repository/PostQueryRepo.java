@@ -37,7 +37,6 @@ public class PostQueryRepo {
     }
 
     private BooleanBuilder containsTitle(@Nullable String title) {
-        System.out.println(StringUtils.hasText(title));
         return StringUtils.hasText(title) ? new BooleanBuilder(post.postTitle.contains(title)) : new BooleanBuilder();
     }
 

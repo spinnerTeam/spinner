@@ -4,6 +4,8 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.member.service.MemberService;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.io.PostCreateRequest;
 import com.spinner.www.post.io.PostListResponse;
@@ -17,8 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,6 +30,7 @@ public class PostServiceImpl implements PostService {
     private final SessionInfo sessionInfo;
     private final PostRepo postRepo;
     private final PostQueryRepo postQueryRepo;
+    private final MemberService memberService;
     /**
      * 게시글 생성
      * @param postRequest PostCreateRequestIO 게시글 요청 데이터
@@ -42,21 +43,22 @@ public class PostServiceImpl implements PostService {
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+
         Post post = Post.builder()
-                .memberIdx(memberIdx)
-                .postTitle(postRequest.getPostTitle())
-                .postContent(postRequest.getPostContent())
+                .member(member)
+                .postTitle(postRequest.getTitle())
+                .postContent(postRequest.getContent())
                 .build();
 
         postRepo.save(post);
-
         PostResponse response = PostResponse.builder()
-                .memberIdx(post.getMemberIdx())
-                .postIdx(post.getPostIdx())
-                .postTitle(post.getPostTitle())
-                .postContent(post.getPostContent())
-                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
-                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
+                .nickName(member.getMemberNickname())
+                .idx(post.getPostIdx())
+                .title(post.getPostTitle())
+                .content(post.getPostContent())
+                .createdDate(post.getCreatedDate())
+                .modifiedDate(post.getModifiedDate())
                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
@@ -86,12 +88,12 @@ public class PostServiceImpl implements PostService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         PostResponse response = PostResponse.builder()
-                                .memberIdx(post.getMemberIdx())
-                                .postIdx(post.getPostIdx())
-                                .postTitle(post.getPostTitle())
-                                .postContent(post.getPostContent())
-                                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
-                                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
+                                .nickName(post.getMember().getMemberNickname())
+                                .idx(post.getPostIdx())
+                                .title(post.getPostTitle())
+                                .content(post.getPostContent())
+                                .createdDate(post.getCreatedDate())
+                                .modifiedDate(post.getModifiedDate())
                                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
@@ -122,6 +124,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public ResponseEntity<CommonResponse> update(Long postIdx, PostUpdateRequest postRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Member member = memberService.getMember(memberIdx);
         Post post= this.findByPostIdx(postIdx);
 
         if (Objects.isNull(memberIdx))
@@ -130,7 +133,7 @@ public class PostServiceImpl implements PostService {
         if (Objects.isNull(post))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (!Objects.equals(post.getMemberIdx(), memberIdx))
+        if (!Objects.equals(post.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
         post.update(postRequest.getPostTitle(), postRequest.getPostContent());
@@ -147,6 +150,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public ResponseEntity<CommonResponse> delete(Long postIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Member member = memberService.getMember(memberIdx);
         Post post= this.findByPostIdx(postIdx);
 
         if (Objects.isNull(memberIdx))
@@ -155,7 +159,7 @@ public class PostServiceImpl implements PostService {
         if (Objects.isNull(post))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (!Objects.equals(post.getMemberIdx(), memberIdx))
+        if (!Objects.equals(post.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
         post.delete();
