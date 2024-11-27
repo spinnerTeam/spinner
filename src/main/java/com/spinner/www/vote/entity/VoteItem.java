@@ -21,6 +21,10 @@ public class VoteItem extends BaseEntity {
     @Comment("투표_항목 idx")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voteIdx")
+    private Vote vote;
+
     private String voteItemName;
 
     private String voteItemStatus;
