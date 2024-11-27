@@ -12,5 +12,5 @@ public interface SocialRepo extends JpaRepository<Social, Long> {
      * @param sub String
      * @return boolean
      */
-    boolean existsBySocialSub(String sub);
+    boolean existsBySocialNum(String sub);
 }

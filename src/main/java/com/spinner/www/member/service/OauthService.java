@@ -40,7 +40,7 @@ public class OauthService extends DefaultOAuth2UserService {
         }
 
         // sub가 있는지 없는지
-        boolean hasSocialSub = socialRepo.existsBySocialSub(sub);
+        boolean hasSocialSub = socialRepo.existsBySocialNum(sub);
 
         // 있으면 로그인 처리
         if(hasSocialSub){
