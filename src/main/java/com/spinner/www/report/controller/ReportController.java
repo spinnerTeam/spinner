@@ -19,16 +19,30 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    /**
+     * 신고 삽입
+     * @param reportCreateRequest ReportCreateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
     @PostMapping
     public ResponseEntity<CommonResponse> insertReport(@RequestBody ReportCreateRequest reportCreateRequest) {
         return reportService.insertReport(reportCreateRequest);
     }
 
+    /**
+     * 신고 리스트 조회
+     * @return ResponseEntity<CommonResponse>
+     */
     @GetMapping
     public ResponseEntity<CommonResponse> selectReportList() {
         return reportService.selectReportList();
     }
 
+    /**
+     * 신고 단건 조회
+     * @param reportIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
     @GetMapping("/{reportIdx}")
     public ResponseEntity<CommonResponse> selectReport(@PathVariable("reportIdx") Long reportIdx) {
         return reportService.selectReport(reportIdx);

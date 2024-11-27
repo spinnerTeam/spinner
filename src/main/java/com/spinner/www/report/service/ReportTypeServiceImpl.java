@@ -64,6 +64,7 @@ public class ReportTypeServiceImpl implements ReportTypeService {
 
         ReportType reportType = reportTypeRepo.findById(id).orElse(null);
 
+        // 신고 단건을 찾을 수 없는 경우
         if (reportType == null) {
            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
         }
