@@ -23,13 +23,16 @@ public class VoteUser {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voteIdx")
+    @Comment("투표 idx")
     private Vote vote;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voteItemIdx")
+    @Comment("투표_항목 idx")
     private VoteItem voteItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx")
+    @Comment("멤버 idx")
     private Member member;
 }
