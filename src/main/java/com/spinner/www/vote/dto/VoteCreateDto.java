@@ -1,17 +1,15 @@
-package com.spinner.www.vote.io;
+package com.spinner.www.vote.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Builder
-public class VoteCreateRequest {
+public class VoteCreateDto {
     private Long postIdx;
     private String voteName;
-    private List<VoteItemCreateRequest> voteItemCreateRequestList;
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
 }

@@ -31,8 +31,10 @@ public class Vote extends BaseEntity {
     @Comment("게시물 idx")
     private Post post;
 
+    /*
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VoteItem> voteItem = new ArrayList<>();
+    */
 
     @Comment("투표 제목")
     private String voteName;
