@@ -3,6 +3,7 @@ package com.spinner.www.report.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.report.io.ReportCreateRequest;
 import com.spinner.www.report.service.ReportService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ReportController {
      * @return ResponseEntity<CommonResponse>
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> insertReport(@RequestBody ReportCreateRequest reportCreateRequest) {
+    public ResponseEntity<CommonResponse> insertReport(@Valid @RequestBody ReportCreateRequest reportCreateRequest) {
         return reportService.insertReport(reportCreateRequest);
     }
 
