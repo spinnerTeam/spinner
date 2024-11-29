@@ -35,7 +35,7 @@ public class ReportTypeServiceImpl implements ReportTypeService {
     public ResponseEntity<CommonResponse> insertReportType(ReportTypeCreateRequest reportTypeCreateRequest) {
 
         ReportTypeDto reportTypeDto = reportTypeCreateRequestToReportTypeDto(reportTypeCreateRequest);
-        ReportType reportType = reportTypeMapper.ReportTypeDtoToReportType(reportTypeDto);
+        ReportType reportType = ReportType.create(reportTypeDto);
         reportTypeRepo.save(reportType);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(reportType.getId()), HttpStatus.OK);
