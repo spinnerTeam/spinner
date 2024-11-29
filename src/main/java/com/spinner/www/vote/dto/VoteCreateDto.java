@@ -1,5 +1,6 @@
 package com.spinner.www.vote.dto;
 
+import com.spinner.www.vote.entity.VoteStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 public class VoteCreateDto {
     private Long postIdx;
     private String voteName;
-    private LocalDateTime startDatetime;
-    private LocalDateTime endDatetime;
+    private VoteStatus voteStatus;
+    private LocalDateTime voteStartDatetime;
+    private LocalDateTime voteEndDatetime;
 }

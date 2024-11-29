@@ -1,42 +1,83 @@
 package com.spinner.www.vote.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.post.entity.Post;
+import com.spinner.www.post.repository.PostRepo;
+import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.VoteCreateDto;
 import com.spinner.www.vote.dto.VoteItemCreateDto;
-import com.spinner.www.vote.io.DeleteVoteItemRequest;
-import com.spinner.www.vote.io.UpdateVoteItemRequest;
-import com.spinner.www.vote.io.VoteCreateRequest;
-import com.spinner.www.vote.io.VoteItemCreateRequest;
+import com.spinner.www.vote.entity.Vote;
+import com.spinner.www.vote.entity.VoteItem;
+import com.spinner.www.vote.io.*;
+import com.spinner.www.vote.mapper.VoteCustomMapper;
 import com.spinner.www.vote.repository.VoteItemRepo;
 import com.spinner.www.vote.repository.VoteRepo;
 import com.spinner.www.vote.repository.VoteUserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class VoteServiceImpl implements VoteService {
 
-    private VoteRepo voteRepo;
-    private VoteUserRepo voteUserRepo;
-    private VoteItemRepo voteItemRepo;
+    private final VoteRepo voteRepo;
+    private final VoteUserRepo voteUserRepo;
+    private final VoteItemRepo voteItemRepo;
+    private final PostRepo postRepo;
+    private final VoteCustomMapper voteCustomMapper;
 
+    /**
+     * 투표 생성
+     * @param voteCreateRequest VoteCreateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
+    @Transactional
     public ResponseEntity<CommonResponse> insertVote(VoteCreateRequest voteCreateRequest) {
-        VoteCreateDto voteCreateDto = voteCreateRequestToVoteCreateDto(voteCreateRequest);
-        List<VoteItemCreateDto> voteItemCreateDtoList =
-                voteItemCreateRequestListToVoteItemDtoList(voteCreateRequest.getVoteItemCreateRequestList());
 
-        return null;
+        VoteCreateDto voteCreateDto = voteCustomMapper.voteCreateRequestToVoteCreateDto(voteCreateRequest);
+
+        // 연관된 포스트 조회
+        Post post = postRepo.findById(voteCreateDto.getPostIdx())
+                .orElseThrow(() -> new RuntimeException("Post Not Found"));
+
+        // 투표 엔티티 생성
+        Vote vote = Vote.create(post, voteCreateDto);
+
+        // 투표 생성 후 idx 반환
+        voteRepo.save(vote);
+        List<VoteItemCreateDto> voteItemCreateDtoList =
+                voteCustomMapper.voteItemCreateRequestListToVoteItemDtoList(voteCreateRequest.getVoteItemCreateRequestList());
+
+        // 투표 항목 저장
+        insertVoteItems(vote, voteItemCreateDtoList);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 투표 항목 생성
+     * @param vote Vote
+     * @param voteItemCreateDtoList List<VoteItemCreateDto>
+     */
+    @Transactional
+    public void insertVoteItems(Vote vote, List<VoteItemCreateDto> voteItemCreateDtoList) {
+        List<VoteItem> voteItemList = new ArrayList<>();
+        for (VoteItemCreateDto voteItemCreateDto : voteItemCreateDtoList) {
+            voteItemList.add(VoteItem.create(vote, voteItemCreateDto));
+        }
+        voteItemRepo.saveAll(voteItemList);
     }
 
     @Override
     public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
-
         return null;
     }
 
@@ -53,32 +94,5 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public ResponseEntity<CommonResponse> deleteVoteITem(List<DeleteVoteItemRequest> voteItemDeleteList) {
         return null;
-    }
-
-    /**
-     * VoteCreateRequest -> VoteCreateDto 변환
-     * @param voteCreateRequest VoteCreateRequest
-     * @return VoteCreateDto
-     */
-    public VoteCreateDto voteCreateRequestToVoteCreateDto(VoteCreateRequest voteCreateRequest) {
-        return VoteCreateDto.builder()
-                .voteName(voteCreateRequest.getVoteName())
-                .postIdx(voteCreateRequest.getPostIdx())
-                .startDatetime(voteCreateRequest.getStartDatetime())
-                .endDatetime(voteCreateRequest.getEndDatetime())
-                .build();
-    }
-
-    /**
-     * List<VoteItemCreateRequest> -> List<VoteItemCreateDto> 변환
-     * @param voteItemCreateRequestList List<VoteItemCreateRequest>
-     * @return List<VoteItemCreateDto>
-     */
-    public List<VoteItemCreateDto> voteItemCreateRequestListToVoteItemDtoList(List<VoteItemCreateRequest> voteItemCreateRequestList) {
-        return voteItemCreateRequestList.stream()
-                .map(voteItemCreateRequest -> VoteItemCreateDto.builder()
-                        .voteItemName(voteItemCreateRequest.getVoteItemName())
-                        .build())
-                .collect(Collectors.toList());
     }
 }

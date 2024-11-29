@@ -7,6 +7,7 @@ import com.spinner.www.vote.io.DeleteVoteItemRequest;
 import com.spinner.www.vote.io.UpdateVoteItemRequest;
 import com.spinner.www.vote.io.VoteCreateRequest;
 import com.spinner.www.vote.service.VoteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class VoteController {
      * @return ResponseEntity<CommonResponse>
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> insertVote(@RequestBody VoteCreateRequest voteCreateRequest) {
+    public ResponseEntity<CommonResponse> insertVote(@Valid @RequestBody VoteCreateRequest voteCreateRequest) {
 
         // 투표 항목이 비어 있을 시
         if (voteCreateRequest.getVoteItemCreateRequestList().isEmpty()) {
