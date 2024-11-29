@@ -6,7 +6,5 @@ import lombok.Getter;
 @Getter
 @Builder
 public class VoteItemCreateDto {
-    private Long voteIdx;
     private String voteItemName;
-    private String voteItemStatus;
 }
