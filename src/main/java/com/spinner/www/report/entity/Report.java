@@ -24,15 +24,21 @@ public class Report extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTypeIdx")
+    @Comment("reportTypeIdx")
     private ReportType reportType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postIdx")
+    @Comment("postIdx")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx")
+    @Comment("memberIdx")
     private Member member;
+
+    @Comment("신고 삭제 여부")
+    private String reportIsRemoved;
 
     protected Report() {}
 
@@ -44,6 +50,7 @@ public class Report extends BaseEntity {
                 .reportType(reportType)
                 .post(post)
                 .member(member)
+                .reportIsRemoved("N")
                 .build();
     }
 }
