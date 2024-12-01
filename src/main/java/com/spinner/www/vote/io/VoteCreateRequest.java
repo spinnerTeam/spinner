@@ -12,10 +12,10 @@ import java.util.List;
 @Builder
 public class VoteCreateRequest {
 
-    @NotBlank(message = "post idx는 필수로 들어와야 함")
+    @NotBlank(message = "게시물 idx는 필수 입력 조건입니다.")
     private Long postIdx;
 
-    @NotBlank(message = "투표 상태는 필수로 들어와야 함")
+    @NotBlank(message = "투표 상태는 필수 입력 조건입니다.")
     private VoteStatus voteStatus;
 
     private List<VoteItemCreateRequest> voteItemCreateRequestList;
