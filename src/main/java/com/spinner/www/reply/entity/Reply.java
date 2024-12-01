@@ -1,7 +1,7 @@
-package com.spinner.www.post.entity;
+package com.spinner.www.reply.entity;
+
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.reply.entity.Reply;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,19 +13,18 @@ import org.hibernate.annotations.Comment;
 import java.util.List;
 
 @Entity
-@Table(name = "post")
+@Table(name = "reply")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Comment("게시판 테이블")
-
-public class Post extends BaseEntity {
+@Comment("댓글 테이블")
+public class Reply extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("게시판 PK")
-    private Long postIdx;
+    @Comment("댓글 pk")
+    private Long replyIdx;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx", nullable = false)
@@ -33,33 +32,30 @@ public class Post extends BaseEntity {
     private Member member;
 
     @Column(nullable = false)
-    @Comment("제목")
-    private String postTitle;
+    @Comment("게시글 식별자")
+    private Long postIdx;
 
     @Column(nullable = false)
     @Comment("내용")
-    private String postContent;
+    private String replyContent;
 
     @ColumnDefault("0")
     @Comment("삭제여부")
-    private int postIsRemoved;
+    private int replyIsRemoved;
 
-    @ColumnDefault("0")
-    @Comment("신고여부")
-    private int postIsReported;
+    @Column(nullable = true)
+    @Comment("부모 댓글 식별자")
+    private Long replyParentIdx;
 
-    @OneToMany(mappedBy = "postIdx"
-            ,fetch = FetchType.LAZY)
-    private List<Reply> replies;
+    @OneToMany(mappedBy = "replyParentIdx",
+            fetch = FetchType.LAZY)
+    private List<Reply> childReplies;
 
-
-
-    public void update(String postTitle, String postContent) {
-        this.postTitle = postTitle;
-        this.postContent = postContent;
+    public void update(String replyContent) {
+        this.replyContent = replyContent;
     }
 
     public void delete() {
-        this.postIsRemoved = 1;
+        this.replyIsRemoved = 1;
     }
 }

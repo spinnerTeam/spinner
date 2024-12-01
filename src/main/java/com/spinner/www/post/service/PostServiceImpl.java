@@ -6,11 +6,13 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
+import com.spinner.www.post.dto.PostGetDto;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.io.PostCreateRequest;
 import com.spinner.www.post.io.PostListResponse;
 import com.spinner.www.post.io.PostResponse;
 import com.spinner.www.post.io.PostUpdateRequest;
+import com.spinner.www.post.mapper.PostMapper;
 import com.spinner.www.post.repository.PostQueryRepo;
 import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
@@ -31,6 +33,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepo postRepo;
     private final PostQueryRepo postQueryRepo;
     private final MemberService memberService;
+    private final PostMapper postMapper;
     /**
      * 게시글 생성
      * @param postRequest PostCreateRequestIO 게시글 요청 데이터
@@ -87,16 +90,17 @@ public class PostServiceImpl implements PostService {
         if (Objects.isNull(post))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        PostResponse response = PostResponse.builder()
-                                .nickName(post.getMember().getMemberNickname())
-                                .idx(post.getPostIdx())
-                                .title(post.getPostTitle())
-                                .content(post.getPostContent())
-                                .createdDate(post.getCreatedDate())
-                                .modifiedDate(post.getModifiedDate())
-                                .build();
+        PostGetDto dto = postMapper.postToPostGetDto(post);
+//        PostResponse response = PostResponse.builder()
+//                                .nickName(post.getMember().getMemberNickname())
+//                                .idx(post.getPostIdx())
+//                                .title(post.getPostTitle())
+//                                .content(post.getPostContent())
+//                                .createdDate(post.getCreatedDate())
+//                                .modifiedDate(post.getModifiedDate())
+//                                .build();
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(dto), HttpStatus.OK);
     }
 
     /**
