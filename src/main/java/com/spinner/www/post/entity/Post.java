@@ -29,9 +29,6 @@ public class Post extends BaseEntity {
     @Comment("유저 식별자")
     private Member member;
     @Column(nullable = false)
-    @Comment("유저 식별자")
-    private Long memberIdx;
-    @Column(nullable = false)
     @Comment("제목")
     private String postTitle;
     @Column(nullable = false)
