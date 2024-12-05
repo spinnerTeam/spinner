@@ -50,7 +50,12 @@ public enum CommonResultCode {
     /**
      * 파일 업로드 실패
      */
-    FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다");
+    FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
+
+    /**
+     * 런타임 오류 익셉션
+     */
+    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
 
     /**
      * 변수 설정
