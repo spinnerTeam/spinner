@@ -52,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
 
         ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportCreateRequest);
         ReportType reportType = reportTypeRepo.findById(reportInsertDto.getReportTypeIdx())
-                .orElseThrow(() -> new RuntimeException("ReportType not found"));
+                .orElseThrow(() -> new RuntimeException("ReportType를 찾을 수 없습니다."));
         Post reportPost = postRepo.findById(reportInsertDto.getPostIdx())
                 .orElseThrow(() -> new RuntimeException("reportPost not found"));
         Member reportMember = memberRepo.findById(sessionInfo.getMemberIdx())
