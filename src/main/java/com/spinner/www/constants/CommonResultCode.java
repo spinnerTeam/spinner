@@ -28,6 +28,16 @@ public enum CommonResultCode {
     DUPLICATE_REPORT(40901, "이미 신고한 게시물입니다."),
 
     /**
+     * 투표 항목 밸리데이션 하나 이상
+     */
+    INVALID_VOTE_ITEM_COUNT_MIN_ONE(41000, "투표 항목은 하나 이상 있어야 합니다."),
+
+    /**
+     * 투표 항목 벨리데이션 다섯 개 초과
+     */
+    INVALID_VOTE_ITEM_COUNT_MAX_FIVE(41001, "투표 항목 개수는 다섯 개를 넘을 수 없습니다."),
+
+    /**
      * 서버 에러
      */
     ERROR(50000, "서버 에러"),
@@ -40,7 +50,12 @@ public enum CommonResultCode {
     /**
      * 파일 업로드 실패
      */
-    FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다");
+    FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
+
+    /**
+     * 런타임 오류 익셉션
+     */
+    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
 
     /**
      * 변수 설정
