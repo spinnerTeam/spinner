@@ -60,10 +60,10 @@ public class VoteCustomMapper {
                 .build();
     }
 
-    public VoteUpdateResponse voteToVoteUpdateResponse(Vote vote, List<Long> voteItemIdxList) {
+    public VoteUpdateResponse toUpdateResponse(Vote vote, List<Long> voteItemIdxList) {
         return VoteUpdateResponse.builder()
-                .voteId(vote.getId())
-                .voteItemId(voteItemIdxList)
+                .voteIdx(vote.getId())
+                .voteItemIdxList(voteItemIdxList)
                 .build();
     }
 
@@ -82,4 +82,40 @@ public class VoteCustomMapper {
                 .toList();
     }
 
+    /**
+     * VoteDeleteRequest -> VoteDto 변환
+     * @param voteDeleteRequest VoteDeleteRequest
+     * @return VoteDto
+     */
+    public VoteDto voteDeleteRequestToVoteDto(VoteDeleteRequest voteDeleteRequest) {
+        return VoteDto.builder()
+                .voteId(voteDeleteRequest.getVoteIdx())
+                .build();
+    }
+
+    /**
+     * List<VoteItemDeleteRequest> -> List<VoteItemDto> 변환
+     * @param voteItemDeleteRequestList List<VoteItemDeleteRequest>
+     * @return List<VoteItemDto>
+     */
+    public List<VoteItemDto> voteDeleteRequestToVoteItemDtoList(List<VoteItemDeleteRequest> voteItemDeleteRequestList) {
+        return voteItemDeleteRequestList.stream()
+                .map(v -> VoteItemDto.builder()
+                        .voteItemIdx(v.getVoteItemIdx())
+                        .build())
+                .toList();
+    }
+
+    /**
+     * DeleteResponse 반환
+     * @param vote VoteItem
+     * @param voteItemIdxList List<Long>
+     * @return VoteDeleteResponse
+     */
+    public VoteDeleteResponse toDeleteResponse(Vote vote, List<Long> voteItemIdxList) {
+        return VoteDeleteResponse.builder()
+                .voteIdx(vote.getId())
+                .voteItemIdxList(voteItemIdxList)
+                .build();
+    }
 }

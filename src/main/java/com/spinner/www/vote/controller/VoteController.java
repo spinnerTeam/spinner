@@ -3,8 +3,8 @@ package com.spinner.www.vote.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
-import com.spinner.www.vote.io.DeleteVoteItemRequest;
-import com.spinner.www.vote.io.UpdateVoteItemRequest;
+import com.spinner.www.vote.io.VoteDeleteRequest;
+import com.spinner.www.vote.io.VoteItemDeleteRequest;
 import com.spinner.www.vote.io.VoteCreateRequest;
 import com.spinner.www.vote.io.VoteUpdateRequest;
 import com.spinner.www.vote.service.VoteService;
@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -66,18 +64,18 @@ public class VoteController {
      * @return ResponseEntity<CommonResponse>
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> updateVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
+    public ResponseEntity<CommonResponse> updateVoteAndVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
         return voteService.updateVoteItem(voteUpdateRequest);
     }
 
     /**
      * 투표 및 투표 항목 삭제
-     * @param voteItemDeleteList List<DeleteVoteItem>
+     * @param voteDeleteRequest DeleteVoteItemRequest
      * @return ResponseEntity<CommonResponse>
      */
-    @DeleteMapping("/{voteIdx}")
-    public ResponseEntity<CommonResponse> deleteVoteItem(@RequestBody List<DeleteVoteItemRequest> voteItemDeleteList) {
-        return voteService.deleteVoteITem(voteItemDeleteList);
+    @DeleteMapping
+    public ResponseEntity<CommonResponse> deleteVoteAndVoteItem(@RequestBody VoteDeleteRequest voteDeleteRequest) {
+        return voteService.deleteVoteITem(voteDeleteRequest);
     }
 
     /**

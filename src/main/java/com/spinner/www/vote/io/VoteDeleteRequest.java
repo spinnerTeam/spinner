@@ -7,8 +7,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class VoteUpdateRequest {
+public class VoteDeleteRequest {
     private Long voteIdx;
-    private String voteName;
-    private List<VoteItemUpdateRequest> voteItemUpdateRequestList;
+    private List<VoteItemDeleteRequest> voteItemDeleteRequestList;
 }

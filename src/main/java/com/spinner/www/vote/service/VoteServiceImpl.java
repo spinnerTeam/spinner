@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -116,30 +115,90 @@ public class VoteServiceImpl implements VoteService {
 
         // 투표 항목 수정
         if (voteUpdateRequest.getVoteItemUpdateRequestList() != null && !voteUpdateRequest.getVoteItemUpdateRequestList().isEmpty()) {
-            List<VoteItemDto> voteItemDto = voteCustomMapper.voteUpdateRequestToVotItemDto(voteUpdateRequest.getVoteItemUpdateRequestList());
-
-            // UPDATE 배치 저장 리스트 생성
-            List<VoteItem> voteItemsToUpdate = new ArrayList<>();
-
-            for (VoteItemDto voteItemDtoItem : voteItemDto) {
-                VoteItem voteItem = voteItemRepo.findById(voteItemDtoItem.getVoteItemIdx())
-                        .orElseThrow(() -> new NullPointerException("VoteItemIdx를 찾을 수 없습니다."));
-                voteItem.update(voteItemDtoItem);
-                voteItemsToUpdate.add(voteItem);
-                voteItemIdResponse.add(voteItemDtoItem.getVoteItemIdx());
-            }
-
-            voteItemRepo.saveAll(voteItemsToUpdate);
+            voteItemIdResponse = voteItemUpdate(voteUpdateRequest, voteItemIdResponse);
         }
 
-        VoteUpdateResponse voteUpdateResponse = voteCustomMapper.voteToVoteUpdateResponse(vote, voteItemIdResponse);
+        VoteUpdateResponse voteUpdateResponse = voteCustomMapper.toUpdateResponse(vote, voteItemIdResponse);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteUpdateResponse), HttpStatus.OK);
     }
 
+    /**
+     * 투표 항목 업데이트
+     * @param voteUpdateRequest VoteUpdateRequest
+     * @param voteItemIdResponse List<Long>
+     */
+    @Transactional
+    public List<Long> voteItemUpdate(VoteUpdateRequest voteUpdateRequest, List<Long> voteItemIdResponse) {
+
+        List<VoteItemDto> voteItemDto = voteCustomMapper.voteUpdateRequestToVotItemDto(voteUpdateRequest.getVoteItemUpdateRequestList());
+
+        // UPDATE 배치 저장 리스트 생성
+        List<VoteItem> voteItemsToUpdate = new ArrayList<>();
+
+        for (VoteItemDto voteItemDtoItem : voteItemDto) {
+            VoteItem voteItem = voteItemRepo.findById(voteItemDtoItem.getVoteItemIdx())
+                    .orElseThrow(() -> new NullPointerException("VoteItem Idx를 찾을 수 없습니다."));
+            voteItem.update(voteItemDtoItem);
+            voteItemsToUpdate.add(voteItem);
+            voteItemIdResponse.add(voteItemDtoItem.getVoteItemIdx());
+        }
+
+        voteItemRepo.saveAll(voteItemsToUpdate);
+        return voteItemIdResponse;
+    }
+
+    /**
+     * 투표 및 투표 항목 삭제
+     * @param voteDeleteRequest VoteDeleteRequest
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
-    public ResponseEntity<CommonResponse> deleteVoteITem(List<DeleteVoteItemRequest> voteItemDeleteList) {
-        return null;
+    @Transactional
+    public ResponseEntity<CommonResponse> deleteVoteITem(VoteDeleteRequest voteDeleteRequest) {
+
+        // 투표 삭제
+        VoteDto voteDto = voteCustomMapper.voteDeleteRequestToVoteDto(voteDeleteRequest);
+        Vote vote = voteRepo.findById(voteDto.getVoteId()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        vote.softDelete(voteDto);
+
+        List<Long> voteItemIdResponse = new ArrayList<>();
+
+        // 투표 항목 삭제
+        if (voteDeleteRequest.getVoteItemDeleteRequestList() != null && !voteDeleteRequest.getVoteItemDeleteRequestList().isEmpty()) {
+            voteItemIdResponse = voteItemDelete(voteDeleteRequest);
+        }
+
+        VoteDeleteResponse voteDeleteResponse = voteCustomMapper.toDeleteResponse(vote, voteItemIdResponse);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteDeleteResponse), HttpStatus.OK);
+    }
+
+    /**
+     * 투표 항목 삭제
+     * @param voteDeleteRequest VoteDeleteRequest
+     * @return List<Long>
+     */
+    @Transactional
+    public List<Long> voteItemDelete(VoteDeleteRequest voteDeleteRequest) {
+
+        List<VoteItemDto> voteItemDto = voteCustomMapper.voteDeleteRequestToVoteItemDtoList(voteDeleteRequest.getVoteItemDeleteRequestList());
+
+        //배치 삭제 리스트 생성
+        List<VoteItem> voteItemsToDelete = new ArrayList<>();
+        List<Long> voteItemIdResponse = new ArrayList<>();
+
+        for (VoteItemDto voteItemDtoItem : voteItemDto) {
+            VoteItem voteItem = voteItemRepo.findById(voteItemDtoItem.getVoteItemIdx())
+                    .orElseThrow(() -> new NullPointerException("voteItem Idx를 찾을 수 없습니다."));
+            voteItem.softDelete(voteItemDtoItem);
+            voteItemsToDelete.add(voteItem);
+            voteItemIdResponse.add(voteItemDtoItem.getVoteItemIdx());
+        }
+
+        voteItemRepo.saveAll(voteItemsToDelete);
+
+        return voteItemIdResponse;
     }
 
     @Override

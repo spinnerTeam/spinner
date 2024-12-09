@@ -58,4 +58,13 @@ public class VoteItem extends BaseEntity {
         this.id = voteItemDto.getVoteItemIdx();
         this.voteItemName = voteItemDto.getVoteItemName();
     }
+
+    /**
+     * 삭제 메서드
+     * @param voteItemDto VoteItemDto
+     */
+    public void softDelete(VoteItemDto voteItemDto) {
+        this.id = voteItemDto.getVoteItemIdx();
+        this.voteItemIsRemoved = "Y";
+    }
 }
