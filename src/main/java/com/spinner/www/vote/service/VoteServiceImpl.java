@@ -5,7 +5,9 @@ import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.VoteCreateDto;
+import com.spinner.www.vote.dto.VoteDto;
 import com.spinner.www.vote.dto.VoteItemCreateDto;
+import com.spinner.www.vote.dto.VoteItemDto;
 import com.spinner.www.vote.entity.Vote;
 import com.spinner.www.vote.entity.VoteItem;
 import com.spinner.www.vote.io.*;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +49,7 @@ public class VoteServiceImpl implements VoteService {
 
         // 연관된 포스트 조회
         Post post = postRepo.findById(voteCreateDto.getPostIdx())
-                .orElseThrow(() -> new RuntimeException("Post Not Found"));
+                .orElseThrow(() -> new NullPointerException("투표와 연관된 포스트 Idx를 찾을 수 없습니다."));
 
         // 투표 엔티티 생성
         Vote vote = Vote.create(post, voteCreateDto);
@@ -76,8 +79,17 @@ public class VoteServiceImpl implements VoteService {
         voteItemRepo.saveAll(voteItemList);
     }
 
+    /**
+     * 투표 리스트 조회
+     * @param postIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
     public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
+
+        //List<Vote> votes = voteRepo.findByPost(postIdx);
+        //List<Vote> voteItemList = voteRepo.findBy
+
         return null;
     }
 
@@ -86,13 +98,52 @@ public class VoteServiceImpl implements VoteService {
         return null;
     }
 
+    /**
+     * 투표 및 투표 항목 수정
+     * @param voteUpdateRequest VoteUpdateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
-    public ResponseEntity<CommonResponse> updateVoteItem(List<UpdateVoteItemRequest> voteItemUpdateList) {
-        return null;
+    @Transactional
+    public ResponseEntity<CommonResponse> updateVoteItem(VoteUpdateRequest voteUpdateRequest) {
+
+        // 투표 수정
+        VoteDto voteDto = voteCustomMapper.voteUpdateRequestToVoteDto(voteUpdateRequest);
+        Vote vote = voteRepo.findById(voteDto.getVoteId()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        vote.update(voteDto);
+
+        List<Long> voteItemIdResponse = new ArrayList<>();
+
+        // 투표 항목 수정
+        if (voteUpdateRequest.getVoteItemUpdateRequestList() != null && !voteUpdateRequest.getVoteItemUpdateRequestList().isEmpty()) {
+            List<VoteItemDto> voteItemDto = voteCustomMapper.voteUpdateRequestToVotItemDto(voteUpdateRequest.getVoteItemUpdateRequestList());
+
+            // UPDATE 배치 저장 리스트 생성
+            List<VoteItem> voteItemsToUpdate = new ArrayList<>();
+
+            for (VoteItemDto voteItemDtoItem : voteItemDto) {
+                VoteItem voteItem = voteItemRepo.findById(voteItemDtoItem.getVoteItemIdx())
+                        .orElseThrow(() -> new NullPointerException("VoteItemIdx를 찾을 수 없습니다."));
+                voteItem.update(voteItemDtoItem);
+                voteItemsToUpdate.add(voteItem);
+                voteItemIdResponse.add(voteItemDtoItem.getVoteItemIdx());
+            }
+
+            voteItemRepo.saveAll(voteItemsToUpdate);
+        }
+
+        VoteUpdateResponse voteUpdateResponse = voteCustomMapper.voteToVoteUpdateResponse(vote, voteItemIdResponse);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteUpdateResponse), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<CommonResponse> deleteVoteITem(List<DeleteVoteItemRequest> voteItemDeleteList) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> endVote(Long voteIdx) {
         return null;
     }
 }

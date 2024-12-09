@@ -2,12 +2,15 @@ package com.spinner.www.vote.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.vote.dto.VoteItemCreateDto;
+import com.spinner.www.vote.dto.VoteItemDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,6 +38,9 @@ public class VoteItem extends BaseEntity {
 
     /**
      * 생성 메서드
+     * @param vote Vote
+     * @param voteItemCreateDto voteItemCreateDto
+     * @return VoteItem
      */
     public static VoteItem create(Vote vote, VoteItemCreateDto voteItemCreateDto) {
         return VoteItem.builder()
@@ -42,5 +48,14 @@ public class VoteItem extends BaseEntity {
                 .voteItemName(voteItemCreateDto.getVoteItemName())
                 .voteItemIsRemoved("N")
                 .build();
+    }
+
+    /**
+     * 업데이트 메서드
+     * @param voteItemDto voteItemDto
+     */
+    public void update(VoteItemDto voteItemDto) {
+        this.id = voteItemDto.getVoteItemIdx();
+        this.voteItemName = voteItemDto.getVoteItemName();
     }
 }

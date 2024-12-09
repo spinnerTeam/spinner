@@ -6,6 +6,7 @@ import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.io.DeleteVoteItemRequest;
 import com.spinner.www.vote.io.UpdateVoteItemRequest;
 import com.spinner.www.vote.io.VoteCreateRequest;
+import com.spinner.www.vote.io.VoteUpdateRequest;
 import com.spinner.www.vote.service.VoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping
 @RequiredArgsConstructor
+@RequestMapping("/vote")
 public class VoteController {
 
     private final VoteService voteService;
@@ -31,6 +32,11 @@ public class VoteController {
      * 투표 항목을 생성할 때, 복수 선택 여부를 확인할 수 있다.
      * 투표 완료 후 참여자 인원 수를 확인할 수 있다. 이때 닉네임은 익명이다.
      * 투표 완료 후 투표수를 확인할 수 있다. (몇 퍼센트의 비율인지 또한 확인할 수 있다.)
+     * 커뮤 투표 > [익명] 일정 지정 마감 없고, 투표를 완료한 사람들만 투표 결과 확인 가능
+     * 스터디 투표 > [닉네임] 일정 지정 마감 o, 투표 즉시 종료 기능 o, 투표 마감 시 결과 확인 가능, 투표가 마감되면 새로운 게시물 생성
+     *
+     * [12.09] 투표 추가 및 업데이트, 삭제 진행
+     *
      */
 
     /**
@@ -55,6 +61,26 @@ public class VoteController {
     }
 
     /**
+     * 투표 및 항목 업데이트
+     * @param voteUpdateRequest VoteUpdateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @PatchMapping
+    public ResponseEntity<CommonResponse> updateVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
+        return voteService.updateVoteItem(voteUpdateRequest);
+    }
+
+    /**
+     * 투표 및 투표 항목 삭제
+     * @param voteItemDeleteList List<DeleteVoteItem>
+     * @return ResponseEntity<CommonResponse>
+     */
+    @DeleteMapping("/{voteIdx}")
+    public ResponseEntity<CommonResponse> deleteVoteItem(@RequestBody List<DeleteVoteItemRequest> voteItemDeleteList) {
+        return voteService.deleteVoteITem(voteItemDeleteList);
+    }
+
+    /**
      * 투표 리스트 조회
      * @param postIdx Long
      * @return ResponseEntity<CommonResponse>
@@ -75,23 +101,13 @@ public class VoteController {
     }
 
     /**
-     * 투표 항목 업데이트
-     * @param voteItemUpdateList List<UpdateVoteItem>
+     * [STUDY] 투표 즉시 마감
+     * @param voteIdx Long
      * @return ResponseEntity<CommonResponse>
      */
-    @PatchMapping("/voteItem")
-    public ResponseEntity<CommonResponse> updateVoteItem(@RequestBody List<UpdateVoteItemRequest> voteItemUpdateList, @PathVariable String voteIdx) {
-        return voteService.updateVoteItem(voteItemUpdateList);
-    }
-
-    /**
-     * 투표 항목 삭제
-     * @param voteItemDeleteList List<DeleteVoteItem>
-     * @return ResponseEntity<CommonResponse>
-     */
-    @DeleteMapping("/voteItem")
-    public ResponseEntity<CommonResponse> deleteVoteItem(@RequestBody List<DeleteVoteItemRequest> voteItemDeleteList) {
-        return voteService.deleteVoteITem(voteItemDeleteList);
+    @PatchMapping("/{voteIdx}/end")
+    public ResponseEntity<CommonResponse> endVoteItem(@PathVariable("voteIdx") Long voteIdx) {
+        return voteService.endVote(voteIdx);
     }
 
 }

@@ -3,6 +3,7 @@ package com.spinner.www.vote.entity;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.vote.dto.VoteCreateDto;
+import com.spinner.www.vote.dto.VoteDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +43,10 @@ public class Vote extends BaseEntity {
     @Comment("투표 상태: [ing, multiple, end]")
     private VoteStatus voteStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Comment("투표 타입: [community, study]")
+    private VoteType voteType;
+
     @Comment("투표 삭제 여부")
     private String voteIsRemoved;
 
@@ -59,9 +64,18 @@ public class Vote extends BaseEntity {
                 .post(post)
                 .voteName(voteCreateDto.getVoteName())
                 .voteStatus(voteCreateDto.getVoteStatus())
+                .voteType(voteCreateDto.getVoteType())
                 .voteIsRemoved("N")
                 .startDatetime(voteCreateDto.getVoteStartDatetime())
                 .endDatetime(voteCreateDto.getVoteEndDatetime())
                 .build();
+    }
+
+    /**
+     * 수정 메서드
+     */
+    public void update(VoteDto voteDto) {
+        this.id = voteDto.getVoteId();
+        this.voteName = voteDto.getVoteName();
     }
 }
