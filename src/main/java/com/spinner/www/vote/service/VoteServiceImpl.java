@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -60,8 +62,8 @@ public class VoteServiceImpl implements VoteService {
 
         // 투표 항목 저장
         insertVoteItems(vote, voteItemCreateDtoList);
-
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+        VoteResponse voteResponse = VoteResponse.builder().voteIdx(vote.getId()).build();
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResponse), HttpStatus.OK);
     }
 
     /**
@@ -108,7 +110,7 @@ public class VoteServiceImpl implements VoteService {
 
         // 투표 수정
         VoteDto voteDto = voteCustomMapper.voteUpdateRequestToVoteDto(voteUpdateRequest);
-        Vote vote = voteRepo.findById(voteDto.getVoteId()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
         vote.update(voteDto);
 
         List<Long> voteItemIdResponse = new ArrayList<>();
@@ -159,7 +161,7 @@ public class VoteServiceImpl implements VoteService {
 
         // 투표 삭제
         VoteDto voteDto = voteCustomMapper.voteDeleteRequestToVoteDto(voteDeleteRequest);
-        Vote vote = voteRepo.findById(voteDto.getVoteId()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
         vote.softDelete(voteDto);
 
         List<Long> voteItemIdResponse = new ArrayList<>();
@@ -201,8 +203,26 @@ public class VoteServiceImpl implements VoteService {
         return voteItemIdResponse;
     }
 
+    /**
+     * 투표 마감 메서드
+     * @param voteIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
     public ResponseEntity<CommonResponse> endVote(Long voteIdx) {
+
+        VoteDto voteDto = voteCustomMapper.voteIdxToVoteDto(voteIdx);
+        Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        vote.statusUpdate(voteDto);
+
+        VoteResponse voteResponse = VoteResponse.builder().voteIdx(vote.getId()).build();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResponse), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> selectVoteItem(VoteParticipateUserRequest voteParticipateUserRequest) {
         return null;
     }
+
 }

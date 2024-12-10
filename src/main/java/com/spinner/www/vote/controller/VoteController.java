@@ -3,10 +3,8 @@ package com.spinner.www.vote.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
-import com.spinner.www.vote.io.VoteDeleteRequest;
-import com.spinner.www.vote.io.VoteItemDeleteRequest;
-import com.spinner.www.vote.io.VoteCreateRequest;
-import com.spinner.www.vote.io.VoteUpdateRequest;
+import com.spinner.www.vote.entity.VoteStatus;
+import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.service.VoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,26 +57,6 @@ public class VoteController {
     }
 
     /**
-     * 투표 및 항목 업데이트
-     * @param voteUpdateRequest VoteUpdateRequest
-     * @return ResponseEntity<CommonResponse>
-     */
-    @PatchMapping
-    public ResponseEntity<CommonResponse> updateVoteAndVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
-        return voteService.updateVoteItem(voteUpdateRequest);
-    }
-
-    /**
-     * 투표 및 투표 항목 삭제
-     * @param voteDeleteRequest DeleteVoteItemRequest
-     * @return ResponseEntity<CommonResponse>
-     */
-    @DeleteMapping
-    public ResponseEntity<CommonResponse> deleteVoteAndVoteItem(@RequestBody VoteDeleteRequest voteDeleteRequest) {
-        return voteService.deleteVoteITem(voteDeleteRequest);
-    }
-
-    /**
      * 투표 리스트 조회
      * @param postIdx Long
      * @return ResponseEntity<CommonResponse>
@@ -99,6 +77,26 @@ public class VoteController {
     }
 
     /**
+     * 투표 및 항목 업데이트
+     * @param voteUpdateRequest VoteUpdateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @PatchMapping
+    public ResponseEntity<CommonResponse> updateVoteAndVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
+        return voteService.updateVoteItem(voteUpdateRequest);
+    }
+
+    /**
+     * 투표 및 투표 항목 삭제
+     * @param voteDeleteRequest DeleteVoteItemRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @DeleteMapping
+    public ResponseEntity<CommonResponse> deleteVoteAndVoteItem(@RequestBody VoteDeleteRequest voteDeleteRequest) {
+        return voteService.deleteVoteITem(voteDeleteRequest);
+    }
+
+    /**
      * [STUDY] 투표 즉시 마감
      * @param voteIdx Long
      * @return ResponseEntity<CommonResponse>
@@ -106,6 +104,24 @@ public class VoteController {
     @PatchMapping("/{voteIdx}/end")
     public ResponseEntity<CommonResponse> endVoteItem(@PathVariable("voteIdx") Long voteIdx) {
         return voteService.endVote(voteIdx);
+    }
+
+    /**
+     * 투표 참여
+     * @param voteParticipateUserRequest VoteParticipateUserRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @PostMapping("/participate")
+    public ResponseEntity<CommonResponse> selectVoteItem(@RequestBody VoteParticipateUserRequest voteParticipateUserRequest) {
+
+        // 단수 선택의 경우, 여러 개의 투표 항목이 들어오면
+        if (voteParticipateUserRequest.getVoteStatus() == VoteStatus.ing) {
+           if (voteParticipateUserRequest.getVoteItemParticipateUserRequestList().size() > 1) {
+               return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_MULTIPLE_VOTE), HttpStatus.BAD_REQUEST);
+           }
+        }
+
+        return voteService.selectVoteItem(voteParticipateUserRequest);
     }
 
 }

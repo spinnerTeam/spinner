@@ -38,6 +38,11 @@ public enum CommonResultCode {
     INVALID_VOTE_ITEM_COUNT_MAX_FIVE(41001, "투표 항목 개수는 다섯 개를 넘을 수 없습니다."),
 
     /**
+     * [싱글 투표] 다중 선택 시
+     */
+    NOT_MULTIPLE_VOTE(41002, "다중 선택이 불가능한 투표입니다."),
+
+    /**
      * 서버 에러
      */
     ERROR(50000, "서버 에러"),

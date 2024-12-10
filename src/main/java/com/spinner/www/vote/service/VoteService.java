@@ -1,10 +1,7 @@
 package com.spinner.www.vote.service;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.vote.io.VoteDeleteRequest;
-import com.spinner.www.vote.io.VoteItemDeleteRequest;
-import com.spinner.www.vote.io.VoteCreateRequest;
-import com.spinner.www.vote.io.VoteUpdateRequest;
+import com.spinner.www.vote.io.*;
 import org.springframework.http.ResponseEntity;
 
 public interface VoteService {
@@ -20,4 +17,6 @@ public interface VoteService {
     ResponseEntity<CommonResponse> deleteVoteITem(VoteDeleteRequest voteDeleteRequest);
 
     ResponseEntity<CommonResponse> endVote(Long voteIdx);
+
+    ResponseEntity<CommonResponse> selectVoteItem(VoteParticipateUserRequest voteParticipateUserRequest);
 }

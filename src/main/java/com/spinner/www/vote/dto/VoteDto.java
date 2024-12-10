@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class VoteDto {
-
-    private Long voteId;
+    private Long voteIdx;
     private String voteName;
 }

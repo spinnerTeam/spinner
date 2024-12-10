@@ -55,7 +55,7 @@ public class VoteCustomMapper {
      */
     public VoteDto voteUpdateRequestToVoteDto(VoteUpdateRequest voteUpdateRequest) {
         return VoteDto.builder()
-                .voteId(voteUpdateRequest.getVoteIdx())
+                .voteIdx(voteUpdateRequest.getVoteIdx())
                 .voteName(voteUpdateRequest.getVoteName())
                 .build();
     }
@@ -89,7 +89,7 @@ public class VoteCustomMapper {
      */
     public VoteDto voteDeleteRequestToVoteDto(VoteDeleteRequest voteDeleteRequest) {
         return VoteDto.builder()
-                .voteId(voteDeleteRequest.getVoteIdx())
+                .voteIdx(voteDeleteRequest.getVoteIdx())
                 .build();
     }
 
@@ -116,6 +116,12 @@ public class VoteCustomMapper {
         return VoteDeleteResponse.builder()
                 .voteIdx(vote.getId())
                 .voteItemIdxList(voteItemIdxList)
+                .build();
+    }
+
+    public VoteDto voteIdxToVoteDto(Long voteIdx) {
+        return VoteDto.builder()
+                .voteIdx(voteIdx)
                 .build();
     }
 }

@@ -72,18 +72,26 @@ public class Vote extends BaseEntity {
     }
 
     /**
-     * 수정 메서드
+     * 투표 내용 수정 메서드
      */
     public void update(VoteDto voteDto) {
-        this.id = voteDto.getVoteId();
+        this.id = voteDto.getVoteIdx();
         this.voteName = voteDto.getVoteName();
     }
 
     /**
-     * 삭제 메서드
+     * 투표 삭제 메서드
      */
     public void softDelete(VoteDto voteDto) {
-        this.id = voteDto.getVoteId();
+        this.id = voteDto.getVoteIdx();
         this.voteIsRemoved = "Y";
+    }
+
+    /**
+     * 투표 즉시 마감 메서드
+     */
+    public void statusUpdate(VoteDto voteDto) {
+        this.id = voteDto.getVoteIdx();
+        this.voteStatus = VoteStatus.end;
     }
 }
