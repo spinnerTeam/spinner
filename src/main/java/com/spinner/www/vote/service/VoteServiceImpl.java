@@ -1,15 +1,17 @@
 package com.spinner.www.vote.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.member.repository.MemberRepo;
 import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
-import com.spinner.www.vote.dto.VoteCreateDto;
-import com.spinner.www.vote.dto.VoteDto;
-import com.spinner.www.vote.dto.VoteItemCreateDto;
-import com.spinner.www.vote.dto.VoteItemDto;
+import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.Vote;
 import com.spinner.www.vote.entity.VoteItem;
+import com.spinner.www.vote.entity.VoteUser;
 import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.mapper.VoteCustomMapper;
 import com.spinner.www.vote.repository.VoteItemRepo;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +38,9 @@ public class VoteServiceImpl implements VoteService {
     private final VoteUserRepo voteUserRepo;
     private final VoteItemRepo voteItemRepo;
     private final PostRepo postRepo;
+    private final SessionInfo sessionInfo;
     private final VoteCustomMapper voteCustomMapper;
+    private final MemberRepo memberRepo;
 
     /**
      * 투표 생성
@@ -220,9 +225,57 @@ public class VoteServiceImpl implements VoteService {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResponse), HttpStatus.OK);
     }
 
+    /**
+     * 투표 선택
+     * @param voteUserRequest VoteUserRequest
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
-    public ResponseEntity<CommonResponse> selectVoteItem(VoteParticipateUserRequest voteParticipateUserRequest) {
-        return null;
+    @Transactional
+    public ResponseEntity<CommonResponse> selectVoteItem(VoteUserRequest voteUserRequest) {
+
+        // 로그인 사용자와 투표자가 일치하지 않는 경우
+        if (!sessionInfo.getMemberIdx().equals(voteUserRequest.getMemberIdx())) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTER_USER_MISMATCH), HttpStatus.BAD_REQUEST);
+        }
+
+        VoteUserCreateDto voteUserCreateDto = voteCustomMapper.toVoteUserCreateDto(voteUserRequest);
+
+        // 필요한 객체 프록시 반환
+        Member member = memberRepo.getReferenceById(voteUserRequest.getMemberIdx());
+        Vote vote = voteRepo.getReferenceById(voteUserRequest.getVoteIdx());
+
+        List<VoteItemUserCreateDto> voteItemUserCreateDtoList = voteCustomMapper.toVoteItemUserCreateDto(voteUserRequest);
+
+        // [stream] voteItemUserCreateDtoList 타입인 VoteItemUserCreateDTO에서 voteItemIdx를 List로 만들고
+        // voteItem 일괄 조회
+        List<Long> voteItemIds = voteItemUserCreateDtoList.stream()
+                .map(VoteItemUserCreateDto::getVoteItemIdx)
+                .toList();
+        List<VoteItem> voteItems = voteItemRepo.findAllById(voteItemIds);
+
+        // 조회된 VoteItems Map 변환
+        // [stream] 리스트 타입인 voteItem 맵으로 전환, 키로 Id, 밸류로 voteItem
+        Map<Long, VoteItem> voteItemMap = voteItems.stream()
+                .collect(Collectors.toMap(VoteItem::getId, voteItem -> voteItem));
+
+        Map<String, Long> voteUserResponse = new HashMap<>();
+
+        // VoteUser 생성
+        List<VoteUser> voteUsers = new ArrayList<>();
+        for (VoteItemUserCreateDto voteItemDto : voteItemUserCreateDtoList) {
+            VoteItem voteItem = voteItemMap.get(voteItemDto.getVoteItemIdx());
+            if (voteItem == null) {
+                throw new NullPointerException("투표 항목을 찾을 수 없습니다.");
+            }
+            VoteUser voteUser = VoteUser.create(member, vote, voteItem);
+            voteUsers.add(voteUser);
+            voteUserResponse.put("voteUserIdx", voteItemDto.getVoteItemIdx());
+        }
+
+        voteUserRepo.saveAll(voteUsers);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteUserResponse), HttpStatus.OK);
     }
 
 }

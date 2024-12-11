@@ -18,5 +18,5 @@ public interface VoteService {
 
     ResponseEntity<CommonResponse> endVote(Long voteIdx);
 
-    ResponseEntity<CommonResponse> selectVoteItem(VoteParticipateUserRequest voteParticipateUserRequest);
+    ResponseEntity<CommonResponse> selectVoteItem(VoteUserRequest voteUserRequest);
 }

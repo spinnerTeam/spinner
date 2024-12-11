@@ -8,8 +8,9 @@ import java.util.List;
 
 @Getter
 @Builder
-public class VoteParticipateUserRequest {
+public class VoteUserRequest {
     private Long voteIdx;
-    private List<VoteItemParticipateUserRequest> voteItemParticipateUserRequestList;
+    private Long memberIdx;
+    private List<VoteItemUserRequest> voteItemIdxList;
     private VoteStatus voteStatus;
 }

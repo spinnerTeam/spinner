@@ -1,16 +1,12 @@
 package com.spinner.www.vote.mapper;
 
-import com.spinner.www.vote.dto.VoteCreateDto;
-import com.spinner.www.vote.dto.VoteDto;
-import com.spinner.www.vote.dto.VoteItemCreateDto;
-import com.spinner.www.vote.dto.VoteItemDto;
+import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.Vote;
-import com.spinner.www.vote.entity.VoteItem;
+import com.spinner.www.vote.entity.VoteUser;
 import com.spinner.www.vote.io.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -119,9 +115,40 @@ public class VoteCustomMapper {
                 .build();
     }
 
+    /**
+     * 삽입, 업데이트 등 결과 학인 IDX 반환 시 voteIDX 반환
+     * @param voteIdx Long
+     * @return VoteDto
+     */
     public VoteDto voteIdxToVoteDto(Long voteIdx) {
         return VoteDto.builder()
                 .voteIdx(voteIdx)
                 .build();
+    }
+
+    /**
+     * 투표 멤버 request -> dto
+     * @param voteUserRequest VoteUserRequest
+     * @return VoteUserCreateDto
+     */
+    public VoteUserCreateDto toVoteUserCreateDto(VoteUserRequest voteUserRequest) {
+        return VoteUserCreateDto.builder()
+                .voteIdx(voteUserRequest.getVoteIdx())
+                .memberIdx(voteUserRequest.getMemberIdx())
+                .build();
+    }
+
+    /**
+     * 투표 유저의 투표 항목 다중 선택 변환
+     * @param voteUserRequest VoteUserRequest
+     * @return List<VoteItemUserCreateDto>
+     */
+    public List<VoteItemUserCreateDto> toVoteItemUserCreateDto(VoteUserRequest voteUserRequest) {
+        return voteUserRequest.getVoteItemIdxList().stream()
+                .map(vur -> VoteItemUserCreateDto.builder()
+                        .voteItemIdx(vur.getVoteItemIdx())
+                        .build())
+                .toList();
+
     }
 }

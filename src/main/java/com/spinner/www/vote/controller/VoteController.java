@@ -108,20 +108,25 @@ public class VoteController {
 
     /**
      * 투표 참여
-     * @param voteParticipateUserRequest VoteParticipateUserRequest
+     * @param voteUserRequest VoteParticipateUserRequest
      * @return ResponseEntity<CommonResponse>
      */
     @PostMapping("/participate")
-    public ResponseEntity<CommonResponse> selectVoteItem(@RequestBody VoteParticipateUserRequest voteParticipateUserRequest) {
+    public ResponseEntity<CommonResponse> selectVoteItem(@RequestBody VoteUserRequest voteUserRequest) {
 
         // 단수 선택의 경우, 여러 개의 투표 항목이 들어오면
-        if (voteParticipateUserRequest.getVoteStatus() == VoteStatus.ing) {
-           if (voteParticipateUserRequest.getVoteItemParticipateUserRequestList().size() > 1) {
+        if (voteUserRequest.getVoteStatus() == VoteStatus.ing) {
+           if (voteUserRequest.getVoteItemIdxList().size() > 1) {
                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_MULTIPLE_VOTE), HttpStatus.BAD_REQUEST);
            }
         }
 
-        return voteService.selectVoteItem(voteParticipateUserRequest);
+        // 마감된 투표의 경우
+        if (voteUserRequest.getVoteStatus() == VoteStatus.end) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.END_VOTE), HttpStatus.BAD_REQUEST);
+        }
+
+        return voteService.selectVoteItem(voteUserRequest);
     }
 
 }

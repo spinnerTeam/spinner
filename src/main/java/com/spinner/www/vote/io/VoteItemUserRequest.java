@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteItemParticipateUserRequest {
+public class VoteItemUserRequest {
     private Long voteItemIdx;
 }
