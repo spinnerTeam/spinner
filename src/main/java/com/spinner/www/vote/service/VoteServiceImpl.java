@@ -11,9 +11,11 @@ import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.Vote;
 import com.spinner.www.vote.entity.VoteItem;
+import com.spinner.www.vote.entity.VoteStatus;
 import com.spinner.www.vote.entity.VoteUser;
 import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.mapper.VoteCustomMapper;
+import com.spinner.www.vote.mapper.VoteMapper;
 import com.spinner.www.vote.repository.VoteItemRepo;
 import com.spinner.www.vote.repository.VoteRepo;
 import com.spinner.www.vote.repository.VoteUserRepo;
@@ -41,6 +43,7 @@ public class VoteServiceImpl implements VoteService {
     private final SessionInfo sessionInfo;
     private final VoteCustomMapper voteCustomMapper;
     private final MemberRepo memberRepo;
+    private final VoteMapper voteMapper;
 
     /**
      * 투표 생성
@@ -54,8 +57,7 @@ public class VoteServiceImpl implements VoteService {
         VoteCreateDto voteCreateDto = voteCustomMapper.voteCreateRequestToVoteCreateDto(voteCreateRequest);
 
         // 연관된 포스트 조회
-        Post post = postRepo.findById(voteCreateDto.getPostIdx())
-                .orElseThrow(() -> new NullPointerException("투표와 연관된 포스트 Idx를 찾을 수 없습니다."));
+        Post post = postRepo.getReferenceById(voteCreateDto.getPostIdx());
 
         // 투표 엔티티 생성
         Vote vote = Vote.create(post, voteCreateDto);
@@ -80,7 +82,10 @@ public class VoteServiceImpl implements VoteService {
     public void insertVoteItems(Vote vote, List<VoteItemCreateDto> voteItemCreateDtoList) {
         List<VoteItem> voteItemList = new ArrayList<>();
         for (VoteItemCreateDto voteItemCreateDto : voteItemCreateDtoList) {
-            voteItemList.add(VoteItem.create(vote, voteItemCreateDto));
+            VoteItem voteItem = VoteItem.create(vote, voteItemCreateDto);
+            voteItemList.add(voteItem);
+            vote.addVoteItem(voteItem);
+            voteItemList.add(voteItem);
         }
         voteItemRepo.saveAll(voteItemList);
     }
@@ -93,8 +98,21 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
 
-        //List<Vote> votes = voteRepo.findByPost(postIdx);
-        //List<Vote> voteItemList = voteRepo.findBy
+        // 게시물 클릭 시
+        // 커뮤니티는 투표 완료가 없으며, 투표한 사람만 결과 확인이 가능함
+        // 투표 상태에 따라 기본 베이스가 변경됨 (ing, multiple 항목, end 결과)
+        VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(postIdx);
+
+        Post post = postRepo.getReferenceById(voteSelectDto.getPostIdx());
+
+        List<Vote> votes = voteRepo.findVotesByPost(post);
+
+        // 투표 결과에 따라 변환
+        for (Vote vote : votes) {
+            if (vote.getVoteStatus() == VoteStatus.ing || vote.getVoteStatus() == VoteStatus.multiple) {
+
+            }
+        }
 
         return null;
     }
@@ -242,8 +260,8 @@ public class VoteServiceImpl implements VoteService {
         VoteUserCreateDto voteUserCreateDto = voteCustomMapper.toVoteUserCreateDto(voteUserRequest);
 
         // 필요한 객체 프록시 반환
-        Member member = memberRepo.getReferenceById(voteUserRequest.getMemberIdx());
-        Vote vote = voteRepo.getReferenceById(voteUserRequest.getVoteIdx());
+        Member member = memberRepo.getReferenceById(voteUserCreateDto.getMemberIdx());
+        Vote vote = voteRepo.getReferenceById(voteUserCreateDto.getVoteIdx());
 
         List<VoteItemUserCreateDto> voteItemUserCreateDtoList = voteCustomMapper.toVoteItemUserCreateDto(voteUserRequest);
 
@@ -259,7 +277,7 @@ public class VoteServiceImpl implements VoteService {
         Map<Long, VoteItem> voteItemMap = voteItems.stream()
                 .collect(Collectors.toMap(VoteItem::getId, voteItem -> voteItem));
 
-        Map<String, Long> voteUserResponse = new HashMap<>();
+        List<Long> voteUserResponse = new ArrayList<>();
 
         // VoteUser 생성
         List<VoteUser> voteUsers = new ArrayList<>();
@@ -270,7 +288,7 @@ public class VoteServiceImpl implements VoteService {
             }
             VoteUser voteUser = VoteUser.create(member, vote, voteItem);
             voteUsers.add(voteUser);
-            voteUserResponse.put("voteUserIdx", voteItemDto.getVoteItemIdx());
+            voteUserResponse.add(voteItemDto.getVoteItemIdx());
         }
 
         voteUserRepo.saveAll(voteUsers);

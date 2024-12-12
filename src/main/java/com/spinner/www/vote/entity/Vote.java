@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,10 +33,8 @@ public class Vote extends BaseEntity {
     @Comment("게시물 idx")
     private Post post;
 
-    /*
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<VoteItem> voteItem = new ArrayList<>();
-    */
+    private List<VoteItem> voteItems = new ArrayList<>();
 
     @Comment("투표 제목")
     private String voteName;
@@ -55,6 +55,15 @@ public class Vote extends BaseEntity {
 
     @Comment("투표 마감 일자")
     private LocalDateTime endDatetime;
+
+
+    /**
+     * 연관관계 메서드 설정
+     * @param voteItem VoteItem
+     */
+    public void addVoteItem(VoteItem voteItem) {
+        this.voteItems.add(voteItem);
+    }
 
     /**
      * 생성 메서드

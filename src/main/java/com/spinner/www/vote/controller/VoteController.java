@@ -58,6 +58,7 @@ public class VoteController {
 
     /**
      * 투표 리스트 조회
+     * [ex] 게시물 클릭 후 투표 및 투표 항목 조회
      * @param postIdx Long
      * @return ResponseEntity<CommonResponse>
      */

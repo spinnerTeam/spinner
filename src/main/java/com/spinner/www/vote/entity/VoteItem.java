@@ -36,6 +36,15 @@ public class VoteItem extends BaseEntity {
     @Comment("투표_항목 삭제 여부")
     private String voteItemIsRemoved;
 
+
+    /**
+     * 양방향 연관관계 맺어 주는 메서드
+     * @param vote Vote
+     */
+    public void addVote(Vote vote) {
+        this.vote = vote;
+    }
+
     /**
      * 생성 메서드
      * @param vote Vote

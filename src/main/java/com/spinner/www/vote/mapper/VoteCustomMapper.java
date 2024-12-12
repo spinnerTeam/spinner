@@ -2,6 +2,7 @@ package com.spinner.www.vote.mapper;
 
 import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.Vote;
+import com.spinner.www.vote.entity.VoteItem;
 import com.spinner.www.vote.entity.VoteUser;
 import com.spinner.www.vote.io.*;
 import org.springframework.stereotype.Component;
@@ -150,5 +151,23 @@ public class VoteCustomMapper {
                         .build())
                 .toList();
 
+    }
+
+    /**
+     * 투표 다중 선택 변환
+     * @param vote Vote
+     * @return VoteSelectResponse
+     */
+    public VoteSelectResponse toVoteSelectResponse(Vote vote) {
+        return VoteSelectResponse.builder()
+                .voteIdx(vote.getId())
+                .voteName(vote.getVoteName())
+                .voteItemSelectResponseList(vote.getVoteItems().stream()
+                        .map(voteItem -> VoteItemSelectResponse.builder()
+                                .voteItemIdx(voteItem.getId())
+                                .voteItemName(voteItem.getVoteItemName())
+                                .build())
+                        .toList())
+                .build();
     }
 }
