@@ -69,14 +69,19 @@ public class Vote extends BaseEntity {
      * 생성 메서드
      */
     public static Vote create(Post post, VoteCreateDto voteCreateDto) {
+        LocalDateTime endDatetime = voteCreateDto.getVoteEndDatetime() != null
+                ? voteCreateDto.getVoteEndDatetime()
+                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        // EndDateTime 9999-12-31 23:59:59 설정
+
         return Vote.builder()
                 .post(post)
                 .voteName(voteCreateDto.getVoteName())
                 .voteStatus(voteCreateDto.getVoteStatus())
                 .voteType(voteCreateDto.getVoteType())
                 .voteIsRemoved("N")
-                .startDatetime(voteCreateDto.getVoteStartDatetime())
-                .endDatetime(voteCreateDto.getVoteEndDatetime())
+                .startDatetime(LocalDateTime.now())
+                .endDatetime(endDatetime)
                 .build();
     }
 

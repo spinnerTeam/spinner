@@ -59,7 +59,6 @@ public class VoteServiceImpl implements VoteService {
         // 연관된 포스트 조회
         Post post = postRepo.getReferenceById(voteCreateDto.getPostIdx());
 
-        // 투표 엔티티 생성
         Vote vote = Vote.create(post, voteCreateDto);
 
         // 투표 생성 후 idx 반환
