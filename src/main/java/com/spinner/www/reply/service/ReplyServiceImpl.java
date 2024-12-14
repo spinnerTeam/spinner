@@ -5,8 +5,8 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.service.PostService;
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.service.BoardService;
 import com.spinner.www.reply.entity.Reply;
 import com.spinner.www.reply.io.ReplyCreateRequest;
 import com.spinner.www.reply.io.ReplyUpdateRequest;
@@ -27,7 +27,7 @@ public class ReplyServiceImpl implements ReplyService {
     private final SessionInfo sessionInfo;
     private final ReplyRepo replyRepo;
     private final MemberService memberService;
-    private final PostService postService;
+    private final BoardService boardService;
     /**
      * 댓글 생성
      * @param replyRequest ReplyCreateRequestIO 댓글 요청 데이터
@@ -36,20 +36,20 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public ResponseEntity<CommonResponse> insert(ReplyCreateRequest replyRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Post post = postService.findByPostIdx(replyRequest.getPostIdx());
+        Board board = boardService.findByBoardIdx(replyRequest.getBoardIdx());
         Long replyParentIdx = Objects.isNull(replyRequest.getParentIdx()) ? null :replyRequest.getParentIdx();
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(post))
+        if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         Member member = memberService.getMember(memberIdx);
 
         Reply reply = Reply.builder()
                 .member(member)
-                .postIdx(post.getPostIdx())
+                .boardIdx(board.getBoardIdx())
                 .replyParentIdx(replyParentIdx)
                 .replyContent(replyRequest.getContent())
                 .build();
@@ -78,8 +78,8 @@ public class ReplyServiceImpl implements ReplyService {
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
         Reply reply= this.findByReplyIdx(replyIdx);
-        Long postIdx = reply.getPostIdx();
-        Post post = postService.findByPostIdx(postIdx);
+        Long boardIdx = reply.getBoardIdx();
+        Board board = boardService.findByBoardIdx(boardIdx);
 
         System.out.println(reply.getReplyContent());
 
@@ -89,7 +89,7 @@ public class ReplyServiceImpl implements ReplyService {
         if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (Objects.isNull(post))
+        if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         if (!Objects.equals(reply.getMember(), member))

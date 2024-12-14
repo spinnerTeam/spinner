@@ -1,7 +1,7 @@
 package com.spinner.www.vote.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
-import com.spinner.www.post.entity.Post;
+import com.spinner.www.board.entity.Board;
 import com.spinner.www.vote.dto.VoteCreateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,9 +26,9 @@ public class Vote extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postIdx")
+    @JoinColumn(name = "boardIdx")
     @Comment("게시물 idx")
-    private Post post;
+    private Board board;
 
     /*
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -54,9 +54,9 @@ public class Vote extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static Vote create(Post post, VoteCreateDto voteCreateDto) {
+    public static Vote create(Board board, VoteCreateDto voteCreateDto) {
         return Vote.builder()
-                .post(post)
+                .board(board)
                 .voteName(voteCreateDto.getVoteName())
                 .voteStatus(voteCreateDto.getVoteStatus())
                 .voteIsRemoved("N")

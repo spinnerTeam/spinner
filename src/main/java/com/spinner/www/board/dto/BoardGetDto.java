@@ -1,4 +1,4 @@
-package com.spinner.www.post.dto;
+package com.spinner.www.board.dto;
 
 import com.spinner.www.common.dto.BaseDto;
 import com.spinner.www.reply.dto.ReplyGetDto;
@@ -9,10 +9,10 @@ import java.util.List;
 
 @Getter
 @SuperBuilder
-public class PostGetDto extends BaseDto {
-    private Long postIdx;
-    private String postTitle;
-    private String postContent;
+public class BoardGetDto extends BaseDto {
+    private Long boardIdx;
+    private String boardTitle;
+    private String boardContent;
     private String memberNickname;
     private List<ReplyGetDto> replies;
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class VoteCreateRequest {
 
     @NotBlank(message = "게시물 idx는 필수 입력 조건입니다.")
-    private Long postIdx;
+    private Long boardIdx;
 
     @NotBlank(message = "투표 상태는 필수 입력 조건입니다.")
     private VoteStatus voteStatus;

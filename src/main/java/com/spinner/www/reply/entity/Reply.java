@@ -33,7 +33,7 @@ public class Reply extends BaseEntity {
 
     @Column(nullable = false)
     @Comment("게시글 식별자")
-    private Long postIdx;
+    private Long boardIdx;
 
     @Column(nullable = false)
     @Comment("내용")
@@ -43,7 +43,7 @@ public class Reply extends BaseEntity {
     @Comment("삭제여부")
     private int replyIsRemoved;
 
-    @Column(nullable = true)
+    @Column()
     @Comment("부모 댓글 식별자")
     private Long replyParentIdx;
 

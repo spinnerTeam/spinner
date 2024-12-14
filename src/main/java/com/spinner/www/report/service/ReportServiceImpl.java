@@ -1,13 +1,12 @@
 package com.spinner.www.report.service;
 
-import com.spinner.www.common.io.BaseResponse;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.repository.MemberRepo;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.repository.PostRepo;
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.report.dto.ReportCreateDto;
 import com.spinner.www.report.dto.ReportGetDto;
 import com.spinner.www.report.entity.Report;
@@ -38,7 +37,7 @@ public class ReportServiceImpl implements ReportService {
     private final SessionInfo sessionInfo;
     private final ReportMapper reportMapper;
     private final ReportTypeRepo reportTypeRepo;
-    private final PostRepo postRepo;
+    private final BoardRepo boardRepo;
     private final MemberRepo memberRepo;
 
     /**
@@ -53,14 +52,14 @@ public class ReportServiceImpl implements ReportService {
         ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportCreateRequest);
         ReportType reportType = reportTypeRepo.findById(reportInsertDto.getReportTypeIdx())
                 .orElseThrow(() -> new RuntimeException("ReportType를 찾을 수 없습니다."));
-        Post reportPost = postRepo.findById(reportInsertDto.getPostIdx())
-                .orElseThrow(() -> new RuntimeException("reportPost not found"));
+        Board reportBoard = boardRepo.findById(reportInsertDto.getBoardIdx())
+                .orElseThrow(() -> new RuntimeException("reportBoard not found"));
         Member reportMember = memberRepo.findById(sessionInfo.getMemberIdx())
                 .orElseThrow(() -> new RuntimeException("reportMember not found"));
-        Report report = create(reportType, reportPost, reportMember);
+        Report report = create(reportType, reportBoard, reportMember);
 
         // 신고 데이터 중 포스트와 멤버가 동일한 데이터가 있을 경우 중복 처리
-        if (reportRepo.findByPostAndMember(report.getPost(), report.getMember()).isPresent()) {
+        if (reportRepo.findByBoardAndMember(report.getBoard(), report.getMember()).isPresent()) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE_REPORT), HttpStatus.OK);
         }
 
@@ -112,7 +111,7 @@ public class ReportServiceImpl implements ReportService {
     public ReportCreateDto reportCreatRequestToReportToDto(ReportCreateRequest reportCreateRequest) {
         return ReportCreateDto.builder()
                 .reportTypeIdx(reportCreateRequest.getReportTypeIdx())
-                .postIdx(reportCreateRequest.getPostIdx())
+                .boardIdx(reportCreateRequest.getBoardIdx())
                 .build();
     }
 
@@ -128,9 +127,9 @@ public class ReportServiceImpl implements ReportService {
             ReportResponse reportResponse = ReportResponse.builder()
                     .reportIdx(reportGetDto.getId())
                     .reportTypeContent(reportGetDto.getReportType().getReportTypeContent())
-                    .postIdx(reportGetDto.getPost().getPostIdx())
-                    .postTitle(reportGetDto.getPost().getPostTitle())
-                    .postContent(reportGetDto.getPost().getPostContent())
+                    .boardIdx(reportGetDto.getBoard().getBoardIdx())
+                    .boardTitle(reportGetDto.getBoard().getBoardTitle())
+                    .boardContent(reportGetDto.getBoard().getBoardContent())
                     .reportMember(reportGetDto.getMember().getMemberEmail())
                     .createdAt(reportGetDto.getCreatedAt())
                     .createdDate(reportGetDto.getCreatedDate())
@@ -153,9 +152,9 @@ public class ReportServiceImpl implements ReportService {
         return ReportResponse.builder()
                 .reportIdx(reportGetDto.getId())
                 .reportTypeContent(reportGetDto.getReportType().getReportTypeContent())
-                .postIdx(reportGetDto.getPost().getPostIdx())
-                .postTitle(reportGetDto.getPost().getPostTitle())
-                .postContent(reportGetDto.getPost().getPostContent())
+                .boardIdx(reportGetDto.getBoard().getBoardIdx())
+                .boardTitle(reportGetDto.getBoard().getBoardTitle())
+                .boardContent(reportGetDto.getBoard().getBoardContent())
                 .reportMember(reportGetDto.getMember().getMemberEmail())
                 .createdAt(reportGetDto.getCreatedAt())
                 .createdDate(reportGetDto.getCreatedDate())

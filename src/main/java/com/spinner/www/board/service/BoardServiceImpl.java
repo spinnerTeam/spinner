@@ -1,4 +1,4 @@
-package com.spinner.www.post.service;
+package com.spinner.www.board.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.io.SearchParamRequest;
@@ -6,15 +6,15 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
-import com.spinner.www.post.dto.PostGetDto;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.io.PostCreateRequest;
-import com.spinner.www.post.io.PostListResponse;
-import com.spinner.www.post.io.PostResponse;
-import com.spinner.www.post.io.PostUpdateRequest;
-import com.spinner.www.post.mapper.PostMapper;
-import com.spinner.www.post.repository.PostQueryRepo;
-import com.spinner.www.post.repository.PostRepo;
+import com.spinner.www.board.dto.BoardGetDto;
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.io.BoardCreateRequest;
+import com.spinner.www.board.io.BoardListResponse;
+import com.spinner.www.board.io.BoardResponse;
+import com.spinner.www.board.io.BoardUpdateRequest;
+import com.spinner.www.board.mapper.BoardMapper;
+import com.spinner.www.board.repository.BoardQueryRepo;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,24 +23,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class PostServiceImpl implements PostService {
+public class BoardServiceImpl implements BoardService {
 
     private final SessionInfo sessionInfo;
-    private final PostRepo postRepo;
-    private final PostQueryRepo postQueryRepo;
+    private final BoardRepo boardRepo;
+    private final BoardQueryRepo boardQueryRepo;
     private final MemberService memberService;
-    private final PostMapper postMapper;
+    private final BoardMapper boardMapper;
     /**
      * 게시글 생성
-     * @param postRequest PostCreateRequestIO 게시글 요청 데이터
+     * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(PostCreateRequest postRequest) {
+    public ResponseEntity<CommonResponse> insert(BoardCreateRequest boardRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
 
         if (Objects.isNull(memberIdx))
@@ -48,20 +47,20 @@ public class PostServiceImpl implements PostService {
 
         Member member = memberService.getMember(memberIdx);
 
-        Post post = Post.builder()
+        Board board = Board.builder()
                 .member(member)
-                .postTitle(postRequest.getTitle())
-                .postContent(postRequest.getContent())
+                .boardTitle(boardRequest.getTitle())
+                .boardContent(boardRequest.getContent())
                 .build();
 
-        postRepo.save(post);
-        PostResponse response = PostResponse.builder()
+        boardRepo.save(board);
+        BoardResponse response = BoardResponse.builder()
                 .nickName(member.getMemberNickname())
-                .idx(post.getPostIdx())
-                .title(post.getPostTitle())
-                .content(post.getPostContent())
-                .createdDate(post.getCreatedDate())
-                .modifiedDate(post.getModifiedDate())
+                .idx(board.getBoardIdx())
+                .title(board.getBoardTitle())
+                .content(board.getBoardContent())
+                .createdDate(board.getCreatedDate())
+                .modifiedDate(board.getModifiedDate())
                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
@@ -69,35 +68,35 @@ public class PostServiceImpl implements PostService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
-     * @param postIdx Long 게시글 idx
+     * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public Post findByPostIdx(Long postIdx) {
+    public Board findByBoardIdx(Long boardIdx) {
         int isNotRemove = 0;
-        return postRepo.findByPostIdxAndPostIsRemoved(postIdx, isNotRemove).orElse(null);
+        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElse(null);
     }
 
     /**
      * 게시글 조회
-     * @param postIdx Long 게시글 idx
+     * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> findByPostInfo(Long postIdx) {
-        Post post= this.findByPostIdx(postIdx);
+    public ResponseEntity<CommonResponse> findByBoardInfo(Long boardIdx) {
+        Board board= this.findByBoardIdx(boardIdx);
 
-        if (Objects.isNull(post))
+        if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        PostGetDto dto = postMapper.postToPostGetDto(post);
-//        PostResponse response = PostResponse.builder()
-//                                .nickName(post.getMember().getMemberNickname())
-//                                .idx(post.getPostIdx())
-//                                .title(post.getPostTitle())
-//                                .content(post.getPostContent())
-//                                .createdDate(post.getCreatedDate())
-//                                .modifiedDate(post.getModifiedDate())
+        BoardGetDto dto = boardMapper.boardToBoardGetDto(board);
+//        BoardResponse response = BoardResponse.builder()
+//                                .nickName(board.getMember().getMemberNickname())
+//                                .idx(board.getBoardIdx())
+//                                .title(board.getBoardTitle())
+//                                .content(board.getBoardContent())
+//                                .createdDate(board.getCreatedDate())
+//                                .modifiedDate(board.getModifiedDate())
 //                                .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(dto), HttpStatus.OK);
@@ -109,64 +108,63 @@ public class PostServiceImpl implements PostService {
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     @Override
-    public ResponseEntity<CommonResponse> getSliceOfPost(SearchParamRequest searchRequest) {
-        List<PostListResponse> list = this.postQueryRepo.getSliceOfPost(searchRequest.getIdx(),
+    public ResponseEntity<CommonResponse> getSliceOfBoard(SearchParamRequest searchRequest) {
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(searchRequest.getIdx(),
                                                                         searchRequest.getSize(),
-                                                                        searchRequest.getKeyword())
-                                                                        .stream().map(PostListResponse::new).collect(Collectors.toList());
+                                                                        searchRequest.getKeyword());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
 
 
     /**
      * 게시글 수정
-     * @param postIdx Long 게시글 idx
-     * @param postRequest PostUpdateRequestIO 게시글 수정 데이터
+     * @param boardIdx Long 게시글 idx
+     * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> update(Long postIdx, PostUpdateRequest postRequest) {
+    public ResponseEntity<CommonResponse> update(Long boardIdx, BoardUpdateRequest boardRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Post post= this.findByPostIdx(postIdx);
+        Board board= this.findByBoardIdx(boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(post))
+        if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (!Objects.equals(post.getMember(), member))
+        if (!Objects.equals(board.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        post.update(postRequest.getPostTitle(), postRequest.getPostContent());
+        board.update(boardRequest.getTitle(), boardRequest.getContent());
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(post), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(board), HttpStatus.OK);
     }
 
     /**
      * 게시글 삭제
-     * @param postIdx Long 게시글 idx
+     * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> delete(Long postIdx) {
+    public ResponseEntity<CommonResponse> delete(Long boardIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Post post= this.findByPostIdx(postIdx);
+        Board board= this.findByBoardIdx(boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(post))
+        if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (!Objects.equals(post.getMember(), member))
+        if (!Objects.equals(board.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        post.delete();
+        board.delete();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }

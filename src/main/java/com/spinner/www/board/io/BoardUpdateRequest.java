@@ -1,4 +1,4 @@
-package com.spinner.www.post.io;
+package com.spinner.www.board.io;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @Builder
 @AllArgsConstructor
-public class PostCreateRequest {
+public class BoardUpdateRequest {
     private String title;
     private String content;
 }

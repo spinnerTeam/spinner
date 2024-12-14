@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 public class ReplyCreateRequest {
-    private Long postIdx;
+    private Long boardIdx;
     private Long parentIdx;
     private String content;
 }

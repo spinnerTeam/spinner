@@ -1,4 +1,4 @@
-package com.spinner.www.post.entity;
+package com.spinner.www.board.entity;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
@@ -13,19 +13,19 @@ import org.hibernate.annotations.Comment;
 import java.util.List;
 
 @Entity
-@Table(name = "post")
+@Table(name = "board")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Comment("게시판 테이블")
 
-public class Post extends BaseEntity {
+public class Board extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("게시판 PK")
-    private Long postIdx;
+    private Long boardIdx;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx", nullable = false)
@@ -34,32 +34,32 @@ public class Post extends BaseEntity {
 
     @Column(nullable = false)
     @Comment("제목")
-    private String postTitle;
+    private String boardTitle;
 
     @Column(nullable = false)
     @Comment("내용")
-    private String postContent;
+    private String boardContent;
 
     @ColumnDefault("0")
     @Comment("삭제여부")
-    private int postIsRemoved;
+    private int boardIsRemoved;
 
     @ColumnDefault("0")
     @Comment("신고여부")
-    private int postIsReported;
+    private int boardIsReported;
 
-    @OneToMany(mappedBy = "postIdx"
+    @OneToMany(mappedBy = "boardIdx"
             ,fetch = FetchType.LAZY)
     private List<Reply> replies;
 
 
 
-    public void update(String postTitle, String postContent) {
-        this.postTitle = postTitle;
-        this.postContent = postContent;
+    public void update(String boardTitle, String boardContent) {
+        this.boardTitle = boardTitle;
+        this.boardContent = boardContent;
     }
 
     public void delete() {
-        this.postIsRemoved = 1;
+        this.boardIsRemoved = 1;
     }
 }

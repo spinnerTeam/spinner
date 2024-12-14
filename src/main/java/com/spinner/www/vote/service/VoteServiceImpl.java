@@ -1,8 +1,8 @@
 package com.spinner.www.vote.service;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.repository.PostRepo;
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.VoteCreateDto;
 import com.spinner.www.vote.dto.VoteItemCreateDto;
@@ -30,7 +30,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteRepo voteRepo;
     private final VoteUserRepo voteUserRepo;
     private final VoteItemRepo voteItemRepo;
-    private final PostRepo postRepo;
+    private final BoardRepo boardRepo;
     private final VoteCustomMapper voteCustomMapper;
 
     /**
@@ -45,11 +45,11 @@ public class VoteServiceImpl implements VoteService {
         VoteCreateDto voteCreateDto = voteCustomMapper.voteCreateRequestToVoteCreateDto(voteCreateRequest);
 
         // 연관된 포스트 조회
-        Post post = postRepo.findById(voteCreateDto.getPostIdx())
-                .orElseThrow(() -> new RuntimeException("Post Not Found"));
+        Board board = boardRepo.findById(voteCreateDto.getBoardIdx())
+                .orElseThrow(() -> new RuntimeException("Board Not Found"));
 
         // 투표 엔티티 생성
-        Vote vote = Vote.create(post, voteCreateDto);
+        Vote vote = Vote.create(board, voteCreateDto);
 
         // 투표 생성 후 idx 반환
         voteRepo.save(vote);
@@ -77,7 +77,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
+    public ResponseEntity<CommonResponse> selectAllVotes(Long boardIdx) {
         return null;
     }
 

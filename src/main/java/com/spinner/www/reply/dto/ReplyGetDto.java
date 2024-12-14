@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @SuperBuilder
 public class ReplyGetDto extends BaseDto {
-    private Long postIdx;
+    private Long boardIdx;
     private Long replyIdx;
     private String replyContent;
     private String memberNickname;
