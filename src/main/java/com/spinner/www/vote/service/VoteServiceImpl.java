@@ -106,9 +106,25 @@ public class VoteServiceImpl implements VoteService {
 
         List<Vote> votes = voteRepo.findVotesByPost(post);
 
-        // 투표 결과에 따라 변환
         for (Vote vote : votes) {
+            // 투표가 진행 중이거나 중복 투표가 가능하면
             if (vote.getVoteStatus() == VoteStatus.ing || vote.getVoteStatus() == VoteStatus.multiple) {
+
+                Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
+                VoteUser voteUser = voteUserRepo.findByMember(member);
+
+                if (voteUser != null) {
+                    // 유저가 투표에 참여했으면
+                    VoteSelectResponse voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, true);
+                    return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteSelectResponse), HttpStatus.OK);
+
+                } else {
+                    // 유저가 투표에 참여하지 않았으면
+                    VoteSelectResponse voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, false);
+                    return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteSelectResponse), HttpStatus.OK);
+                }
+            // 투표가 완료됐으면
+            } else {
 
             }
         }

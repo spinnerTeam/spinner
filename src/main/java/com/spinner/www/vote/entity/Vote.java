@@ -72,7 +72,7 @@ public class Vote extends BaseEntity {
         LocalDateTime endDatetime = voteCreateDto.getVoteEndDatetime() != null
                 ? voteCreateDto.getVoteEndDatetime()
                 : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
-        // EndDateTime 9999-12-31 23:59:59 설정
+        // 마감 기한 설정 없을 시 EndDateTime 9999-12-31 23:59:59 설정
 
         return Vote.builder()
                 .post(post)

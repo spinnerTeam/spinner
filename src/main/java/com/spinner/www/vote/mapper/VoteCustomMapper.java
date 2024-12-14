@@ -170,4 +170,23 @@ public class VoteCustomMapper {
                         .toList())
                 .build();
     }
+
+    public VoteSelectResponse createVoteSelectResponse(Vote vote, List<Vote> votes, boolean userVoted) {
+        return VoteSelectResponse.builder()
+                .voteIdx(vote.getId())
+                .voteName(vote.getVoteName())
+                .voteStatus(vote.getVoteStatus())
+                .voteType(vote.getVoteType())
+                .voteStatus(vote.getVoteStatus())
+                .startDatetime(vote.getStartDatetime())
+                .endDatetime(vote.getEndDatetime())
+                .voteItemSelectResponseList(votes.stream()
+                        .map(voteItem -> VoteItemSelectResponse.builder()
+                                .voteItemIdx(voteItem.getId())
+                                .voteItemName(voteItem.getVoteName())
+                                .build())
+                        .toList())
+                .userVoted(userVoted)
+                .build();
+    }
 }

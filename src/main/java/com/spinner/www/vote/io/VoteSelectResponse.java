@@ -17,5 +17,6 @@ public class VoteSelectResponse {
     private VoteStatus voteStatus;
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
+    private Boolean userVoted;
     private List<VoteItemSelectResponse> voteItemSelectResponseList;
 }
