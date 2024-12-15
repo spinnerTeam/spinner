@@ -28,6 +28,16 @@ public enum CommonResultCode {
     DUPLICATE_REPORT(40901, "이미 신고한 게시물입니다."),
 
     /**
+     * 투표 항목 밸리데이션 하나 이상
+     */
+    INVALID_VOTE_ITEM_COUNT_MIN_ONE(41000, "투표 항목은 하나 이상 있어야 합니다."),
+
+    /**
+     * 투표 항목 벨리데이션 다섯 개 초과
+     */
+    INVALID_VOTE_ITEM_COUNT_MAX_FIVE(41001, "투표 항목 개수는 다섯 개를 넘을 수 없습니다."),
+
+    /**
      * 서버 에러
      */
     ERROR(50000, "서버 에러"),
@@ -52,6 +62,11 @@ public enum CommonResultCode {
      */
     INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요");
 
+
+
+     * 런타임 오류 익셉션
+     */
+    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
 
 
     /**
