@@ -46,10 +46,16 @@ public enum CommonResultCode {
      * 투표가 끝났을 경우
      */
     END_VOTE(41003, "이미 투표 기간이 마감된 투표입니다."),
+
     /**
      * 투표자와 로그인 사용자가 일치하지 않는 경우
      */
     VOTER_USER_MISMATCH(41004, "투표자와 로그인 이용자가 일치하지 않습니다."),
+
+    /**
+     * 투표 리스트가 없는 경우
+     */
+    VOTE_NOT_FOUND(41005, "투표를 찾을 수 없습니다."),
 
     /**
      * 서버 에러
@@ -74,10 +80,10 @@ public enum CommonResultCode {
     /**
      * 비밀번호 유효성 체크
      */
-    INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요");
+    INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요"),
 
 
-
+    /*
      * 런타임 오류 익셉션
      */
     RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
