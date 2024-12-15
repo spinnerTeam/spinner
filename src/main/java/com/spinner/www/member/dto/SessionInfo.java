@@ -24,13 +24,15 @@ public class SessionInfo implements Serializable {
     private String memberEmail;
 
     /**
-     * 로그인 세션 등록
-     * @param users Users
+     * 세션 세팅
      */
-    public void Login (MemberLoginDto users) {
-        this.memberIdx = users.getMemberIdx();
-        this.memberNickName = users.getMemberNickname();
-        this.memberEmail = users.getMemberEmail();
+    public void setSession (MemberSessionDto sessionDto) {
+        this.memberIdx = sessionDto.getMemberIdx();
+        this.memberNickName = sessionDto.getMemberNickname();
+        this.memberEmail = sessionDto.getMemberEmail();
+
+        System.out.println("member :" + memberEmail);
+
     }
 
     /**

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class MemberLogin {
 
-    private String memberEmail;
-    @JsonProperty("memberPassword")
-    private String memberPassword;
+    private String email;
+    @JsonProperty("password")
+    private String password;
 }

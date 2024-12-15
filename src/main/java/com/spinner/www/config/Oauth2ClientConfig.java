@@ -55,6 +55,8 @@ public class Oauth2ClientConfig {
                 .authorizationUri("https://accounts.google.com/o/oauth2/auth")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .tokenUri("https://oauth2.googleapis.com/token")
+                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .userNameAttributeName("sub")
                 .build();
     }
 
