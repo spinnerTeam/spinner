@@ -1,12 +1,16 @@
 package com.spinner.www.member.service;
 
 
-import com.spinner.www.member.repository.SocialRepo;
+import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.entity.Social;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -14,7 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OauthService extends DefaultOAuth2UserService {
 
-    private final SocialRepo socialRepo;
+    private final SocialService socialService;
+    private final RedisService redisService;
+    private final SessionInfo sessionInfo;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest){
@@ -36,18 +42,29 @@ public class OauthService extends DefaultOAuth2UserService {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> res = (Map<String, Object>) attributes.get("response");
                 sub = res.get("id").toString();
+                break;
+            default:
+                throw new IllegalArgumentException("지원되지 않는 소셜 로그인입니다: " + clientId);
         }
 
-        // sub가 있는지 없는지
-        boolean hasSocialSub = socialRepo.existsBySocialNum(sub);
+        // 소셜 로그인 세션 삭제 처리
+        redisService.deleteOauthRedisSession();
 
-        // 있으면 로그인 처리
-        if(hasSocialSub){
+        // sub 가 있는지 없는지
+        Social social = socialService.getSocial(sub);
+        String email = sessionInfo.getMemberEmail();
 
-        }else{
-            // 없으면 회원가입으로
+        if (social != null)  {
+            socialService.loginSocial(social);
+        } else {
+            // 자사 회원이면서 소셜 연동 하려면
+            if(email != null){
+                socialService.joinSocialMember(sub, email, clientId);
+            } else {
+                // 회원가입으로
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "가입된 회원이 아닙니다.");
+            }
         }
-
         return user;
     }
 }

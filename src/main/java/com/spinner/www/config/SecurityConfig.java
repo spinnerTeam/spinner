@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -26,7 +27,8 @@ public class SecurityConfig {
 
     private final SessionInfo sessionInfo;
     private final CustomerLogoutHandler customerLogoutHandler;
-    private final OauthService oauthService;
+//    private final OauthLoginHandler oauthLoginHandler;
+//    private final HttpSession httpSession;
 
     /**
      * 비밀번호 단방향 암호화
@@ -46,13 +48,18 @@ public class SecurityConfig {
      */
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, OauthService oauthService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll())
+                        .anyRequest().permitAll()
+                )
+
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(info -> info
+                        .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauthService)
                         )
                         .defaultSuccessUrl("/member/main", true)
@@ -67,4 +74,6 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
+
 }

@@ -1,10 +1,7 @@
 package com.spinner.www.member.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.spinner.www.member.constants.RoleName;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Comment;
 
 
@@ -18,5 +15,6 @@ public class MemberRole {
     @Comment("권한PK")
     private int roleIdx;
     @Comment("권한이름")
-    private String roleName;
+    @Enumerated(EnumType.STRING)
+    private RoleName roleName;
 }

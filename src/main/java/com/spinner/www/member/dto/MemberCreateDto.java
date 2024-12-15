@@ -6,13 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MemberLoginDto {
+public class MemberCreateDto {
 
-    private Long memberIdx;
     private MemberRole memberRole;
     private String memberEmail;
     private String memberPassword;
-    private String memberNickname;
-    private String acessToken;
-
 }

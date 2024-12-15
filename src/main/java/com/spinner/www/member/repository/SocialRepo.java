@@ -9,8 +9,10 @@ public interface SocialRepo extends JpaRepository<Social, Long> {
 
     /**
      * sub 유무
-     * @param sub String
+     * @param socialNum String
      * @return boolean
      */
-    boolean existsBySocialNum(String sub);
+    boolean existsBySocialNum(String socialNum);
+
+    Social findBySocialNum(String socialNum);
 }
