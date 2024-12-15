@@ -73,8 +73,8 @@ public class VoteController {
      * @return ResponseEntity<CommonResponse>
      */
     @GetMapping("/{voteIdx}")
-    public ResponseEntity<CommonResponse> selectVote(@PathVariable("voteIdx") Long voteIdx) {
-        return voteService.selectVote(voteIdx);
+    public ResponseEntity<CommonResponse> selectVoteResult(@PathVariable("voteIdx") Long voteIdx) {
+        return voteService.selectVoteResult(voteIdx);
     }
 
     /**

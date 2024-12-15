@@ -58,6 +58,11 @@ public enum CommonResultCode {
     VOTE_NOT_FOUND(41005, "투표를 찾을 수 없습니다."),
 
     /**
+     * 투표 결과를 확인할 수 없는 권한의 경우
+     */
+    VOTE_RESULT_NOT_ACCESS(41006, "투표 결과를 확인할 수 없습니다."),
+
+    /**
      * 서버 에러
      */
     ERROR(50000, "서버 에러"),

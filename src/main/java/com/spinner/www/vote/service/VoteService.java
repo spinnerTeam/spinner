@@ -10,7 +10,7 @@ public interface VoteService {
 
     ResponseEntity<CommonResponse> selectAllVotes(Long postIdx);
 
-    ResponseEntity<CommonResponse> selectVote(Long voteIdx);
+    ResponseEntity<CommonResponse> selectVoteResult(Long voteIdx);
 
     ResponseEntity<CommonResponse> updateVoteItem(VoteUpdateRequest voteUpdateRequest);
 

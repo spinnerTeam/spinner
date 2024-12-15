@@ -9,10 +9,7 @@ import com.spinner.www.post.entity.Post;
 import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.*;
-import com.spinner.www.vote.entity.Vote;
-import com.spinner.www.vote.entity.VoteItem;
-import com.spinner.www.vote.entity.VoteStatus;
-import com.spinner.www.vote.entity.VoteUser;
+import com.spinner.www.vote.entity.*;
 import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.mapper.VoteCustomMapper;
 import com.spinner.www.vote.mapper.VoteMapper;
@@ -140,15 +137,29 @@ public class VoteServiceImpl implements VoteService {
         return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * 개인 투표 결과 반환
+     * @param voteIdx Long
+     * @return selectVoteResult
+     */
     @Override
-    public ResponseEntity<CommonResponse> selectVote(Long voteIdx) {
+    public ResponseEntity<CommonResponse> selectVoteResult(Long voteIdx) {
 
         Vote vote = voteRepo.getReferenceById(voteIdx);
         Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
+        VoteUser voteUser = voteUserRepo.findByMember(member);
 
-        VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
+        // 커뮤니티의 경우, 유저 투표를 완료한 상태라면
+        if (vote.getVoteType() == VoteType.community && voteUser != null) {
+            VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+            // 스터디의 경우, 투표 마감이 된 상태라면
+        } else if (vote.getVoteType() == VoteType.study && vote.getVoteStatus() == VoteStatus.end) {
+            VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+        }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_RESULT_NOT_ACCESS), HttpStatus.BAD_REQUEST);
     }
 
     /**
