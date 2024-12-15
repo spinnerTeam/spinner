@@ -20,14 +20,6 @@ public interface EmailService {
      */
     ResponseEntity<CommonResponse> sendEmail(String toEmail, String type);
 
-    /**
-     * 인증코드 레디스 저장
-     * @param email String
-     * @param authCode String
-     * @param days int
-     * @param timeUnit TimeUnit
-     */
-    void saveAuthCode(String email, String authCode, int days , TimeUnit timeUnit);
 
     /**
      * 이메일 인증코드 검증
@@ -35,4 +27,12 @@ public interface EmailService {
      * @return ResponseEntity<CommonResponse> 인증코드 비교 결과
      */
     ResponseEntity<CommonResponse> invalidateAuthCode(EmailAuthRequest emailAuthRequest);
+
+    /**
+     * 이메일 재발송
+     * @param toEmail String
+     * @param type String
+     * @return ResponseEntity<CommonResponse> 이메일 재발송 결과
+     */
+    ResponseEntity<CommonResponse> reSendEmail(String toEmail, String type);
 }

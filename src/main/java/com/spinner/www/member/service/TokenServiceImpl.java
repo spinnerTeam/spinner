@@ -1,7 +1,7 @@
 package com.spinner.www.member.service;
 
 import com.spinner.www.member.dto.JwtProperties;
-import com.spinner.www.member.dto.MemberLoginDto;
+import com.spinner.www.member.entity.Member;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -22,43 +21,21 @@ public class TokenServiceImpl implements TokenService{
     /**
      * 토큰 생성
      * @param expiration Date
-     * @param memberLoginDto userLoginDto
+     * @param member Member
      * @return 만들어진 토큰 반환
      */
     @Override
-    public String makeToken(Date expiration, MemberLoginDto memberLoginDto) {
+    public String makeToken(Date expiration, Member member) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .setSubject(memberLoginDto.getMemberEmail())
-                .claim("nickname", memberLoginDto.getMemberNickname())
+                .setSubject(member.getMemberEmail())
+                .claim("nickname", member.getMemberNickname())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
-
-    /**
-     * 레디스에 토큰 저장
-     * @param memberIdx String
-     * @param refreshToken String
-     * @param days int
-     */
-    @Override
-    public void saveRefreshToken(String memberIdx, String refreshToken, int days , TimeUnit timeUnit) {
-        redisTemplate.opsForValue().set(memberIdx, refreshToken, days, TimeUnit.DAYS);
-    }
-
-    /**
-     * 레디스에서 토큰 조회
-     * @param memberIdx String
-     * @return refreshToken
-     */
-    @Override
-    public String getRefreshToken(String memberIdx) {
-        return redisTemplate.opsForValue().get(memberIdx);
-    }
-
 
 }

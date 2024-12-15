@@ -67,9 +67,21 @@ public enum CommonResultCode {
     FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
 
     /**
+     * 비밀번호 불일치
+     */
+    PASSWORD_MISMATCH(1003, "비밀번호가 일치하지 않습니다."),
+
+    /**
+     * 비밀번호 유효성 체크
+     */
+    INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요");
+
+
+
      * 런타임 오류 익셉션
      */
     RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
+
 
     /**
      * 변수 설정

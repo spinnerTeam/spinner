@@ -7,8 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class EncryptionUtils {
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public EncryptionUtils(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     /**
      * 비밀번호 암호화

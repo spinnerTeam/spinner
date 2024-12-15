@@ -2,9 +2,10 @@ package com.spinner.www.member.service;
 
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberLogin;
-import com.spinner.www.member.io.MemberCreate;
+import com.spinner.www.member.io.MemberJoin;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -15,14 +16,14 @@ public interface MemberService {
      * @param memberRequest UserRequestDto 회원가입 요청 데이터
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
-    ResponseEntity<CommonResponse> insertUser(MemberCreate memberRequest);
+    ResponseEntity<CommonResponse> insertUser(MemberJoin memberRequest);
 
     /**
      * 로그인
-     * @param userLoginRequest UserLoginDto 로그인 요청 데이터
+     * @param memberLogin MemberLogin 로그인 요청 데이터
      * @return ResponseEntity<CommonResponse> 로그인 결과
      */
-    ResponseEntity<CommonResponse> loginUser(MemberLogin userLoginRequest);
+    ResponseEntity<CommonResponse> loginMember(MemberLogin memberLogin);
 
     /**
      * 쿠키에 refreshToken 저장
@@ -38,4 +39,18 @@ public interface MemberService {
      * @return Member
      */
     Member getMember(Long memberIdx);
+
+    /**
+     * 이메일로 회원조회
+     * @param memberEmail String
+     * @return Member
+     */
+    Member getMember(String memberEmail);
+
+    /**
+     * 토큰 생성
+     * @param member Member
+     * @param memberSessionDto MemberLoginDto
+     */
+    void makeLoginToken(Member member, MemberSessionDto memberSessionDto);
 }
