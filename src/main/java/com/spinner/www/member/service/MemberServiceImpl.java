@@ -142,7 +142,7 @@ public class MemberServiceImpl implements MemberService {
         if(!invalidatePassword)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.PASSWORD_MISMATCH),HttpStatus.UNAUTHORIZED);
         }
-
+        memberSessionDto.setMemberIdx(member.getMemberIdx());
         // 토큰 생성 및 저장
         makeLoginToken(member, memberSessionDto);
         redisService.saveRedis("email", memberSessionDto.getMemberEmail(), DEFAULT_REFRESH_EXPIRATION_DAYS, TimeUnit.DAYS);

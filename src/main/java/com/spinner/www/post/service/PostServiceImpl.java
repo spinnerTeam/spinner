@@ -55,8 +55,6 @@ public class PostServiceImpl implements PostService {
                 .postIdx(post.getPostIdx())
                 .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())
-                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
-                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
@@ -90,8 +88,6 @@ public class PostServiceImpl implements PostService {
                                 .postIdx(post.getPostIdx())
                                 .postTitle(post.getPostTitle())
                                 .postContent(post.getPostContent())
-                                .createdDate(LocalDateTime.parse(post.getCreatedAt()))
-                                .modifiedDate(LocalDateTime.parse(post.getModifiedAt()))
                                 .build();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
