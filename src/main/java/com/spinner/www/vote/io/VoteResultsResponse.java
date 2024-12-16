@@ -10,5 +10,5 @@ import java.util.List;
 @Builder
 public class VoteResultsResponse {
     private long totalVotes;                 // 총 투표 수
-    private List<VoteResultDto> results;    // 투표 항목별 결과
+    private List<VoteResultDto> voteResult;    // 투표 항목별 결과
 }
