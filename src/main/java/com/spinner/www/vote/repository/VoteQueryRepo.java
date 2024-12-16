@@ -37,7 +37,7 @@ public class VoteQueryRepo {
         if (totalVotes == null || totalVotes == 0L) {
             return VoteResultsResponse.builder()
                     .totalVotes(0)
-                    .results(List.of())
+                    .voteResult(List.of())
                     .build();
         }
 
@@ -57,7 +57,7 @@ public class VoteQueryRepo {
 
         return VoteResultsResponse.builder()
                 .totalVotes(totalVotes)
-                .results(results)
+                .voteResult(results)
                 .build();
     }
 }
