@@ -2,7 +2,6 @@ package com.spinner.www.vote.repository;
 
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.vote.dto.QVoteResultDto;
 import com.spinner.www.vote.dto.VoteResultDto;
