@@ -49,7 +49,6 @@ public class RedisServiceImpl implements RedisService {
             for(String key : sessionList){
                 Object sessionData = redisTemplate.opsForHash().entries(sessionKey);
 
-                // 소셜 로그인 세션인지 확인 (예: 특정 속성 검사)
                 if (isSocialLoginSession(sessionData)) {
                     redisTemplate.delete(sessionKey);
                 }
@@ -61,7 +60,6 @@ public class RedisServiceImpl implements RedisService {
     private boolean isSocialLoginSession(Object sessionData) {
         if (sessionData instanceof Map) {
             Map<String, Object> attributes = (Map<String, Object>) sessionData;
-            // 특정 속성(예: 소셜 로그인 플래그)이 존재하는지 확인
             return attributes.containsKey("socialLoginFlag");
         }
         return false;

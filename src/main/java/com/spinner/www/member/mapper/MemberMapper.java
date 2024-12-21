@@ -19,8 +19,5 @@ public interface MemberMapper {
             @Mapping(source = "password", target = "memberPassword")
     })
     MemberSessionDto memberLoginToMemberSessionDto(MemberLogin memberLogin);
-
-
-    @Mapping(source = "password", target = "memberPassword")
     MemberCreateDto memberJoinToMemberCreate(MemberJoin memberJoin);
 }

@@ -1,6 +1,7 @@
 package com.spinner.www.member.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.member.dto.MemberCreateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,4 +39,15 @@ public class Member extends BaseEntity {
     private String memberNickname;
     @Comment("생년월일")
     private LocalDate memberBirth;
+
+    public static Member insertMember(MemberCreateDto memberCreateDto){
+        return Member.builder()
+                .memberEmail(memberCreateDto.getEmail())
+                .memberRole(memberCreateDto.getMemberRole())
+                .memberPassword(memberCreateDto.getPassword())
+                .memberName(memberCreateDto.getName())
+                .memberNickname(memberCreateDto.getNickName())
+                .memberBirth(LocalDate.parse(memberCreateDto.getBirth()))
+                .build();
+    }
 }
