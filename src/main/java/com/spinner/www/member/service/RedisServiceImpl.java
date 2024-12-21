@@ -49,6 +49,8 @@ public class RedisServiceImpl implements RedisService {
             for(String key : sessionList){
                 Object sessionData = redisTemplate.opsForHash().entries(sessionKey);
 
+                // 소셜 로그인 세션인지 확인 
+
                 if (isSocialLoginSession(sessionData)) {
                     redisTemplate.delete(sessionKey);
                 }
