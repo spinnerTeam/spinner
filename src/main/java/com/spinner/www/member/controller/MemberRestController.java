@@ -31,7 +31,7 @@ public class MemberRestController {
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> invalidateEmail(@ModelAttribute MemberJoin memberRequest) {
+    public ResponseEntity<CommonResponse> joinMember(@ModelAttribute MemberJoin memberRequest) {
         return memberService.insertUser(memberRequest);
     }
 

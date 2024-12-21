@@ -9,10 +9,12 @@ import com.spinner.www.member.dto.MemberCreateDto;
 import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.member.entity.MemberFile;
 import com.spinner.www.member.entity.MemberRole;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
 import com.spinner.www.member.mapper.MemberMapper;
+import com.spinner.www.member.repository.MemberFileRepo;
 import com.spinner.www.member.repository.MemberRepo;
 import com.spinner.www.util.EncryptionUtils;
 import com.spinner.www.util.ResponseVOUtils;
@@ -23,10 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 
 import java.time.Duration;
 import java.util.Date;
@@ -52,6 +50,7 @@ public class MemberServiceImpl implements MemberService {
     private final RedisService redisService;
     private final MemberRoleService memberRoleService;
     private final FileService fileService;
+    private final MemberFileRepo memberFileRepo;
 
     /**
      * 이메일로 회원조회
@@ -90,8 +89,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) {
 
-        System.out.println("member");
-
         // 비밀번호가 영문, 숫자 포함 8~20 자리인지 체크
         String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,20}$";
         if(!memberJoin.getPassword().matches(PASSWORD_PATTERN))  {
@@ -99,10 +96,10 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
-//        String key = redisService.getValue(sessionInfo.getMemberEmail());
-//        if(key == null)  {
-//            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.NOT_FOUND);
-//        }
+        String key = redisService.getValue(sessionInfo.getMemberEmail());
+        if(key == null)  {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.NOT_FOUND);
+        }
 
         // 비밀번호 암호화
         String password = encryptionUtils.encrypt(memberJoin.getPassword());
@@ -113,6 +110,7 @@ public class MemberServiceImpl implements MemberService {
         // 권한 조회
         MemberRole memberRole = memberRoleService.getRole(RoleName.GENERAL_MEMBER);
         memberCreateDto.setMemberRole(memberRole);
+        memberCreateDto.setEmail(sessionInfo.getMemberEmail());
 
         // 사진 업로드
         ResponseEntity<CommonResponse> response = fileService.uploadFile(memberJoin.getFile());
@@ -120,9 +118,14 @@ public class MemberServiceImpl implements MemberService {
 
         // 멤버 디비 저장
         Member member = Member.insertMember(memberCreateDto);
+        memberRepo.save(member);
 
-        // 사진 멤버 디비 저장
-//        Files files = fileService.
+        Files files = fileService.getFiles(idxs.get(0));
+
+        // 파일 저장
+        MemberFile memberFile = MemberFile.insertMemberFile(member, files);
+
+        memberFileRepo.save(memberFile);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
     }
