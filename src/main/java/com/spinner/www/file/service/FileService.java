@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface FileService {
 
+    ResponseEntity<CommonResponse> uploadFile(MultipartFile file);
+
     /**
      * 파일 서버 업로드
      * @param files List<MultipartFile>
@@ -52,4 +54,11 @@ public interface FileService {
      * @return FileDto
      */
     FileDto convertFileDto(MultipartFile file, String fileUploadPath);
+
+    /**
+     * 파일 조회
+     * @param idx Long
+     * @return Files
+     */
+    Files getFiles(Long idx);
 }
