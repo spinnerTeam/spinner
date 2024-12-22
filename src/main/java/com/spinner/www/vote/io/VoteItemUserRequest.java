@@ -1,4 +1,4 @@
-package com.spinner.www.vote.dto;
+package com.spinner.www.vote.io;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteItemCreateDto {
-    private String voteItemName;
+public class VoteItemUserRequest {
+    private Long voteItemIdx;
 }

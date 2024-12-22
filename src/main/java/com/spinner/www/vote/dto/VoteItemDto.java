@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class VoteItemCreateDto {
+public class VoteItemDto {
+    private Long voteItemIdx;
     private String voteItemName;
+    private String voteItemStatus;
 }

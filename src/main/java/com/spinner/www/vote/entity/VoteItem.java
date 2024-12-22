@@ -2,12 +2,15 @@ package com.spinner.www.vote.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.vote.dto.VoteItemCreateDto;
+import com.spinner.www.vote.dto.VoteItemDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,8 +36,20 @@ public class VoteItem extends BaseEntity {
     @Comment("투표_항목 삭제 여부")
     private String voteItemIsRemoved;
 
+
+    /**
+     * 양방향 연관관계 맺어 주는 메서드
+     * @param vote Vote
+     */
+    public void addVote(Vote vote) {
+        this.vote = vote;
+    }
+
     /**
      * 생성 메서드
+     * @param vote Vote
+     * @param voteItemCreateDto voteItemCreateDto
+     * @return VoteItem
      */
     public static VoteItem create(Vote vote, VoteItemCreateDto voteItemCreateDto) {
         return VoteItem.builder()
@@ -42,5 +57,23 @@ public class VoteItem extends BaseEntity {
                 .voteItemName(voteItemCreateDto.getVoteItemName())
                 .voteItemIsRemoved("N")
                 .build();
+    }
+
+    /**
+     * 업데이트 메서드
+     * @param voteItemDto voteItemDto
+     */
+    public void update(VoteItemDto voteItemDto) {
+        this.id = voteItemDto.getVoteItemIdx();
+        this.voteItemName = voteItemDto.getVoteItemName();
+    }
+
+    /**
+     * 삭제 메서드
+     * @param voteItemDto VoteItemDto
+     */
+    public void softDelete(VoteItemDto voteItemDto) {
+        this.id = voteItemDto.getVoteItemIdx();
+        this.voteItemIsRemoved = "Y";
     }
 }
