@@ -66,7 +66,9 @@ public enum CommonResultCode {
     /**
      * 런타임 오류 익셉션
      */
-    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
+    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션"),
+
+    MARKETING_CONSENT_MISSING(40001, "마케팅 수신 동의 미체크");
 
 
     /**

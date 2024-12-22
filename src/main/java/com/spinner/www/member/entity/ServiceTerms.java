@@ -23,6 +23,6 @@ public class ServiceTerms extends BaseEntity {
     private String serviceTermsContent;
     @Comment("약관제목")
     private String serviceTermsTitle;
-
-
+    @Comment("사용여부")
+    private boolean serviceTermsIsUse;
 }
