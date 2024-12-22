@@ -42,6 +42,16 @@ public class FileServiceImpl implements FileService {
     private String FILE_PATH;
 
     /**
+     * 파일 한개 업로드
+     * @param file MultipartFile
+     * @return uploadFile
+     */
+    @Override
+    public ResponseEntity<CommonResponse> uploadFile(MultipartFile file){
+        return uploadFile(Collections.singletonList(file));
+    }
+
+    /**
      * 파일 서버 업로드
      * @param files MultipartFile
      * @return ResponseEntity<CommonResponse>
@@ -80,7 +90,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public Long saveFile(Files fileDBString) {
-        return fileRepo.save(fileDBString).getId();
+        return fileRepo.save(fileDBString).getFileIdx();
     }
 
     /**
@@ -163,5 +173,10 @@ public class FileServiceImpl implements FileService {
                 .fileConvertName(convertFileName(fileName))
                 .filePath(fileUploadPath)
                 .build();
+    }
+
+    @Override
+    public Files getFiles(Long idx) {
+        return fileRepo.findById(idx).orElseThrow(() -> new NoSuchElementException("파일을 찾을 수 없음"));
     }
 }

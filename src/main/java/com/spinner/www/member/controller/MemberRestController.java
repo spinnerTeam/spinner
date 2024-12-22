@@ -27,12 +27,12 @@ public class MemberRestController {
 
     /**
      * 회원가입
-     * @param memberRequest UserRequestDto 회원가입 요청
+     * @param memberJoin MemberJoin 회원가입 요청
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> invalidateEmail(@RequestBody MemberJoin memberRequest) {
-        return memberService.insertUser(memberRequest);
+    public ResponseEntity<CommonResponse> joinMember(@ModelAttribute MemberJoin memberJoin) {
+        return memberService.insertUser(memberJoin);
     }
 
     /**
@@ -44,7 +44,6 @@ public class MemberRestController {
     public ResponseEntity<CommonResponse> loginUser(@RequestBody MemberLogin userLoginRequest) {
         return memberService.loginMember(userLoginRequest);
     }
-
 
     /**
      * 이메일 인증
