@@ -2,15 +2,19 @@ package com.spinner.www.member.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.file.entity.Files;
+import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.constants.RoleName;
 import com.spinner.www.member.dto.MemberCreateDto;
 import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.member.entity.MemberFile;
 import com.spinner.www.member.entity.MemberRole;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
 import com.spinner.www.member.mapper.MemberMapper;
+import com.spinner.www.member.repository.MemberFileRepo;
 import com.spinner.www.member.repository.MemberRepo;
 import com.spinner.www.util.EncryptionUtils;
 import com.spinner.www.util.ResponseVOUtils;
@@ -22,12 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -48,6 +49,8 @@ public class MemberServiceImpl implements MemberService {
     private final HttpServletResponse response;
     private final RedisService redisService;
     private final MemberRoleService memberRoleService;
+    private final FileService fileService;
+    private final MemberFileRepo memberFileRepo;
 
     /**
      * 이메일로 회원조회
@@ -98,25 +101,31 @@ public class MemberServiceImpl implements MemberService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND),HttpStatus.NOT_FOUND);
         }
 
-        // 받은 비밀번호가 다를 때
-        if (!memberJoin.getPassword().equals(memberJoin.getPasswordConfirm()))  {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.PASSWORD_MISMATCH),HttpStatus.BAD_REQUEST);
-        }
-
         // 비밀번호 암호화
         String password = encryptionUtils.encrypt(memberJoin.getPassword());
         memberJoin.setPassword(password);
+
         MemberCreateDto memberCreateDto = memberMapper.memberJoinToMemberCreate(memberJoin);
 
         // 권한 조회
         MemberRole memberRole = memberRoleService.getRole(RoleName.GENERAL_MEMBER);
+        memberCreateDto.setMemberRole(memberRole);
+        memberCreateDto.setEmail(sessionInfo.getMemberEmail());
 
-        Member member = Member.builder()
-                .memberEmail(sessionInfo.getMemberEmail())
-                .memberPassword(memberCreateDto.getMemberPassword())
-                .memberRole(memberRole)
-                .build();
+        // 사진 업로드
+        ResponseEntity<CommonResponse> response = fileService.uploadFile(memberJoin.getFile());
+        List<Long> idxs = (List<Long>) response.getBody().getResults();
+
+        // 멤버 디비 저장
+        Member member = Member.insertMember(memberCreateDto);
         memberRepo.save(member);
+
+        Files files = fileService.getFiles(idxs.get(0));
+
+        // 파일 저장
+        MemberFile memberFile = MemberFile.insertMemberFile(member, files);
+
+        memberFileRepo.save(memberFile);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
     }
@@ -142,7 +151,7 @@ public class MemberServiceImpl implements MemberService {
         if(!invalidatePassword)  {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.PASSWORD_MISMATCH),HttpStatus.UNAUTHORIZED);
         }
-
+        memberSessionDto.setMemberIdx(member.getMemberIdx());
         // 토큰 생성 및 저장
         makeLoginToken(member, memberSessionDto);
         redisService.saveRedis("email", memberSessionDto.getMemberEmail(), DEFAULT_REFRESH_EXPIRATION_DAYS, TimeUnit.DAYS);
@@ -188,4 +197,6 @@ public class MemberServiceImpl implements MemberService {
         setRefreshTokenCookie(response, refreshToken, DEFAULT_REFRESH_EXPIRATION_DAYS);
         sessionInfo.setSession(memberSessionDto);
     }
+
+
 }

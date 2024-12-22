@@ -85,7 +85,7 @@ public enum CommonResultCode {
     /**
      * 비밀번호 유효성 체크
      */
-    INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요"),
+    INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요");
 
 
     /*

@@ -25,7 +25,7 @@ public class Files extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fileIdx")
     @Comment("파일 PK")
-    private Long id;
+    private Long fileIdx;
 
     @Comment("파일 원본명")
     private String fileOriginName;
