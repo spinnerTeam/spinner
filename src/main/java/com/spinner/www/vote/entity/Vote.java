@@ -29,7 +29,7 @@ public class Vote extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postIdx")
+    @JoinColumn(name = "boardIdx")
     @Comment("게시물 idx")
     private Board board;
 

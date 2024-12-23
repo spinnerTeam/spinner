@@ -8,7 +8,7 @@ public interface VoteService {
 
     ResponseEntity<CommonResponse> insertVote(VoteCreateRequest voteCreateRequest);
 
-    ResponseEntity<CommonResponse> selectAllVotes(Long postIdx);
+    ResponseEntity<CommonResponse> selectAllVotes(Long boardIdx);
 
     ResponseEntity<CommonResponse> selectVoteResult(Long voteIdx);
 

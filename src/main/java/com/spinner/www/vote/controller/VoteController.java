@@ -42,7 +42,6 @@ public class VoteController {
      */
     @PostMapping
     public ResponseEntity<CommonResponse> insertVote(@Valid @RequestBody VoteCreateRequest voteCreateRequest) {
-
         // 투표 항목이 비어 있을 시
         if (voteCreateRequest.getVoteItemCreateRequestList().isEmpty()) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_VOTE_ITEM_COUNT_MIN_ONE), HttpStatus.BAD_REQUEST);
@@ -59,12 +58,12 @@ public class VoteController {
     /**
      * 투표 리스트 조회
      * [ex] 게시물 클릭 후 투표 및 투표 항목 조회
-     * @param postIdx Long
+     * @param boardIdx Long
      * @return ResponseEntity<CommonResponse>
      */
-    @GetMapping("/{postIdx}")
-    public ResponseEntity<CommonResponse> selectAllVotes(@PathVariable("postIdx") Long postIdx) {
-        return voteService.selectAllVotes(postIdx);
+    @GetMapping("/{boardIdx}")
+    public ResponseEntity<CommonResponse> selectAllVotes(@PathVariable("boardIdx") Long boardIdx) {
+        return voteService.selectAllVotes(boardIdx);
     }
 
     /**
