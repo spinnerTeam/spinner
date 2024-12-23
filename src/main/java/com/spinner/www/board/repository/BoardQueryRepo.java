@@ -1,12 +1,9 @@
 package com.spinner.www.board.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.spinner.www.board.entity.Board;
-import com.spinner.www.board.entity.QBoard;
 import com.spinner.www.board.io.BoardListResponse;
 import com.spinner.www.board.io.BoardResponse;
 import com.spinner.www.member.entity.QMember;
@@ -17,7 +14,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +21,6 @@ import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.types.Projections.list;
 import static com.spinner.www.board.entity.QBoard.board;
 import static com.spinner.www.reply.entity.QReply.reply;
-import static com.spinner.www.member.entity.QMember.member;
 
 @Repository
 @RequiredArgsConstructor
