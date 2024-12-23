@@ -10,5 +10,5 @@ public class ReportCreateRequest {
     @NotBlank(message = "신고 타입은 필수 입력 조건입니다.")
     private Long reportTypeIdx;
     @NotBlank(message = "게시물 넘버는 필수 입력 조건입니다.")
-    private Long postIdx;
+    private Long boardIdx;
 }

@@ -1,7 +1,7 @@
 package com.spinner.www.vote.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
-import com.spinner.www.post.entity.Post;
+import com.spinner.www.board.entity.Board;
 import com.spinner.www.vote.dto.VoteCreateDto;
 import com.spinner.www.vote.dto.VoteDto;
 import jakarta.persistence.*;
@@ -29,9 +29,9 @@ public class Vote extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postIdx")
+    @JoinColumn(name = "boardIdx")
     @Comment("게시물 idx")
-    private Post post;
+    private Board board;
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VoteItem> voteItems = new ArrayList<>();
@@ -68,14 +68,14 @@ public class Vote extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static Vote create(Post post, VoteCreateDto voteCreateDto) {
+    public static Vote create(Board board, VoteCreateDto voteCreateDto) {
         LocalDateTime endDatetime = voteCreateDto.getVoteEndDatetime() != null
                 ? voteCreateDto.getVoteEndDatetime()
                 : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
         // 마감 기한 설정 없을 시 EndDateTime 9999-12-31 23:59:59 설정
 
         return Vote.builder()
-                .post(post)
+                .board(board)
                 .voteName(voteCreateDto.getVoteName())
                 .voteStatus(voteCreateDto.getVoteStatus())
                 .voteType(voteCreateDto.getVoteType())

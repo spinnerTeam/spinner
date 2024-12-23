@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class VoteCreateDto {
-    private Long postIdx;
+    private Long boardIdx;
     private String voteName;
     private VoteStatus voteStatus;
     private VoteType voteType;

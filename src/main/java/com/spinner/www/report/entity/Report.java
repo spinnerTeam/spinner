@@ -2,12 +2,11 @@ package com.spinner.www.report.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.post.entity.Post;
+import com.spinner.www.board.entity.Board;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -28,9 +27,9 @@ public class Report extends BaseEntity {
     private ReportType reportType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postIdx")
-    @Comment("postIdx")
-    private Post post;
+    @JoinColumn(name = "boardIdx")
+    @Comment("boardIdx")
+    private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx")
@@ -45,10 +44,10 @@ public class Report extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static Report create(ReportType reportType, Post post, Member member) {
+    public static Report create(ReportType reportType, Board board, Member member) {
         return  Report.builder()
                 .reportType(reportType)
-                .post(post)
+                .board(board)
                 .member(member)
                 .reportIsRemoved("N")
                 .build();

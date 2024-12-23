@@ -1,12 +1,13 @@
 package com.spinner.www.vote.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.repository.MemberRepo;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.repository.PostRepo;
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.*;
@@ -37,7 +38,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteRepo voteRepo;
     private final VoteUserRepo voteUserRepo;
     private final VoteItemRepo voteItemRepo;
-    private final PostRepo postRepo;
+    private final BoardRepo boardRepo;
     private final SessionInfo sessionInfo;
     private final VoteCustomMapper voteCustomMapper;
     private final MemberRepo memberRepo;
@@ -56,9 +57,10 @@ public class VoteServiceImpl implements VoteService {
         VoteCreateDto voteCreateDto = voteCustomMapper.voteCreateRequestToVoteCreateDto(voteCreateRequest);
 
         // 연관된 포스트 조회
-        Post post = postRepo.getReferenceById(voteCreateDto.getPostIdx());
+        Board board = boardRepo.getReferenceById(voteCreateDto.getBoardIdx());
 
-        Vote vote = Vote.create(post, voteCreateDto);
+        // 투표 엔티티 생성
+        Vote vote = Vote.create(board, voteCreateDto);
 
         // 투표 생성 후 idx 반환
         voteRepo.save(vote);
@@ -90,20 +92,20 @@ public class VoteServiceImpl implements VoteService {
 
     /**
      * 투표 리스트 조회
-     * @param postIdx Long
+     * @param boardIdx Long
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
+    public ResponseEntity<CommonResponse> selectAllVotes(Long boardIdx) {
 
         // 게시물 클릭 시
         // 커뮤니티는 투표 완료가 없으며, 투표한 사람만 결과 확인이 가능함
         // 투표 상태에 따라 기본 베이스가 변경됨 (ing, multiple 항목, end 결과)
-        VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(postIdx);
+        VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(boardIdx);
 
-        Post post = postRepo.getReferenceById(voteSelectDto.getPostIdx());
+        Board board = boardRepo.getReferenceById(voteSelectDto.getBoardIdx());
 
-        List<Vote> votes = voteRepo.findVotesByPost(post);
+        List<Vote> votes = voteRepo.findVotesByBoard(board);
 
         // 투표 리스트가 비어 있으면
         if (votes.isEmpty()) {

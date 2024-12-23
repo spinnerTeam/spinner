@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class VoteItemCreateRequest {
     private String voteItemName;
 }

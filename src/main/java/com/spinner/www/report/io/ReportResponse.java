@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 public class ReportResponse extends BaseResponse {
     private Long reportIdx;
     private String reportTypeContent;
-    private Long postIdx;
-    private String postTitle;
-    private String postContent;
+    private Long boardIdx;
+    private String boardTitle;
+    private String boardContent;
     private String reportMember;
 }
