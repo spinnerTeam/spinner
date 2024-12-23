@@ -78,6 +78,7 @@ public class VoteController {
      */
     @GetMapping("/list/{boardIdx}")
     public ResponseEntity<CommonResponse> selectAllVotes(@PathVariable("boardIdx") Long boardIdx) {
+        log.info("boardIdx: {}", boardIdx);
         return voteService.selectAllVotes(boardIdx);
     }
 

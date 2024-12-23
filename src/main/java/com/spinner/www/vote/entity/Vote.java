@@ -34,6 +34,7 @@ public class Vote extends BaseEntity {
     private Board board;
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<VoteItem> voteItems = new ArrayList<>();
 
     @Comment("투표 제목")
@@ -51,9 +52,11 @@ public class Vote extends BaseEntity {
     private String voteIsRemoved;
 
     @Comment("투표 시작 일자")
+    @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime startDatetime;
 
     @Comment("투표 마감 일자")
+    @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime endDatetime;
 
     /**
@@ -70,8 +73,8 @@ public class Vote extends BaseEntity {
     public static Vote create(Board board, VoteCreateDto voteCreateDto) {
         LocalDateTime endDatetime = voteCreateDto.getVoteEndDatetime() != null
                 ? voteCreateDto.getVoteEndDatetime()
-                : LocalDateTime.of(9999, 12, 31, 23, 59, 59);
-        // 마감 기한 설정 없을 시 EndDateTime 9999-12-31 23:59:59 설정
+                : LocalDateTime.of(2038, 1, 19, 3, 14, 7);
+        // 마감 기한 설정 없을 시 EndDateTime TimeStamp 최대 기간으로 설정
 
         return Vote.builder()
                 .board(board)
