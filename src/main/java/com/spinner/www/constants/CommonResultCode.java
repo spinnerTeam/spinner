@@ -88,10 +88,12 @@ public enum CommonResultCode {
     INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요"),
 
 
-    /*
+    /**
      * 런타임 오류 익셉션
      */
-    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션");
+    RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션"),
+
+    MARKETING_CONSENT_MISSING(40001, "마케팅 수신 동의 미체크");
 
 
     /**
