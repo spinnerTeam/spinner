@@ -35,4 +35,19 @@ public class VoteUser {
     @JoinColumn(name = "memberIdx")
     @Comment("멤버 idx")
     private Member member;
+
+    /**
+     * 생성 메서드
+     * @param member Member
+     * @param vote Vote
+     * @param voteItem VoteItem
+     * @return VoteUser
+     */
+    public static VoteUser create(Member member, Vote vote, VoteItem voteItem) {
+        return VoteUser.builder()
+                .member(member)
+                .voteItem(voteItem)
+                .vote(vote)
+                .build();
+    }
 }

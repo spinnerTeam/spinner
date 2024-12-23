@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MemberLoginDto {
+public class MemberSessionDto {
 
     private Long memberIdx;
     private MemberRole memberRole;

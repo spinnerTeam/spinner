@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DeleteVoteItemRequest {
-    private Long voteItemId;
+public class VoteItemDeleteRequest {
+    private Long voteItemIdx;
 }

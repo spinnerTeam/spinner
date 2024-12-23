@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -22,17 +23,21 @@ public class BaseEntity {
 
     @CreatedBy
     @Column(updatable = false)
-    private String createdAt;
+    @Comment("생성자")
+    private Long createdAt;
 
     @CreatedDate
     @Column(updatable = false, columnDefinition = "TIMESTAMP(0)")
+    @Comment("생성일")
     private LocalDateTime createdDate;
 
     @LastModifiedBy
-    private String modifiedAt;
+    @Comment("수정자")
+    private Long modifiedAt;
 
     @LastModifiedDate
     @Column(columnDefinition = "TIMESTAMP(0)")
+    @Comment("수정일")
     private LocalDateTime modifiedDate;
 
 }

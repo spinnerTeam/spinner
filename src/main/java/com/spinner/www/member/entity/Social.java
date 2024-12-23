@@ -9,12 +9,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 
 @Entity
 @Table(name = "social")
 @Comment("소셜 테이블")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Social {
 
     @Id

@@ -4,8 +4,9 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.member.io.EmailSend;
 import com.spinner.www.member.io.MemberLogin;
-import com.spinner.www.member.io.MemberCreate;
+import com.spinner.www.member.io.MemberJoin;
 import com.spinner.www.member.service.EmailService;
+import com.spinner.www.member.service.RedisService;
 import com.spinner.www.member.service.TokenService;
 import com.spinner.www.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,16 @@ public class MemberRestController {
     private final MemberService memberService;
     private final EmailService emailService;
     private final TokenService tokenService;
+    private final RedisService redisService;
 
     /**
      * 회원가입
-     * @param memberRequest UserRequestDto 회원가입 요청 데이터
+     * @param memberJoin MemberJoin 회원가입 요청
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> invalidateEmail(@RequestBody MemberCreate memberRequest) {
-        return memberService.insertUser(memberRequest);
+    public ResponseEntity<CommonResponse> joinMember(@ModelAttribute MemberJoin memberJoin) {
+        return memberService.insertUser(memberJoin);
     }
 
     /**
@@ -40,17 +42,7 @@ public class MemberRestController {
      */
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> loginUser(@RequestBody MemberLogin userLoginRequest) {
-        return memberService.loginUser(userLoginRequest);
-    }
-
-    /**
-     * 토큰 조회
-     * @param uIdx String
-     * @return 토큰값
-     */
-    @PostMapping("/refreshToken")
-    public String getRefreshToken(@RequestParam String uIdx){
-        return tokenService.getRefreshToken(uIdx);
+        return memberService.loginMember(userLoginRequest);
     }
 
     /**
@@ -64,6 +56,16 @@ public class MemberRestController {
     }
 
     /**
+     * 이메일 재발송
+     * @param emailSend EmailSend
+     * @return ResponseEntity<CommonResponse> 인증 코드 재발송 결과
+     */
+    @PostMapping("/reSendEmail")
+    public ResponseEntity<CommonResponse> reSendEmail(@RequestBody EmailSend emailSend) {
+        return emailService.reSendEmail(emailSend.getEmail(), emailSend.getType());
+    }
+
+    /**
      * 이메일 인증코드 검증
      * @param emailAuthRequest EmailAuthRequest
      * @return ResponseEntity<CommonResponse> 인증코드 비교 결과
@@ -71,10 +73,5 @@ public class MemberRestController {
     @PostMapping("/authCode")
     public ResponseEntity<CommonResponse> getAuthCode(@RequestBody EmailAuthRequest emailAuthRequest){
         return emailService.invalidateAuthCode(emailAuthRequest);
-    }
-
-    @GetMapping("/main")
-    public String testLogin(){
-        return "로그인완료";
     }
 }

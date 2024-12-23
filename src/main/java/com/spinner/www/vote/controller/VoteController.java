@@ -3,9 +3,8 @@ package com.spinner.www.vote.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
-import com.spinner.www.vote.io.DeleteVoteItemRequest;
-import com.spinner.www.vote.io.UpdateVoteItemRequest;
-import com.spinner.www.vote.io.VoteCreateRequest;
+import com.spinner.www.vote.entity.VoteStatus;
+import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.service.VoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Slf4j
 @RestController
-@RequestMapping
 @RequiredArgsConstructor
+@RequestMapping("/vote")
 public class VoteController {
 
     private final VoteService voteService;
@@ -31,6 +28,11 @@ public class VoteController {
      * 투표 항목을 생성할 때, 복수 선택 여부를 확인할 수 있다.
      * 투표 완료 후 참여자 인원 수를 확인할 수 있다. 이때 닉네임은 익명이다.
      * 투표 완료 후 투표수를 확인할 수 있다. (몇 퍼센트의 비율인지 또한 확인할 수 있다.)
+     * 커뮤 투표 > [익명] 일정 지정 마감 없고, 투표를 완료한 사람들만 투표 결과 확인 가능
+     * 스터디 투표 > [닉네임] 일정 지정 마감 o, 투표 즉시 종료 기능 o, 투표 마감 시 결과 확인 가능, 투표가 마감되면 새로운 게시물 생성
+     *
+     * [12.09] 투표 추가 및 업데이트, 삭제 진행
+     *
      */
 
     /**
@@ -56,6 +58,7 @@ public class VoteController {
 
     /**
      * 투표 리스트 조회
+     * [ex] 게시물 클릭 후 투표 및 투표 항목 조회
      * @param postIdx Long
      * @return ResponseEntity<CommonResponse>
      */
@@ -70,28 +73,61 @@ public class VoteController {
      * @return ResponseEntity<CommonResponse>
      */
     @GetMapping("/{voteIdx}")
-    public ResponseEntity<CommonResponse> selectVote(@PathVariable("voteIdx") Long voteIdx) {
-        return voteService.selectVote(voteIdx);
+    public ResponseEntity<CommonResponse> selectVoteResult(@PathVariable("voteIdx") Long voteIdx) {
+        return voteService.selectVoteResult(voteIdx);
     }
 
     /**
-     * 투표 항목 업데이트
-     * @param voteItemUpdateList List<UpdateVoteItem>
+     * 투표 및 항목 업데이트
+     * @param voteUpdateRequest VoteUpdateRequest
      * @return ResponseEntity<CommonResponse>
      */
-    @PatchMapping("/voteItem")
-    public ResponseEntity<CommonResponse> updateVoteItem(@RequestBody List<UpdateVoteItemRequest> voteItemUpdateList, @PathVariable String voteIdx) {
-        return voteService.updateVoteItem(voteItemUpdateList);
+    @PatchMapping
+    public ResponseEntity<CommonResponse> updateVoteAndVoteItem(@RequestBody VoteUpdateRequest voteUpdateRequest) {
+        return voteService.updateVoteItem(voteUpdateRequest);
     }
 
     /**
-     * 투표 항목 삭제
-     * @param voteItemDeleteList List<DeleteVoteItem>
+     * 투표 및 투표 항목 삭제
+     * @param voteDeleteRequest DeleteVoteItemRequest
      * @return ResponseEntity<CommonResponse>
      */
-    @DeleteMapping("/voteItem")
-    public ResponseEntity<CommonResponse> deleteVoteItem(@RequestBody List<DeleteVoteItemRequest> voteItemDeleteList) {
-        return voteService.deleteVoteITem(voteItemDeleteList);
+    @DeleteMapping
+    public ResponseEntity<CommonResponse> deleteVoteAndVoteItem(@RequestBody VoteDeleteRequest voteDeleteRequest) {
+        return voteService.deleteVoteITem(voteDeleteRequest);
+    }
+
+    /**
+     * [STUDY] 투표 즉시 마감
+     * @param voteIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @PatchMapping("/{voteIdx}/end")
+    public ResponseEntity<CommonResponse> endVoteItem(@PathVariable("voteIdx") Long voteIdx) {
+        return voteService.endVote(voteIdx);
+    }
+
+    /**
+     * 투표 참여
+     * @param voteUserRequest VoteParticipateUserRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @PostMapping("/participate")
+    public ResponseEntity<CommonResponse> selectVoteItem(@RequestBody VoteUserRequest voteUserRequest) {
+
+        // 단수 선택의 경우, 여러 개의 투표 항목이 들어오면
+        if (voteUserRequest.getVoteStatus() == VoteStatus.ing) {
+           if (voteUserRequest.getVoteItemIdxList().size() > 1) {
+               return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_MULTIPLE_VOTE), HttpStatus.BAD_REQUEST);
+           }
+        }
+
+        // 마감된 투표의 경우
+        if (voteUserRequest.getVoteStatus() == VoteStatus.end) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.END_VOTE), HttpStatus.BAD_REQUEST);
+        }
+
+        return voteService.selectVoteItem(voteUserRequest);
     }
 
 }
