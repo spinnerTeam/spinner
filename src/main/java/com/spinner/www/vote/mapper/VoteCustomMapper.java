@@ -21,7 +21,7 @@ public class VoteCustomMapper {
     public VoteCreateDto voteCreateRequestToVoteCreateDto(VoteCreateRequest voteCreateRequest) {
         return VoteCreateDto.builder()
                 .voteName(voteCreateRequest.getVoteName())
-                .boardIdx(voteCreateRequest.getBoardIdx())
+                .postIdx(voteCreateRequest.getPostIdx())
                 .voteStatus(voteCreateRequest.getVoteStatus())
                 .voteType(voteCreateRequest.getVoteType())
                 .voteStartDatetime(voteCreateRequest.getStartDatetime())
