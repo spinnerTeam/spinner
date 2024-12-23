@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface VoteMapper {
-    VoteSelectDto toVoteSelectDto(Long postIdx);
+    VoteSelectDto toVoteSelectDto(Long voteIdx);
 }
