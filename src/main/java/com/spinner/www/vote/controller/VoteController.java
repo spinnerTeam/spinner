@@ -6,6 +6,10 @@ import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.entity.VoteStatus;
 import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.service.VoteService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,16 @@ public class VoteController {
      * @param voteCreateRequest VoteCreateRequest
      * @return ResponseEntity<CommonResponse>
      */
+    @Operation(description = "투표를 추가합니다. " +
+            "투표를 생성할 때 복수 선택 여부를 선택할 수 있습니다. " +
+            "투표 항목은 최대 다섯 개까지 추가 가능합니다." +
+            "투표가 생성된 이후, 투표가 생성된 IDX를 반환합니다.",
+    responses = {
+            @ApiResponse(content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "20000", description = "투표 생성 요청 성공"),
+            @ApiResponse(responseCode = "41000", description = "투표 항목 미존재"),
+            @ApiResponse(responseCode = "41001", description = "투표 항목 5개 초과")
+    })
     @PostMapping
     public ResponseEntity<CommonResponse> insertVote(@Valid @RequestBody VoteCreateRequest voteCreateRequest) {
 
