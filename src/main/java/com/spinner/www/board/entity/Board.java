@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -50,7 +51,7 @@ public class Board extends BaseEntity {
 
     @OneToMany(mappedBy = "boardIdx"
             ,fetch = FetchType.LAZY)
-    private List<Reply> replies;
+    private List<Reply> replies = new ArrayList<>();
 
 
 

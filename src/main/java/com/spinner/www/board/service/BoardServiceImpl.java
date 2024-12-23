@@ -6,7 +6,6 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
-import com.spinner.www.board.dto.BoardGetDto;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardListResponse;
@@ -15,14 +14,17 @@ import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.board.mapper.BoardMapper;
 import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
+import com.spinner.www.reply.io.ReplyResponse;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -55,7 +57,7 @@ public class BoardServiceImpl implements BoardService {
 
         boardRepo.save(board);
         BoardResponse response = BoardResponse.builder()
-                .nickName(member.getMemberNickname())
+                .nickname(member.getMemberNickname())
                 .idx(board.getBoardIdx())
                 .title(board.getBoardTitle())
                 .content(board.getBoardContent())
@@ -84,22 +86,10 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> findByBoardInfo(Long boardIdx) {
-        Board board= this.findByBoardIdx(boardIdx);
+        Board board = findByBoardIdx(boardIdx);
+        BoardResponse response = buildBoardResponse(board);
 
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        BoardGetDto dto = boardMapper.boardToBoardGetDto(board);
-//        BoardResponse response = BoardResponse.builder()
-//                                .nickName(board.getMember().getMemberNickname())
-//                                .idx(board.getBoardIdx())
-//                                .title(board.getBoardTitle())
-//                                .content(board.getBoardContent())
-//                                .createdDate(board.getCreatedDate())
-//                                .modifiedDate(board.getModifiedDate())
-//                                .build();
-
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(dto), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**
@@ -167,5 +157,36 @@ public class BoardServiceImpl implements BoardService {
         board.delete();
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * BoardResponse 빌더 함수(너무 길어서 별도로 작성)
+     * @param board Board
+     * @return BoardResponse
+     */
+    public BoardResponse buildBoardResponse(Board board) {
+        List<ReplyResponse> replyResponses = board.getReplies().stream()
+                .filter(reply -> reply.getReplyIsRemoved() == 0 || !reply.getChildReplies().isEmpty())
+                .map(reply -> ReplyResponse.builder()
+                        .idx(reply.getReplyIdx())
+                        .nickname(reply.getMember().getMemberNickname())
+                        .content(reply.getReplyIsRemoved() == 0 ? reply.getReplyContent() : "삭제된 댓글입니다.")
+                        .childReplies(reply.getChildReplies().stream()
+                                .filter(childReply -> childReply.getReplyIsRemoved() == 0)
+                                .map(childReply -> ReplyResponse.builder()
+                                        .idx(childReply.getReplyIdx())
+                                        .nickname(childReply.getMember().getMemberNickname())
+                                        .content(childReply.getReplyContent())
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .build())
+                .collect(Collectors.toList());
+        return BoardResponse.builder()
+                .idx(board.getBoardIdx())
+                .nickname(board.getMember().getMemberNickname())
+                .title(board.getBoardTitle())
+                .content(board.getBoardContent())
+                .replies(replyResponses)
+                .build();
     }
 }

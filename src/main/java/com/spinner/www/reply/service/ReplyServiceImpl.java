@@ -7,9 +7,12 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.service.BoardService;
+import com.spinner.www.reply.dto.ReplyCreateDto;
+import com.spinner.www.reply.dto.ReplyUpdateDto;
 import com.spinner.www.reply.entity.Reply;
 import com.spinner.www.reply.io.ReplyCreateRequest;
 import com.spinner.www.reply.io.ReplyUpdateRequest;
+import com.spinner.www.reply.mapper.ReplyMapper;
 import com.spinner.www.reply.repository.ReplyRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -28,6 +32,7 @@ public class ReplyServiceImpl implements ReplyService {
     private final ReplyRepo replyRepo;
     private final MemberService memberService;
     private final BoardService boardService;
+    private final ReplyMapper replyMapper;
     /**
      * 댓글 생성
      * @param replyRequest ReplyCreateRequestIO 댓글 요청 데이터
@@ -37,7 +42,8 @@ public class ReplyServiceImpl implements ReplyService {
     public ResponseEntity<CommonResponse> insert(ReplyCreateRequest replyRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Board board = boardService.findByBoardIdx(replyRequest.getBoardIdx());
-        Long replyParentIdx = Objects.isNull(replyRequest.getParentIdx()) ? null :replyRequest.getParentIdx();
+        ReplyCreateDto replyDto = replyMapper.replyCreateRequestToReplyCreateDto(replyRequest);
+        Long replyParentIdx = Objects.isNull(replyDto.getParentIdx()) ? null :replyDto.getParentIdx();
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -51,7 +57,7 @@ public class ReplyServiceImpl implements ReplyService {
                 .member(member)
                 .boardIdx(board.getBoardIdx())
                 .replyParentIdx(replyParentIdx)
-                .replyContent(replyRequest.getContent())
+                .replyContent(replyDto.getReplyContent())
                 .build();
 
         replyRepo.save(reply);
@@ -80,8 +86,7 @@ public class ReplyServiceImpl implements ReplyService {
         Reply reply= this.findByReplyIdx(replyIdx);
         Long boardIdx = reply.getBoardIdx();
         Board board = boardService.findByBoardIdx(boardIdx);
-
-        System.out.println(reply.getReplyContent());
+        ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -95,7 +100,7 @@ public class ReplyServiceImpl implements ReplyService {
         if (!Objects.equals(reply.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        reply.update(replyRequest.getContent());
+        reply.update(replyDto.getReplyContent());
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
