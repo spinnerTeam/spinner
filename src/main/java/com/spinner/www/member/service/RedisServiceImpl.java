@@ -37,37 +37,6 @@ public class RedisServiceImpl implements RedisService {
     }
 
     /**
-     * 소셜로그인 세션 삭제
-     */
-    @Override
-    public void deleteOauthRedisSession() {
-
-        String sessionKey = "spring:session:sessions:*";
-
-        Set<String> sessionList = redisTemplate.keys(sessionKey);
-        if(sessionList != null)  {
-            for(String key : sessionList){
-                Object sessionData = redisTemplate.opsForHash().entries(sessionKey);
-
-                // 소셜 로그인 세션인지 확인 
-
-                if (isSocialLoginSession(sessionData)) {
-                    redisTemplate.delete(sessionKey);
-                }
-            }
-        }
-    }
-
-    // 소셜 로그인 세션 여부 확인 메서드
-    private boolean isSocialLoginSession(Object sessionData) {
-        if (sessionData instanceof Map) {
-            Map<String, Object> attributes = (Map<String, Object>) sessionData;
-            return attributes.containsKey("socialLoginFlag");
-        }
-        return false;
-    }
-
-    /**
      * 레디스에 key 값이 있는지 없는지
      * @param key String
      * @return 키값의 존재 유무

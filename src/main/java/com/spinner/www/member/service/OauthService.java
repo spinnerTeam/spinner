@@ -1,8 +1,8 @@
 package com.spinner.www.member.service;
 
 
-import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Social;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,13 +20,12 @@ public class OauthService extends DefaultOAuth2UserService {
 
     private final SocialService socialService;
     private final RedisService redisService;
-    private final SessionInfo sessionInfo;
+    private final HttpServletRequest request;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest){
 
         String clientId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
-
         OAuth2User user = super.loadUser(oAuth2UserRequest);
         Map<String, Object> attributes = user.getAttributes();
         String sub = "";
@@ -47,12 +46,12 @@ public class OauthService extends DefaultOAuth2UserService {
                 throw new IllegalArgumentException("지원되지 않는 소셜 로그인입니다: " + clientId);
         }
 
-        // 소셜 로그인 세션 삭제 처리
-        redisService.deleteOauthRedisSession();
+        HttpSession session = request.getSession(false);
+        session.invalidate();
 
         // sub 가 있는지 없는지
         Social social = socialService.getSocial(sub);
-        String email = sessionInfo.getMemberEmail();
+        String email = redisService.getValue("email");
 
         if (social != null)  {
             socialService.loginSocial(social);

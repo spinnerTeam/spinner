@@ -21,10 +21,6 @@ public interface RedisService {
      */
     String getValue(String key);
 
-    /**
-     * 소셜관련 세션 삭제
-     */
-    void deleteOauthRedisSession();
 
     /**
      * redis 에 key 값이 있는지 체크
