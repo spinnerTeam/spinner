@@ -6,7 +6,6 @@ import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.entity.VoteStatus;
 import com.spinner.www.vote.io.*;
 import com.spinner.www.vote.service.VoteService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -82,11 +81,11 @@ public class VoteController {
     }
 
     /**
-     * 투표 단건 조회
+     * 투표 단건 결과 조회
      * @param voteIdx Long
      * @return ResponseEntity<CommonResponse>
      */
-    @GetMapping("/{voteIdx}")
+    @GetMapping("/result/{voteIdx}")
     public ResponseEntity<CommonResponse> selectVoteResult(@PathVariable("voteIdx") Long voteIdx) {
         return voteService.selectVoteResult(voteIdx);
     }
