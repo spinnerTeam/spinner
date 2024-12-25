@@ -23,21 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class VoteController {
 
     private final VoteService voteService;
-
-    /**
-     * [memo]
-     * - 투표 항목은 수정, 추가, 삭제될 수 있다.
-     * (1) 투표 항목은 최대 다섯 개까지만 추가 가능하다.
-     * 투표 항목을 생성할 때, 복수 선택 여부를 확인할 수 있다.
-     * 투표 완료 후 참여자 인원 수를 확인할 수 있다. 이때 닉네임은 익명이다.
-     * 투표 완료 후 투표수를 확인할 수 있다. (몇 퍼센트의 비율인지 또한 확인할 수 있다.)
-     * 커뮤 투표 > [익명] 일정 지정 마감 없고, 투표를 완료한 사람들만 투표 결과 확인 가능
-     * 스터디 투표 > [닉네임] 일정 지정 마감 o, 투표 즉시 종료 기능 o, 투표 마감 시 결과 확인 가능, 투표가 마감되면 새로운 게시물 생성
-     *
-     * [12.09] 투표 추가 및 업데이트, 삭제 진행
-     *
-     */
-
+    
     /**
      * 투표 추가
      * @param voteCreateRequest VoteCreateRequest

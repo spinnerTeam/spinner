@@ -3,12 +3,12 @@ package com.spinner.www.vote.repository;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.spinner.www.vote.dto.QVoteResultDto;
-import com.spinner.www.vote.dto.VoteResultDto;
+import com.spinner.www.vote.dto.QVoteCommunityResultDto;
+import com.spinner.www.vote.dto.VoteCommunityResultDto;
 import com.spinner.www.vote.entity.QVoteItem;
 import com.spinner.www.vote.entity.QVoteUser;
 import com.spinner.www.vote.entity.Vote;
-import com.spinner.www.vote.io.VoteResultsResponse;
+import com.spinner.www.vote.io.VoteResultsCommunityResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +20,7 @@ public class VoteQueryRepo {
 
     private final JPAQueryFactory queryFactory;
 
-    public VoteResultsResponse findVoteResultsByVote(Vote vote) {
+    public VoteResultsCommunityResponse findVoteCommunityResultsByVote(Vote vote) {
 
         QVoteUser voteUser = QVoteUser.voteUser;
         QVoteItem voteItem = QVoteItem.voteItem;
@@ -34,7 +34,7 @@ public class VoteQueryRepo {
 
         // 전체 투표 수가 0이거나 데이터가 없을 경우 빈 응답 반환
         if (totalVotes == null || totalVotes == 0L) {
-            return VoteResultsResponse.builder()
+            return VoteResultsCommunityResponse.builder()
                     .totalVotes(0)
                     .voteResult(List.of())
                     .build();
@@ -44,7 +44,7 @@ public class VoteQueryRepo {
         NumberExpression<Double> totalVotesExpr = Expressions.asNumber(totalVotes.doubleValue());
 
         // 각 투표 항목별 데이터 조회
-        List<VoteResultDto> results = queryFactory.select(new QVoteResultDto(
+        List<VoteCommunityResultDto> results = queryFactory.select(new QVoteCommunityResultDto(
                         voteItem.voteItemName,
                         voteUser.count(),
                         voteUser.count().doubleValue().divide(totalVotesExpr)))
@@ -54,7 +54,7 @@ public class VoteQueryRepo {
                 .groupBy(voteItem.id, voteItem.voteItemName)
                 .fetch();
 
-        return VoteResultsResponse.builder()
+        return VoteResultsCommunityResponse.builder()
                 .totalVotes(totalVotes)
                 .voteResult(results)
                 .build();
