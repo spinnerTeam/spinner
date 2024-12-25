@@ -1,12 +1,12 @@
 package com.spinner.www.vote.service;
 
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.repository.MemberRepo;
-import com.spinner.www.post.entity.Post;
-import com.spinner.www.post.repository.PostRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.*;
@@ -18,17 +18,18 @@ import com.spinner.www.vote.repository.VoteQueryRepo;
 import com.spinner.www.vote.repository.VoteRepo;
 import com.spinner.www.vote.repository.VoteUserRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,7 +38,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteRepo voteRepo;
     private final VoteUserRepo voteUserRepo;
     private final VoteItemRepo voteItemRepo;
-    private final PostRepo postRepo;
+    private final BoardRepo boardRepo;
     private final SessionInfo sessionInfo;
     private final VoteCustomMapper voteCustomMapper;
     private final MemberRepo memberRepo;
@@ -56,9 +57,9 @@ public class VoteServiceImpl implements VoteService {
         VoteCreateDto voteCreateDto = voteCustomMapper.voteCreateRequestToVoteCreateDto(voteCreateRequest);
 
         // 연관된 포스트 조회
-        Post post = postRepo.getReferenceById(voteCreateDto.getPostIdx());
+        Board board = boardRepo.getReferenceById(voteCreateDto.getBoardIdx());
 
-        Vote vote = Vote.create(post, voteCreateDto);
+        Vote vote = Vote.create(board, voteCreateDto);
 
         // 투표 생성 후 idx 반환
         voteRepo.save(vote);
@@ -90,51 +91,63 @@ public class VoteServiceImpl implements VoteService {
 
     /**
      * 투표 리스트 조회
-     * @param postIdx Long
+     * @param boardIdx Long
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> selectAllVotes(Long postIdx) {
+    public ResponseEntity<CommonResponse> selectAllVotes(Long boardIdx) {
 
         // 게시물 클릭 시
         // 커뮤니티는 투표 완료가 없으며, 투표한 사람만 결과 확인이 가능함
         // 투표 상태에 따라 기본 베이스가 변경됨 (ing, multiple 항목, end 결과)
-        VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(postIdx);
+        VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(boardIdx);
 
-        Post post = postRepo.getReferenceById(voteSelectDto.getPostIdx());
+        Board board = boardRepo.getReferenceById(voteSelectDto.getBoardIdx());
 
-        List<Vote> votes = voteRepo.findVotesByPost(post);
+        List<Vote> votes = voteRepo.findVotesByBoard(board);
 
         // 투표 리스트가 비어 있으면
         if (votes.isEmpty()) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
+        List<Object> voteResponseList = new ArrayList<>();
+        VoteSelectResponse voteSelectResponse;
+
         for (Vote vote : votes) {
-            // 투표가 진행 중이거나 중복 투표가 가능하면
+            // (1) 투표가 진행 중이거나 중복 투표가 가능하면
             if (vote.getVoteStatus() == VoteStatus.ing || vote.getVoteStatus() == VoteStatus.multiple) {
+                // (1-1) 로그인 여부 확인
+                Long memberIdx = sessionInfo.getMemberIdx();
 
-                Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
-                VoteUser voteUser = voteUserRepo.findByMember(member);
-                VoteSelectResponse voteSelectResponse;
+                if (memberIdx != null) {
+                    // (1-2) 로그인된 사용자 처리
+                    Member member = memberRepo.getReferenceById(memberIdx);
+                    VoteUser voteUser = voteUserRepo.findByMember(member);
 
-                if (voteUser != null) {
-                    // 유저가 투표에 참여했으면
-                    voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, true);
+                    if (voteUser != null) {
+                        // (1-3) 유저가 투표에 참여했으면
+                        voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, true);
+                        voteResponseList.add(voteSelectResponse);
+                    } else {
+                        // (1-4) 유저가 투표에 참여하지 않았으면
+                        voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, false);
+                        voteResponseList.add(voteSelectResponse);
+                    }
                 } else {
-                    // 유저가 투표에 참여하지 않았으면
+                    // (1-5) 비로그인 사용자 처리
                     voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, false);
+                    voteResponseList.add(voteSelectResponse);
                 }
-                return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteSelectResponse), HttpStatus.OK);
 
-                // 투표가 완료됐으면
+            // (2) 투표가 완료됐으면
             } else {
                 VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
-                return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+                voteResponseList.add(voteResultsResponse);
             }
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResponseList), HttpStatus.OK);
     }
 
     /**

@@ -73,12 +73,12 @@ public class VoteController {
     /**
      * 투표 리스트 조회
      * [ex] 게시물 클릭 후 투표 및 투표 항목 조회
-     * @param postIdx Long
+     * @param boardIdx Long
      * @return ResponseEntity<CommonResponse>
      */
-    @GetMapping("/{postIdx}")
-    public ResponseEntity<CommonResponse> selectAllVotes(@PathVariable("postIdx") Long postIdx) {
-        return voteService.selectAllVotes(postIdx);
+    @GetMapping("/list/{boardIdx}")
+    public ResponseEntity<CommonResponse> selectAllVotes(@PathVariable("boardIdx") Long boardIdx) {
+        return voteService.selectAllVotes(boardIdx);
     }
 
     /**

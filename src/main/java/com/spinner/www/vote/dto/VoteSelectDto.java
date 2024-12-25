@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @Builder
 public class VoteSelectDto {
-    private Long postIdx;
+    private Long boardIdx;
 }

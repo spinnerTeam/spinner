@@ -2,8 +2,6 @@ package com.spinner.www.vote.mapper;
 
 import com.spinner.www.vote.dto.*;
 import com.spinner.www.vote.entity.Vote;
-import com.spinner.www.vote.entity.VoteItem;
-import com.spinner.www.vote.entity.VoteUser;
 import com.spinner.www.vote.io.*;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +19,7 @@ public class VoteCustomMapper {
     public VoteCreateDto voteCreateRequestToVoteCreateDto(VoteCreateRequest voteCreateRequest) {
         return VoteCreateDto.builder()
                 .voteName(voteCreateRequest.getVoteName())
-                .postIdx(voteCreateRequest.getPostIdx())
+                .boardIdx(voteCreateRequest.getBoardIdx())
                 .voteStatus(voteCreateRequest.getVoteStatus())
                 .voteType(voteCreateRequest.getVoteType())
                 .voteStartDatetime(voteCreateRequest.getStartDatetime())
@@ -180,10 +178,10 @@ public class VoteCustomMapper {
                 .voteStatus(vote.getVoteStatus())
                 .startDatetime(vote.getStartDatetime())
                 .endDatetime(vote.getEndDatetime())
-                .voteItemSelectResponseList(votes.stream()
+                .voteItemSelectResponseList(vote.getVoteItems().stream()
                         .map(voteItem -> VoteItemSelectResponse.builder()
                                 .voteItemIdx(voteItem.getId())
-                                .voteItemName(voteItem.getVoteName())
+                                .voteItemName(voteItem.getVoteItemName())
                                 .build())
                         .toList())
                 .userVoted(userVoted)
