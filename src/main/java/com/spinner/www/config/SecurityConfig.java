@@ -27,8 +27,6 @@ public class SecurityConfig {
 
     private final SessionInfo sessionInfo;
     private final CustomerLogoutHandler customerLogoutHandler;
-//    private final OauthLoginHandler oauthLoginHandler;
-//    private final HttpSession httpSession;
 
     /**
      * 비밀번호 단방향 암호화
@@ -51,19 +49,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, OauthService oauthService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-
+                // 소셜 로그인
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauthService)
                         )
-                        .defaultSuccessUrl("/member/main", true)
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("/member/main");
+                        })
                 )
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .addLogoutHandler((request, response, authentication) -> {
