@@ -184,7 +184,8 @@ public class VoteServiceImpl implements VoteService {
 
             // 스터디의 경우, 투표 마감이 된 상태라면
         } else if (vote.getVoteType() == VoteType.study && vote.getVoteStatus() == VoteStatus.end) {
-
+            // [MEMO] 스터디일 경우, 참여자의 닉네임이 공개된다.
+            // 각 항목을 선택한 참여자가 보이며, 스터디 미참여 인원 또한 볼 수 있다.
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_RESULT_NOT_ACCESS), HttpStatus.BAD_REQUEST);
@@ -317,7 +318,14 @@ public class VoteServiceImpl implements VoteService {
     public ResponseEntity<CommonResponse> endVote(Long voteIdx) {
 
         VoteDto voteDto = voteCustomMapper.voteIdxToVoteDto(voteIdx);
+        Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
         Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+
+        // 로그인한 사람과 작성자가 일치하지 않을 시
+        if (!Objects.equals(vote.getCreatedAt(), member.getMemberIdx())) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
         vote.statusUpdate(voteDto);
 
         VoteResponse voteResponse = VoteResponse.builder().voteIdx(vote.getId()).build();
