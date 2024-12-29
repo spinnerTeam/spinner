@@ -22,4 +22,9 @@ public class BaseResponse {
     private String modifiedAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime modifiedDate;
+
+    public BaseResponse(LocalDateTime createdDate, LocalDateTime modifiedDate) {
+        this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
+    }
 }

@@ -12,11 +12,13 @@ public interface BoardRepo extends JpaRepository<Board, Long> {
 
     /**
      * 삭제되지 않은 board 조회
+     * @param codeIdx Long
      * @param boardIdx Long
+     * @param isRemove int
      * @return Board
      */
     @EntityGraph(attributePaths = {"member", "replies"})
-    Optional<Board> findByBoardIdxAndBoardIsRemoved(Long boardIdx, int isRemove);
+    Optional<Board> findByCodeIdxAndBoardIdxAndBoardIsRemoved(Long codeIdx, Long boardIdx, int isRemove);
 
 
 }

@@ -28,6 +28,10 @@ public class Board extends BaseEntity {
     @Comment("게시판 PK")
     private Long boardIdx;
 
+    @Column(nullable = false)
+    @Comment("공통코드 식별자")
+    private Long codeIdx;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx", nullable = false)
     @Comment("유저 식별자")
