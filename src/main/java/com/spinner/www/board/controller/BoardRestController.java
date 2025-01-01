@@ -20,53 +20,58 @@ public class BoardRestController {
 
     /**
      * 게시글 생성
+     * @param boardType String
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    @PostMapping
-    public ResponseEntity<CommonResponse> insert(@RequestBody BoardCreateRequest boardRequest) {
-        return boardService.insert(boardRequest);
+    @PostMapping("/{boardType}")
+    public ResponseEntity<CommonResponse> insert(@PathVariable("boardType") String boardType, @RequestBody BoardCreateRequest boardRequest) {
+        return boardService.insert(boardType, boardRequest);
     }
 
     /**
-     * 게시글 조회
+     * 게시글
+     * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    @GetMapping("/{boardIdx}")
-    public ResponseEntity<CommonResponse> findByBoardInfo(@PathVariable("boardIdx") Long boardIdx) {
-        return boardService.findByBoardInfo(boardIdx);
+    @GetMapping("/{boardType}/{boardIdx}")
+    public ResponseEntity<CommonResponse> findByBoardInfo(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
+        return boardService.findByBoardInfo(boardType, boardIdx);
     }
 
     /**
      * 게시글 목록 조회
+     * @param boardType String
      * @param searchRequest SearchParamRequest 검색 조건
      * @return searchParamRequest<CommonResponse> 게시글 목록
      */
-    @GetMapping
-    public ResponseEntity<CommonResponse> findByAll(@ModelAttribute SearchParamRequest searchRequest) {
-        return boardService.getSliceOfBoard(searchRequest);
+    @GetMapping("/{boardType}")
+    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType, @ModelAttribute SearchParamRequest searchRequest) {
+        return boardService.getSliceOfBoard(boardType, searchRequest);
     }
 
     /**
      * 게시글 수정
+     * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @param boardRequest BoardUpdateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    @PatchMapping("/{boardIdx}")
-    public ResponseEntity<CommonResponse> update(@PathVariable("boardIdx") Long boardIdx, @RequestBody BoardUpdateRequest boardRequest) {
-        return boardService.update(boardIdx, boardRequest);
+    @PatchMapping("/{boardType}/{boardIdx}")
+    public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx, @RequestBody BoardUpdateRequest boardRequest) {
+        return boardService.update(boardType, boardIdx, boardRequest);
     }
 
     /**
      * 게시글 삭제
+     * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
-    @DeleteMapping("/{boardIdx}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable("boardIdx") Long boardIdx) {
-        return boardService.delete(boardIdx);
+    @DeleteMapping("/{boardType}/{boardIdx}")
+    public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
+        return boardService.delete(boardType, boardIdx);
     }
 
 }

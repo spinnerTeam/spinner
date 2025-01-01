@@ -34,6 +34,7 @@ public class BoardQueryRepo {
     QMember memberChildReply = new QMember("memberChildReply");
 
     public List<BoardListResponse> getSliceOfBoard(
+            Long codeIdx,
             @Nullable
             Long idx,
             int size,
@@ -52,14 +53,12 @@ public class BoardQueryRepo {
                                         .from(reply)
                                         .where(reply.boardIdx.eq(board.boardIdx)
                                                 .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
-                                board.createdAt,
                                 board.createdDate,
-                                board.modifiedAt,
                                 board.modifiedDate
                         )
                 )
                 .from(board)
-                .where(getNotRemoved(), getNotReported(), ltBoardIdx(idx), search(keyword))
+                .where(getCodeIdx(codeIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx), search(keyword))
                 .orderBy(board.boardIdx.desc())
                 .limit(size)
                 .fetch();
@@ -112,6 +111,10 @@ public class BoardQueryRepo {
                         )
                 ));
         return result.get(idx);
+    }
+
+    private BooleanBuilder getCodeIdx(Long codeIdx) {
+        return new BooleanBuilder(board.codeIdx.eq(codeIdx));
     }
 
     private BooleanBuilder getNotRemoved() {

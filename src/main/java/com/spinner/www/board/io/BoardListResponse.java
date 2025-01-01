@@ -15,8 +15,8 @@ public class BoardListResponse extends BaseResponse {
     private String nickName;
     private long replyCount;
 
-    public BoardListResponse(Long idx, String title, String content, String nickName, long replyCount, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
-        super(createdAt, createdDate, modifiedAt, modifiedDate);
+    public BoardListResponse(Long idx, String title, String content, String nickName, long replyCount, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+        super(createdDate, modifiedDate);
         this.idx = idx;
         this.title = title;
         this.content = content;
