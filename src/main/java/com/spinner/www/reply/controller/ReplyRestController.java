@@ -19,35 +19,38 @@ public class ReplyRestController {
 
     /**
      * 댓글 생성
+     * @param boardType String
      * @param replyRequest ReplyCreateRequestIO 댓글 요청 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
-    @PostMapping
-    public ResponseEntity<CommonResponse> insert(@RequestBody ReplyCreateRequest replyRequest) {
-        return replyService.insert(replyRequest);
+    @PostMapping("/{boardType}")
+    public ResponseEntity<CommonResponse> insert(@PathVariable("boardType") String boardType, @RequestBody ReplyCreateRequest replyRequest) {
+        return replyService.insert(boardType, replyRequest);
     }
 
 
     /**
      * 댓글 수정
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @param replyRequest ReplyUpdateRequestIO 댓글 요청 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
-    @PatchMapping("/{replyIdx}")
-    public ResponseEntity<CommonResponse> update(@PathVariable("replyIdx") Long replyIdx, @RequestBody ReplyUpdateRequest replyRequest) {
-        return replyService.update(replyIdx, replyRequest);
+    @PatchMapping("/{boardType}/{replyIdx}")
+    public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType, @PathVariable("replyIdx") Long replyIdx, @RequestBody ReplyUpdateRequest replyRequest) {
+        return replyService.update(boardType, replyIdx, replyRequest);
     }
 
 
     /**
      * 댓글 삭제
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
-    @DeleteMapping("/{replyIdx}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable("replyIdx") Long replyIdx) {
-        return replyService.delete(replyIdx);
+    @DeleteMapping("/{boardType}/{replyIdx}")
+    public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType, @PathVariable("replyIdx") Long replyIdx) {
+        return replyService.delete(boardType, replyIdx);
     }
 
 }

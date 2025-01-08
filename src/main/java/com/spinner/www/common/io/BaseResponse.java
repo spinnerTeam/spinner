@@ -7,7 +7,6 @@ import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,4 +21,9 @@ public class BaseResponse {
     private String modifiedAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime modifiedDate;
+
+    public BaseResponse(LocalDateTime createdDate, LocalDateTime modifiedDate) {
+        this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
+    }
 }

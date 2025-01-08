@@ -1,5 +1,6 @@
 package com.spinner.www.reply.service;
 
+import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
@@ -34,13 +35,15 @@ public class ReplyServiceImpl implements ReplyService {
     private final ReplyMapper replyMapper;
     /**
      * 댓글 생성
+     * @param boardType String
      * @param replyRequest ReplyCreateRequestIO 댓글 요청 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(ReplyCreateRequest replyRequest) {
+    public ResponseEntity<CommonResponse> insert(String boardType, ReplyCreateRequest replyRequest) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Board board = boardService.findByBoardIdx(replyRequest.getBoardIdx());
+        Board board = boardService.findByBoardIdx(codeIdx, replyRequest.getBoardIdx());
         ReplyCreateDto replyDto = replyMapper.replyCreateRequestToReplyCreateDto(replyRequest);
         Long replyParentIdx = Objects.isNull(replyDto.getParentIdx()) ? null :replyDto.getParentIdx();
 
@@ -73,18 +76,20 @@ public class ReplyServiceImpl implements ReplyService {
 
     /**
      * 댓글 수정
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @param replyRequest ReplyUpdateRequestIO 댓글 수정 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> update(Long replyIdx, ReplyUpdateRequest replyRequest) {
+    public ResponseEntity<CommonResponse> update(String boardType, Long replyIdx, ReplyUpdateRequest replyRequest) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
         Reply reply= this.findByReplyIdx(replyIdx);
         Long boardIdx = reply.getBoardIdx();
-        Board board = boardService.findByBoardIdx(boardIdx);
+        Board board = boardService.findByBoardIdx(codeIdx, boardIdx);
         ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
 
         if (Objects.isNull(memberIdx))
@@ -106,20 +111,23 @@ public class ReplyServiceImpl implements ReplyService {
 
     /**
      * 댓글 삭제
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> delete(Long replyIdx) {
+    public ResponseEntity<CommonResponse> delete(String boardType, Long replyIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
         Reply reply= this.findByReplyIdx(replyIdx);
+        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(reply))
+        if (Objects.isNull(reply) || Objects.isNull(board) || !board.getCodeIdx().equals(codeIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         if (!Objects.equals(reply.getMember(), member))

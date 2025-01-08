@@ -10,10 +10,11 @@ public interface ReplyService {
 
     /**
      * 댓글 생성
+     * @param boardType String
      * @param replyRequest ReplyCreateRequestIO 댓글 요청 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
-    ResponseEntity<CommonResponse> insert(ReplyCreateRequest replyRequest);
+    ResponseEntity<CommonResponse> insert(String boardType, ReplyCreateRequest replyRequest);
 
     /**
      * 댓글 uuid로 삭제되지 않은 댓글 조회
@@ -25,16 +26,18 @@ public interface ReplyService {
 
     /**
      * 댓글 수정
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @param replyRequest ReplyUpdateRequestIO 댓글 수정 데이터
      * @return ResponseEntity<CommonResponse> 댓글 상세 정보
      */
-    ResponseEntity<CommonResponse> update(Long replyIdx, ReplyUpdateRequest replyRequest);
+    ResponseEntity<CommonResponse> update(String boardType, Long replyIdx, ReplyUpdateRequest replyRequest);
 
     /**
      * 댓글 삭제
+     * @param boardType String
      * @param replyIdx Long 댓글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
-    ResponseEntity<CommonResponse> delete(Long replyIdx);
+    ResponseEntity<CommonResponse> delete(String boardType, Long replyIdx);
 }

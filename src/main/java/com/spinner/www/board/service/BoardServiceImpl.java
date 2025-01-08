@@ -1,5 +1,6 @@
 package com.spinner.www.board.service;
 
+import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
@@ -41,8 +42,9 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(BoardCreateRequest boardRequest) {
+    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Long codeIdx = CommonBoardCode.getCode(boardType);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -50,6 +52,7 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberService.getMember(memberIdx);
 
         Board board = Board.builder()
+                .codeIdx(codeIdx)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
                 .boardContent(boardRequest.getContent())
@@ -70,23 +73,26 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
+     * @param codeIdx Long 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public Board findByBoardIdx(Long boardIdx) {
+    public Board findByBoardIdx(Long codeIdx, Long boardIdx) {
         int isNotRemove = 0;
-        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElse(null);
+        return boardRepo.findByCodeIdxAndBoardIdxAndBoardIsRemoved(codeIdx, boardIdx, isNotRemove).orElse(null);
     }
 
     /**
      * 게시글 조회
+     * @param boardType String 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> findByBoardInfo(Long boardIdx) {
-        Board board = findByBoardIdx(boardIdx);
+    public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        Board board = findByBoardIdx(codeIdx, boardIdx);
         BoardResponse response = buildBoardResponse(board);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
@@ -94,12 +100,15 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 목록 조회
+     * @param boardType String 게시판 타입
      * @param searchRequest SearchParamRequest 검색 조건
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     @Override
-    public ResponseEntity<CommonResponse> getSliceOfBoard(SearchParamRequest searchRequest) {
-        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(searchRequest.getIdx(),
+    public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, SearchParamRequest searchRequest) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
+                                                                        searchRequest.getIdx(),
                                                                         searchRequest.getSize(),
                                                                         searchRequest.getKeyword());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
@@ -108,16 +117,18 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 수정
+     * @param boardType String 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> update(Long boardIdx, BoardUpdateRequest boardRequest) {
+    public ResponseEntity<CommonResponse> update(String boardType, Long boardIdx, BoardUpdateRequest boardRequest) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Board board= this.findByBoardIdx(boardIdx);
+        Board board= this.findByBoardIdx(codeIdx, boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -129,21 +140,24 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
         board.update(boardRequest.getTitle(), boardRequest.getContent());
+        BoardResponse response = buildBoardResponse(board);
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(board), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**
      * 게시글 삭제
+     * @param boardType String 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> delete(Long boardIdx) {
+    public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Board board= this.findByBoardIdx(boardIdx);
+        Board board= this.findByBoardIdx(codeIdx, boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
