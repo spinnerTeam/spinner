@@ -1,5 +1,6 @@
 package com.spinner.www.reply.io;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spinner.www.common.io.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,11 +16,16 @@ public class ReplyResponse extends BaseResponse {
     private String content;
     private String nickname;
     private List<ReplyResponse> childReplies;
+    private Long likeCount;
 
+    @JsonProperty("isLiked")
+    private boolean isLiked;
 
-    public ReplyResponse(Long idx, String content, String nickname) {
+    public ReplyResponse(Long idx, String content, String nickname, Long likeCount, boolean isLiked) {
         this.idx = idx;
         this.content = content;
         this.nickname = nickname;
+        this.likeCount = likeCount;
+        this.isLiked = isLiked;
     }
 }

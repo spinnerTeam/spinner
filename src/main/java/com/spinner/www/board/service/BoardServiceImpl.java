@@ -4,6 +4,8 @@ import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.file.service.FileService;
+import com.spinner.www.like.service.LikeService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
@@ -22,7 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,9 +39,13 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepo boardRepo;
     private final BoardQueryRepo boardQueryRepo;
     private final MemberService memberService;
+    private final FileService fileService;
+    private final LikeService likeService;
     private final BoardMapper boardMapper;
+
     /**
      * 게시글 생성
+     *
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
@@ -73,7 +81,8 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
-     * @param codeIdx Long 게시판 타입
+     *
+     * @param codeIdx  Long 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
@@ -85,8 +94,9 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 조회
+     *
      * @param boardType String 게시판 타입
-     * @param boardIdx Long 게시글 idx
+     * @param boardIdx  Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
@@ -94,13 +104,13 @@ public class BoardServiceImpl implements BoardService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Board board = findByBoardIdx(codeIdx, boardIdx);
         BoardResponse response = buildBoardResponse(board);
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**
      * 게시글 목록 조회
-     * @param boardType String 게시판 타입
+     *
+     * @param boardType     String 게시판 타입
      * @param searchRequest SearchParamRequest 검색 조건
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
@@ -108,17 +118,18 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, SearchParamRequest searchRequest) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
-                                                                        searchRequest.getIdx(),
-                                                                        searchRequest.getSize(),
-                                                                        searchRequest.getKeyword());
+                searchRequest.getIdx(),
+                searchRequest.getSize(),
+                searchRequest.getKeyword());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
 
 
     /**
      * 게시글 수정
-     * @param boardType String 게시판 타입
-     * @param boardIdx Long 게시글 idx
+     *
+     * @param boardType    String 게시판 타입
+     * @param boardIdx     Long 게시글 idx
      * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
@@ -128,7 +139,7 @@ public class BoardServiceImpl implements BoardService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Board board= this.findByBoardIdx(codeIdx, boardIdx);
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -141,14 +152,15 @@ public class BoardServiceImpl implements BoardService {
 
         board.update(boardRequest.getTitle(), boardRequest.getContent());
         BoardResponse response = buildBoardResponse(board);
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+
     }
 
     /**
      * 게시글 삭제
+     *
      * @param boardType String 게시판 타입
-     * @param boardIdx Long 게시글 idx
+     * @param boardIdx  Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
     @Override
@@ -157,7 +169,7 @@ public class BoardServiceImpl implements BoardService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
         Member member = memberService.getMember(memberIdx);
-        Board board= this.findByBoardIdx(codeIdx, boardIdx);
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -175,16 +187,21 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * BoardResponse 빌더 함수(너무 길어서 별도로 작성)
+     *
      * @param board Board
      * @return BoardResponse
      */
     public BoardResponse buildBoardResponse(Board board) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+
         List<ReplyResponse> replyResponses = board.getReplies().stream()
                 .filter(reply -> reply.getReplyIsRemoved() == 0 || !reply.getChildReplies().isEmpty())
                 .map(reply -> ReplyResponse.builder()
                         .idx(reply.getReplyIdx())
                         .nickname(reply.getMember().getMemberNickname())
                         .content(reply.getReplyIsRemoved() == 0 ? reply.getReplyContent() : "삭제된 댓글입니다.")
+                        .likeCount(reply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
+                        .isLiked(reply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
                         .childReplies(reply.getChildReplies().stream()
                                 .filter(childReply -> childReply.getReplyIsRemoved() == 0)
                                 .map(childReply -> ReplyResponse.builder()
@@ -195,12 +212,58 @@ public class BoardServiceImpl implements BoardService {
                                 .collect(Collectors.toList()))
                         .build())
                 .collect(Collectors.toList());
+
+        Long likeCount = board.getLikes().stream()
+                .filter(like -> like.getLikeIsLiked() == 1).count();
+
+        boolean isLiked = board.getLikes().stream()
+                .anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1);
+
         return BoardResponse.builder()
                 .idx(board.getBoardIdx())
                 .nickname(board.getMember().getMemberNickname())
                 .title(board.getBoardTitle())
                 .content(board.getBoardContent())
                 .replies(replyResponses)
+                .likeCount(likeCount)
+                .isLiked(isLiked)
                 .build();
+    }
+
+    /**
+     * 파일 서버 업로드
+     *
+     * @param files MultipartFile
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException {
+        return fileService.uploadBoardFile(files);
+    }
+
+    /**
+     * 좋아요 생성 또는 업데이트
+     *
+     * @param boardType String 게시판 타입
+     * @param boardIdx  Long 게시글 idx
+     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
+     */
+    @Override
+    public ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        Long memberIdx = sessionInfo.getMemberIdx();
+        Member member = memberService.getMember(memberIdx);
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
+
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        if (!Objects.equals(board.getMember(), member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+
+        return likeService.upsertBoard(boardIdx);
     }
 }
