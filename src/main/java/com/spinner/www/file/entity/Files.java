@@ -36,4 +36,6 @@ public class Files extends BaseEntity {
     @Comment("파일 경로")
     private String filePath;
 
+    @Comment("파일 종류(공통코드)")
+    private Long codeIdx;
 }
