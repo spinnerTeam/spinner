@@ -63,6 +63,11 @@ public enum CommonResultCode {
     VOTE_RESULT_NOT_ACCESS(41006, "투표 결과를 확인할 수 없습니다."),
 
     /**
+     * 중복 투표의 경우
+     */
+    VOTE_NOT_UPDATE(41007, "이미 투표하셨습니다."),
+
+    /**
      * 서버 에러
      */
     ERROR(50000, "서버 에러"),

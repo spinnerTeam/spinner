@@ -10,5 +10,6 @@ import java.util.List;
 @Builder
 public class VoteResultsCommunityResponse {
     private long totalVotes;                 // 총 투표 수
+    private long voteIdx;
     private List<VoteCommunityResultDto> voteResult;    // 투표 항목별 결과
 }

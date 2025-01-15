@@ -353,6 +353,11 @@ public class VoteServiceImpl implements VoteService {
         Member member = memberRepo.getReferenceById(voteUserCreateDto.getMemberIdx());
         Vote vote = voteRepo.getReferenceById(voteUserCreateDto.getVoteIdx());
 
+        // 중복 투표 체크
+        if (!voteQueryRepo.findVoteUser(member, vote)) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_NOT_UPDATE), HttpStatus.BAD_REQUEST);
+        }
+
         List<VoteItemUserCreateDto> voteItemUserCreateDtoList = voteCustomMapper.toVoteItemUserCreateDto(voteUserRequest);
 
         // [stream] voteItemUserCreateDtoList 타입인 VoteItemUserCreateDTO에서 voteItemIdx를 List로 만들고
@@ -361,6 +366,11 @@ public class VoteServiceImpl implements VoteService {
                 .map(VoteItemUserCreateDto::getVoteItemIdx)
                 .toList();
         List<VoteItem> voteItems = voteItemRepo.findAllById(voteItemIds);
+
+        // 투표 항목과 투표가 일치하지 않으면
+        if (!voteQueryRepo.findVote(vote, voteItemIds)) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.BAD_REQUEST);
+        }
 
         // 조회된 VoteItems Map 변환
         // [stream] 리스트 타입인 voteItem 맵으로 전환, 키로 Id, 밸류로 voteItem
