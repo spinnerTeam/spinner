@@ -34,7 +34,7 @@ public class BoardRestController {
     }
 
     /**
-     * 게시글
+     * 게시글 조회
      * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보

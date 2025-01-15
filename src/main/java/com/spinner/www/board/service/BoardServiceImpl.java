@@ -208,6 +208,8 @@ public class BoardServiceImpl implements BoardService {
                                         .idx(childReply.getReplyIdx())
                                         .nickname(childReply.getMember().getMemberNickname())
                                         .content(childReply.getReplyContent())
+                                        .likeCount(childReply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
+                                        .isLiked(childReply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
                                         .build())
                                 .collect(Collectors.toList()))
                         .build())

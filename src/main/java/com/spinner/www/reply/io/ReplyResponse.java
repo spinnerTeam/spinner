@@ -1,5 +1,6 @@
 package com.spinner.www.reply.io;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spinner.www.common.io.BaseResponse;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,9 @@ public class ReplyResponse extends BaseResponse {
 
     @JsonProperty("isLiked")
     private boolean isLiked;
+
+    @JsonIgnore
+    private boolean liked;
 
     public ReplyResponse(Long idx, String content, String nickname, Long likeCount, boolean isLiked) {
         this.idx = idx;
