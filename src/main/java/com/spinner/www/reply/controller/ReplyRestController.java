@@ -53,4 +53,15 @@ public class ReplyRestController {
         return replyService.delete(boardType, replyIdx);
     }
 
+    /**
+     * 좋아요
+     * @param boardType String
+     * @param boardIdx Long 게시글 요청 데이터
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @PostMapping("/{boardType}/like/{boardIdx}")
+    public ResponseEntity<CommonResponse> like(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
+        return replyService.upsertLike(boardType, boardIdx);
+    }
+
 }

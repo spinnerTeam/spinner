@@ -2,8 +2,10 @@ package com.spinner.www.file.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.file.constants.CommonFileCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.file.io.BoardFileResponse;
 import com.spinner.www.file.mapper.FileMapper;
 import com.spinner.www.file.repository.FileRepo;
 import com.spinner.www.util.ResponseVOUtils;
@@ -67,13 +69,48 @@ public class FileServiceImpl implements FileService {
                     //(1) 파일 서버 저장
                     //(1-1) 폴더가 없으면 폴더 생성
                     String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
+                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
                     //(1-2) 파일 저장
-                    FileDto fileDto = convertFileDto(file, fileUploadPath);
+                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
                     String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
                     file.transferTo(new File(fileUploadPathName));
 
                     //(2) 파일 정보 DB 저장
                     fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
+                } catch (IOException e) {
+                    return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
+                }
+            }
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
+    }
+
+    /**
+     * 파일 서버 업로드
+     * @param files MultipartFile
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) {
+        // 파일 저장 ID 확인 리스트 세팅
+        List<BoardFileResponse> fileUploadResults = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                try {
+                    //(1) 파일 서버 저장
+                    //(1-1) 폴더가 없으면 폴더 생성
+                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
+                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
+                    //(1-2) 파일 저장
+                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
+                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
+                    file.transferTo(new File(fileUploadPathName));
+                    Files fileEntity = fileMapper.fileDtoToFile(fileDto);
+                    saveFile(fileEntity);
+                    //(2) 파일 정보 DB 저장
+                    fileUploadResults.add(fileMapper.fileToBoardFileResponse(fileEntity));
                 } catch (IOException e) {
                     return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
                 }
@@ -140,6 +177,8 @@ public class FileServiceImpl implements FileService {
 
         if (contentType != null && contentType.startsWith("image")) {
             typePath = "images";
+        } else if (contentType != null && contentType.startsWith("video")) {
+            typePath = "videos";
         } else {
             typePath = "files";
         }
@@ -159,12 +198,30 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
+     * 파일 종류에 해당하는 공통코드 리턴
+     * @param file MultipartFile
+     * @return Long
+     */
+    public Long getContentTypeCodeIdx(MultipartFile file) throws IOException {
+        // 이미지/비디오/문서 파일 분기 작업
+        String contentType = file.getContentType();
+
+        if (contentType != null && contentType.startsWith("image")) {
+            return CommonFileCode.getCode("image");
+        } else if (contentType != null && contentType.startsWith("video")) {
+            return CommonFileCode.getCode("video");
+        } else {
+            return CommonFileCode.getCode("doc");
+        }
+    }
+
+    /**
      * MultipartFile -> FileDTO 변환
      * @param file MultipartFile
      * @return FileDto
      */
     @Override
-    public FileDto convertFileDto(MultipartFile file, String fileUploadPath) {
+    public FileDto convertFileDto(MultipartFile file, String fileUploadPath, Long fileTypeCodeIdx) {
         // 파일 이름이 null일 경우 빈 문자열 처리, 널 포인트 익셉션 방지
         String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("");
 
@@ -172,6 +229,7 @@ public class FileServiceImpl implements FileService {
                 .fileOriginName(fileName)
                 .fileConvertName(convertFileName(fileName))
                 .filePath(fileUploadPath)
+                .fileTypeCodeIdx(fileTypeCodeIdx)
                 .build();
     }
 

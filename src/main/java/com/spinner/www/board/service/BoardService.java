@@ -6,6 +6,10 @@ import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 public interface BoardService {
 
@@ -57,4 +61,19 @@ public interface BoardService {
      * @return ResponseEntity<CommonResponse> 삭제 응답 결과
      */
     ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx);
+
+    /**
+     * 파일 서버 업로드
+     * @param files List<MultipartFile>
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException;
+
+    /**
+     * 좋아요 생성 또는 업데이트
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
+     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
+     */
+    ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx);
 }

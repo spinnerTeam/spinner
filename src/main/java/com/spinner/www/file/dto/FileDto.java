@@ -14,4 +14,5 @@ public class FileDto extends BaseDto {
     private String fileOriginName;
     private String fileConvertName;
     private String filePath;
+    private Long fileTypeCodeIdx;
 }

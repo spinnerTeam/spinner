@@ -13,14 +13,16 @@ public class BoardListResponse extends BaseResponse {
     private String title;
     private String content;
     private String nickName;
-    private long replyCount;
+    private Long replyCount;
+    private Long likeCount;
 
-    public BoardListResponse(Long idx, String title, String content, String nickName, long replyCount, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+    public BoardListResponse(Long idx, String title, String content, String nickName, Long replyCount, Long likeCount, LocalDateTime createdDate, LocalDateTime modifiedDate) {
         super(createdDate, modifiedDate);
         this.idx = idx;
         this.title = title;
         this.content = content;
         this.nickName = nickName;
         this.replyCount = replyCount;
+        this.likeCount = likeCount;
     }
 }

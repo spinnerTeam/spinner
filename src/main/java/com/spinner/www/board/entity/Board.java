@@ -1,5 +1,6 @@
 package com.spinner.www.board.entity;
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
 import jakarta.persistence.*;
@@ -57,7 +58,9 @@ public class Board extends BaseEntity {
             ,fetch = FetchType.LAZY)
     private List<Reply> replies = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "boardIdx"
+            ,fetch = FetchType.LAZY)
+    private List<Like> likes = new ArrayList<>();
 
     public void update(String boardTitle, String boardContent) {
         this.boardTitle = boardTitle;

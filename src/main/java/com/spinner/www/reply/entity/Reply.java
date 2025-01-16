@@ -1,6 +1,7 @@
 package com.spinner.www.reply.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,10 @@ public class Reply extends BaseEntity {
     @OneToMany(mappedBy = "replyParentIdx",
             fetch = FetchType.LAZY)
     private List<Reply> childReplies;
+
+    @OneToMany(mappedBy = "replyIdx",
+            fetch = FetchType.LAZY)
+    private List<Like> likes;
 
     public void update(String replyContent) {
         this.replyContent = replyContent;
