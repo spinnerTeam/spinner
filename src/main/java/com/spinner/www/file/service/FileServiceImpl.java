@@ -74,7 +74,6 @@ public class FileServiceImpl implements FileService {
                     FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
                     String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
                     file.transferTo(new File(fileUploadPathName));
-
                     //(2) 파일 정보 DB 저장
                     fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
                 } catch (IOException e) {

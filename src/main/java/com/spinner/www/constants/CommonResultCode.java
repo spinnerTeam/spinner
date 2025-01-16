@@ -15,7 +15,7 @@ public enum CommonResultCode {
     /**
      * 로그인은 되어 있으나 접근 권한이 없는 경우(ex: 게시글의 작성자와 수정자가 불일치)
      */
-    FORBIDDEN(40301, "접근이 금지되었습니다."),
+    FORBIDDEN(40301, "올바르지 않은 접근입니다."),
 
     /**
      * 데이터 중복
@@ -61,6 +61,11 @@ public enum CommonResultCode {
      * 투표 결과를 확인할 수 없는 권한의 경우
      */
     VOTE_RESULT_NOT_ACCESS(41006, "투표 결과를 확인할 수 없습니다."),
+
+    /**
+     * 중복 투표의 경우
+     */
+    VOTE_NOT_UPDATE(41007, "이미 투표하셨습니다."),
 
     /**
      * 서버 에러

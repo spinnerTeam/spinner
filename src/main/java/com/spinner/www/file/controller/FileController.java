@@ -26,6 +26,7 @@ public class FileController {
 
     @PostMapping
     public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
+        log.info(String.valueOf(files));
         return fileService.uploadFile(files);
     }
 

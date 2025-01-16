@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,7 +59,6 @@ public class VoteServiceImpl implements VoteService {
 
         // 연관된 포스트 조회
         Board board = boardRepo.getReferenceById(voteCreateDto.getBoardIdx());
-
         Vote vote = Vote.create(board, voteCreateDto);
 
         // 투표 생성 후 idx 반환
@@ -101,9 +101,7 @@ public class VoteServiceImpl implements VoteService {
         // 커뮤니티는 투표 완료가 없으며, 투표한 사람만 결과 확인이 가능함
         // 투표 상태에 따라 기본 베이스가 변경됨 (ing, multiple 항목, end 결과)
         VoteSelectDto voteSelectDto = voteMapper.toVoteSelectDto(boardIdx);
-
         Board board = boardRepo.getReferenceById(voteSelectDto.getBoardIdx());
-
         List<Vote> votes = voteRepo.findVotesByBoard(board);
 
         // 투표 리스트가 비어 있으면
@@ -111,12 +109,17 @@ public class VoteServiceImpl implements VoteService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
         }
 
+        // (투표 진행 중 && 투표 완료된 리스폰트) 리스트 결과값 반환
         List<Object> voteResponseList = new ArrayList<>();
-        VoteSelectResponse voteSelectResponse;
 
         for (Vote vote : votes) {
+
             // (1) 투표가 진행 중이거나 중복 투표가 가능하면
             if (vote.getVoteStatus() == VoteStatus.ing || vote.getVoteStatus() == VoteStatus.multiple) {
+
+                // 투표 진행 중 리스폰스
+                VoteSelectResponse voteSelectResponse;
+
                 // (1-1) 로그인 여부 확인
                 Long memberIdx = sessionInfo.getMemberIdx();
 
@@ -128,12 +131,11 @@ public class VoteServiceImpl implements VoteService {
                     if (voteUser != null) {
                         // (1-3) 유저가 투표에 참여했으면
                         voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, true);
-                        voteResponseList.add(voteSelectResponse);
                     } else {
                         // (1-4) 유저가 투표에 참여하지 않았으면
                         voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, false);
-                        voteResponseList.add(voteSelectResponse);
                     }
+                    voteResponseList.add(voteSelectResponse);
                 } else {
                     // (1-5) 비로그인 사용자 처리
                     voteSelectResponse = voteCustomMapper.createVoteSelectResponse(vote, votes, false);
@@ -142,8 +144,15 @@ public class VoteServiceImpl implements VoteService {
 
             // (2) 투표가 완료됐으면
             } else {
-                VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
-                voteResponseList.add(voteResultsResponse);
+                if (vote.getVoteType() == VoteType.community) {
+                    // 투표 완료 리스폰스
+                    VoteResultsCommunityResponse voteResultsCommunityResponse = voteQueryRepo.findVoteCommunityResultsByVote(vote);
+                    voteResponseList.add(voteResultsCommunityResponse);
+                } else if (vote.getVoteType() == VoteType.study) {
+                    // [MEMO] 스터디일 경우, 참여자의 닉네임이 공개된다.
+                    // 각 항목을 선택한 참여자가 보이며, 스터디 미참여 인원 또한 볼 수 있다.
+                }
+
             }
         }
 
@@ -159,17 +168,24 @@ public class VoteServiceImpl implements VoteService {
     public ResponseEntity<CommonResponse> selectVoteResult(Long voteIdx) {
 
         Vote vote = voteRepo.getReferenceById(voteIdx);
+
+        // 유저가 로그인되어 있지 않은 경우
+        if (sessionInfo.getMemberIdx() == null) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_RESULT_NOT_ACCESS), HttpStatus.NOT_FOUND);
+        }
+
         Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
         VoteUser voteUser = voteUserRepo.findByMember(member);
 
         // 커뮤니티의 경우, 유저 투표를 완료한 상태라면
         if (vote.getVoteType() == VoteType.community && voteUser != null) {
-            VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+            VoteResultsCommunityResponse voteResultsCommunityResponse = voteQueryRepo.findVoteCommunityResultsByVote(vote);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsCommunityResponse), HttpStatus.OK);
+
             // 스터디의 경우, 투표 마감이 된 상태라면
         } else if (vote.getVoteType() == VoteType.study && vote.getVoteStatus() == VoteStatus.end) {
-            VoteResultsResponse voteResultsResponse = voteQueryRepo.findVoteResultsByVote(vote);
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(voteResultsResponse), HttpStatus.OK);
+            // [MEMO] 스터디일 경우, 참여자의 닉네임이 공개된다.
+            // 각 항목을 선택한 참여자가 보이며, 스터디 미참여 인원 또한 볼 수 있다.
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_RESULT_NOT_ACCESS), HttpStatus.BAD_REQUEST);
@@ -186,7 +202,14 @@ public class VoteServiceImpl implements VoteService {
 
         // 투표 수정
         VoteDto voteDto = voteCustomMapper.voteUpdateRequestToVoteDto(voteUpdateRequest);
+        Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
         Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+
+        // 로그인한 사람과 작성자가 일치하지 않을 시
+        if (!Objects.equals(vote.getCreatedAt(), member.getMemberIdx())) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
         vote.update(voteDto);
 
         List<Long> voteItemIdResponse = new ArrayList<>();
@@ -238,6 +261,13 @@ public class VoteServiceImpl implements VoteService {
         // 투표 삭제
         VoteDto voteDto = voteCustomMapper.voteDeleteRequestToVoteDto(voteDeleteRequest);
         Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+        Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
+
+        // 로그인한 사람과 작성자가 일치하지 않을 시
+        if (!Objects.equals(vote.getCreatedAt(), member.getMemberIdx())) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
         vote.softDelete(voteDto);
 
         List<Long> voteItemIdResponse = new ArrayList<>();
@@ -288,7 +318,14 @@ public class VoteServiceImpl implements VoteService {
     public ResponseEntity<CommonResponse> endVote(Long voteIdx) {
 
         VoteDto voteDto = voteCustomMapper.voteIdxToVoteDto(voteIdx);
+        Member member = memberRepo.getReferenceById(sessionInfo.getMemberIdx());
         Vote vote = voteRepo.findById(voteDto.getVoteIdx()).orElseThrow(() -> new NullPointerException("Vote Idx를 찾을 수 없습니다."));
+
+        // 로그인한 사람과 작성자가 일치하지 않을 시
+        if (!Objects.equals(vote.getCreatedAt(), member.getMemberIdx())) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
         vote.statusUpdate(voteDto);
 
         VoteResponse voteResponse = VoteResponse.builder().voteIdx(vote.getId()).build();
@@ -316,6 +353,11 @@ public class VoteServiceImpl implements VoteService {
         Member member = memberRepo.getReferenceById(voteUserCreateDto.getMemberIdx());
         Vote vote = voteRepo.getReferenceById(voteUserCreateDto.getVoteIdx());
 
+        // 중복 투표 체크
+        if (!voteQueryRepo.findVoteUser(member, vote)) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.VOTE_NOT_UPDATE), HttpStatus.BAD_REQUEST);
+        }
+
         List<VoteItemUserCreateDto> voteItemUserCreateDtoList = voteCustomMapper.toVoteItemUserCreateDto(voteUserRequest);
 
         // [stream] voteItemUserCreateDtoList 타입인 VoteItemUserCreateDTO에서 voteItemIdx를 List로 만들고
@@ -324,6 +366,11 @@ public class VoteServiceImpl implements VoteService {
                 .map(VoteItemUserCreateDto::getVoteItemIdx)
                 .toList();
         List<VoteItem> voteItems = voteItemRepo.findAllById(voteItemIds);
+
+        // 투표 항목과 투표가 일치하지 않으면
+        if (!voteQueryRepo.findVote(vote, voteItemIds)) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.BAD_REQUEST);
+        }
 
         // 조회된 VoteItems Map 변환
         // [stream] 리스트 타입인 voteItem 맵으로 전환, 키로 Id, 밸류로 voteItem
