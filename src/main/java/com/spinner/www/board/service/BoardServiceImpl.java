@@ -63,7 +63,7 @@ public class BoardServiceImpl implements BoardService {
                 .codeIdx(codeIdx)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
-                .boardContent(boardRequest.getContent())
+                .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()))
                 .build();
 
         boardRepo.save(board);
@@ -71,7 +71,7 @@ public class BoardServiceImpl implements BoardService {
                 .nickname(member.getMemberNickname())
                 .idx(board.getBoardIdx())
                 .title(board.getBoardTitle())
-                .content(board.getBoardContent())
+                .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .createdDate(board.getCreatedDate())
                 .modifiedDate(board.getModifiedDate())
                 .build();
@@ -150,7 +150,7 @@ public class BoardServiceImpl implements BoardService {
         if (!Objects.equals(board.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        board.update(boardRequest.getTitle(), boardRequest.getContent());
+        board.update(boardRequest.getTitle(), org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()));
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
 
@@ -225,7 +225,7 @@ public class BoardServiceImpl implements BoardService {
                 .idx(board.getBoardIdx())
                 .nickname(board.getMember().getMemberNickname())
                 .title(board.getBoardTitle())
-                .content(board.getBoardContent())
+                .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .replies(replyResponses)
                 .likeCount(likeCount)
                 .isLiked(isLiked)
