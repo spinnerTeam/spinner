@@ -6,6 +6,8 @@ import com.spinner.www.like.io.LikeCreateRequest;
 import com.spinner.www.like.io.LikeUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 public interface LikeService {
 
     /**
@@ -48,13 +50,13 @@ public interface LikeService {
      * @param boardIdx Long
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
-    Like findByBoardIdx(Long boardIdx);
+    List<Like> findByBoardIdx(Long boardIdx);
 
     /**
      * 좋아요 조회
      * @param replyIdx Long
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
-    Like findByReplyIdx(Long replyIdx);
+    List<Like>  findByReplyIdx(Long replyIdx);
 
 }
