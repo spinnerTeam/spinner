@@ -13,6 +13,7 @@ import com.spinner.www.reply.dto.ReplyCreateDto;
 import com.spinner.www.reply.dto.ReplyUpdateDto;
 import com.spinner.www.reply.entity.Reply;
 import com.spinner.www.reply.io.ReplyCreateRequest;
+import com.spinner.www.reply.io.ReplyResponse;
 import com.spinner.www.reply.io.ReplyUpdateRequest;
 import com.spinner.www.reply.mapper.ReplyMapper;
 import com.spinner.www.reply.repository.ReplyRepo;
@@ -65,8 +66,15 @@ public class ReplyServiceImpl implements ReplyService {
                 .build();
 
         replyRepo.save(reply);
+        ReplyResponse response = ReplyResponse.builder()
+                .nickname(member.getMemberNickname())
+                .idx(reply.getReplyIdx())
+                .content(reply.getReplyContent())
+                .createdDate(reply.getCreatedDate())
+                .modifiedDate(reply.getModifiedDate())
+                .build();
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
     }
 
 

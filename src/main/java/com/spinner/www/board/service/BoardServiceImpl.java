@@ -114,6 +114,10 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Board board = findByBoardIdx(codeIdx, boardIdx);
+
+        if (board == null)
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
@@ -132,6 +136,10 @@ public class BoardServiceImpl implements BoardService {
                 searchRequest.getIdx(),
                 searchRequest.getSize(),
                 searchRequest.getKeyword());
+
+        if(list.isEmpty())
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
 

@@ -25,6 +25,12 @@ public class ReplyResponse extends BaseResponse {
     @JsonIgnore
     private boolean liked;
 
+    public ReplyResponse(Long idx, String content, String nickname) {
+        this.idx = idx;
+        this.content = content;
+        this.nickname = nickname;
+    }
+
     public ReplyResponse(Long idx, String content, String nickname, Long likeCount, boolean isLiked) {
         this.idx = idx;
         this.content = content;
