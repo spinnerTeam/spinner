@@ -1,6 +1,7 @@
 package com.spinner.www.file.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.ServerInfo;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.constants.CommonFileCode;
 import com.spinner.www.file.dto.FileDto;
@@ -10,6 +11,7 @@ import com.spinner.www.file.repository.FileRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -38,6 +40,9 @@ public class FileServiceImpl implements FileService {
 
     private final FileRepo fileRepo;
     private final FileMapper fileMapper;
+
+    @Autowired
+    private ServerInfo serverInfo;
 
     @Value("${file.upload.path}")
     private String FILE_PATH;
@@ -107,8 +112,7 @@ public class FileServiceImpl implements FileService {
                     file.transferTo(new File(fileUploadPathName));
                     Files fileEntity = fileMapper.fileDtoToFile(fileDto);
                     Long fileIdx = saveFile(fileEntity);
-                    // HACK HACK url 생성할때 아이피랑 포트 가져오는 방식 수정 필요
-                    fileMap.put(fileDto.getFileOriginName(), "http://127.0.0.1:3030/common/file/"+fileIdx);
+                    fileMap.put(fileDto.getFileOriginName(), serverInfo.getServerUrlWithPort() + "/common/file/"+fileIdx);
                 } catch (IOException e) {
                     return null;
                 }
