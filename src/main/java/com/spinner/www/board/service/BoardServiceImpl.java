@@ -14,7 +14,6 @@ import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardListResponse;
 import com.spinner.www.board.io.BoardResponse;
 import com.spinner.www.board.io.BoardUpdateRequest;
-import com.spinner.www.board.mapper.BoardMapper;
 import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.reply.io.ReplyResponse;
@@ -61,14 +60,16 @@ public class BoardServiceImpl implements BoardService {
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         try {
             Map<String, String> fileMap = uploadBoardFiles(files);
             updateSrcContent = updateMediaSrc(fileMap, boardRequest.getContent());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        Member member = memberService.getMember(memberIdx);
 
         Board board = Board.builder()
                 .codeIdx(codeIdx)
@@ -156,13 +157,16 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public ResponseEntity<CommonResponse> update(String boardType, Long boardIdx, BoardUpdateRequest boardRequest) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
 
+        Long memberIdx = sessionInfo.getMemberIdx();
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
@@ -187,12 +191,14 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
@@ -288,17 +294,16 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        if (!Objects.equals(board.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
         return likeService.upsertBoard(boardIdx);
     }

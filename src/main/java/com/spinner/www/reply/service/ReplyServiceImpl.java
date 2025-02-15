@@ -96,27 +96,38 @@ public class ReplyServiceImpl implements ReplyService {
     public ResponseEntity<CommonResponse> update(String boardType, Long replyIdx, ReplyUpdateRequest replyRequest) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Reply reply= this.findByReplyIdx(replyIdx);
-        Long boardIdx = reply.getBoardIdx();
-        Board board = boardService.findByBoardIdx(codeIdx, boardIdx);
-        ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(board))
+        Reply reply = this.findByReplyIdx(replyIdx);
+        if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         if (!Objects.equals(reply.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        reply.update(replyDto.getReplyContent());
+        Long boardIdx = reply.getBoardIdx();
+        Board board = boardService.findByBoardIdx(codeIdx, boardIdx);
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
+        reply.update(replyDto.getReplyContent());
+        ReplyResponse response = ReplyResponse.builder()
+                .nickname(member.getMemberNickname())
+                .idx(reply.getReplyIdx())
+                .content(reply.getReplyContent())
+                .createdDate(reply.getCreatedDate())
+                .modifiedDate(reply.getModifiedDate())
+                .build();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**
@@ -130,18 +141,28 @@ public class ReplyServiceImpl implements ReplyService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long replyIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Reply reply= this.findByReplyIdx(replyIdx);
-        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(reply) || Objects.isNull(board) || !board.getCodeIdx().equals(codeIdx))
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Reply reply= this.findByReplyIdx(replyIdx);
+
+        if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         if (!Objects.equals(reply.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+
+
+        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
+        if (Objects.isNull(board) || !board.getCodeIdx().equals(codeIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+
 
         reply.delete();
 
@@ -161,18 +182,21 @@ public class ReplyServiceImpl implements ReplyService {
     public ResponseEntity<CommonResponse> upsertLike(String boardType, Long replyIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Reply reply= this.findByReplyIdx(replyIdx);
-        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (Objects.isNull(board))
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Reply reply= this.findByReplyIdx(replyIdx);
+        if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        if (!Objects.equals(board.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         return likeService.upsertReply(replyIdx);
     }

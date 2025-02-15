@@ -107,7 +107,6 @@ public class ReplyRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "40301", description = "올바르지 않은 접근입니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @PostMapping("/{boardType}/like/{boardIdx}")
