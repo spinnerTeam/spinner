@@ -5,7 +5,6 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.constants.CommonFileCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
-import com.spinner.www.file.io.BoardFileResponse;
 import com.spinner.www.file.mapper.FileMapper;
 import com.spinner.www.file.repository.FileRepo;
 import com.spinner.www.util.ResponseVOUtils;
@@ -91,9 +90,9 @@ public class FileServiceImpl implements FileService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) {
+    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) {
         // 파일 저장 ID 확인 리스트 세팅
-        List<BoardFileResponse> fileUploadResults = new ArrayList<>();
+        Map<String, String> fileMap = new HashMap<>();
 
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
@@ -107,16 +106,16 @@ public class FileServiceImpl implements FileService {
                     String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
                     file.transferTo(new File(fileUploadPathName));
                     Files fileEntity = fileMapper.fileDtoToFile(fileDto);
-                    saveFile(fileEntity);
-                    //(2) 파일 정보 DB 저장
-                    fileUploadResults.add(fileMapper.fileToBoardFileResponse(fileEntity));
+                    Long fileIdx = saveFile(fileEntity);
+                    // HACK HACK url 생성할때 아이피랑 포트 가져오는 방식 수정 필요
+                    fileMap.put(fileDto.getFileOriginName(), "http://127.0.0.1:3030/common/file/"+fileIdx);
                 } catch (IOException e) {
-                    return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
+                    return null;
                 }
             }
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
+        return fileMap;
     }
 
     /**

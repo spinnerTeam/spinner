@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface BoardService {
 
@@ -19,7 +20,7 @@ public interface BoardService {
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest);
+    ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files);
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글
@@ -67,7 +68,7 @@ public interface BoardService {
      * @param files List<MultipartFile>
      * @return ResponseEntity<CommonResponse>
      */
-    ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException;
+    Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException;
 
     /**
      * 좋아요 생성 또는 업데이트

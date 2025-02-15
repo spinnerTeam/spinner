@@ -28,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -41,7 +44,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberService memberService;
     private final FileService fileService;
     private final LikeService likeService;
-    private final BoardMapper boardMapper;
+//    private final BoardMapper boardMapper;
 
     /**
      * 게시글 생성
@@ -50,12 +53,20 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest) {
+    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Long codeIdx = CommonBoardCode.getCode(boardType);
+        String updateSrcContent;
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        try {
+            Map<String, String> fileMap = uploadBoardFiles(files);
+            updateSrcContent = updateMediaSrc(fileMap, boardRequest.getContent());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Member member = memberService.getMember(memberIdx);
 
@@ -63,7 +74,7 @@ public class BoardServiceImpl implements BoardService {
                 .codeIdx(codeIdx)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
-                .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()))
+                .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
                 .build();
 
         boardRepo.save(board);
@@ -239,8 +250,23 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException {
-        return fileService.uploadBoardFile(files);
+    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
+        return fileService.uploadBoardFiles(files);
+    }
+
+    public String updateMediaSrc(Map<String, String> fileUrlMap, String htmlText) {
+        if (fileUrlMap == null || fileUrlMap.isEmpty() || htmlText == null) return htmlText;
+        String updateHtmlText = htmlText;
+
+        String regex = "<(img|video)[^>]+src=[\"']([^\"']+)[\"']";
+        Matcher matcher= Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(htmlText);
+
+        while (matcher.find()) {
+            if(fileUrlMap.containsKey(matcher.group(2)))
+                updateHtmlText = updateHtmlText.replace(matcher.group(2), fileUrlMap.get(matcher.group(2)));
+        }
+
+        return updateHtmlText;
     }
 
     /**

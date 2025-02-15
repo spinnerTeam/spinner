@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -29,8 +28,11 @@ public class BoardRestController {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @PostMapping("/{boardType}")
-    public ResponseEntity<CommonResponse> insert(@PathVariable("boardType") String boardType, @RequestBody BoardCreateRequest boardRequest) {
-        return boardService.insert(boardType, boardRequest);
+    public ResponseEntity<CommonResponse> insert(
+            @PathVariable("boardType") String boardType,
+            @RequestPart(value="boardRequest") BoardCreateRequest boardRequest, // JSON 데이터
+            @RequestPart(value = "multiFile", required = false) List<MultipartFile> files) { // 파일 데이터
+        return boardService.insert(boardType, boardRequest, files);
     }
 
     /**
@@ -78,10 +80,10 @@ public class BoardRestController {
         return boardService.delete(boardType, boardIdx);
     }
 
-    @PostMapping("/{boardType}/upload")
-    public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
-        return boardService.uploadBoardFile(files);
-    }
+//    @PostMapping("/{boardType}/upload")
+//    public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
+//        return boardService.uploadBoardFile(files);
+//    }
 
     /**
      * 좋아요
