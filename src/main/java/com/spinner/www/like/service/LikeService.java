@@ -2,8 +2,6 @@ package com.spinner.www.like.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.like.entity.Like;
-import com.spinner.www.like.io.LikeCreateRequest;
-import com.spinner.www.like.io.LikeUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

@@ -1,7 +1,5 @@
 package com.spinner.www.like.service;
 
-import com.spinner.www.board.constants.CommonBoardCode;
-import com.spinner.www.board.entity.Board;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.like.entity.Like;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
