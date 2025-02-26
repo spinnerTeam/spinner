@@ -2,6 +2,7 @@ package com.spinner.www.study.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.study.constants.StudyStatusType;
 import com.spinner.www.study.dto.StudyCreateDto;
 import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.io.StudyUpdateRequest;
@@ -38,6 +39,9 @@ public class Study extends BaseEntity {
     @Comment("스터디 소개 사진")
     private Files files;
 
+    @Comment("스터디 진행 여부 | ing (진행 중), end (종료)")
+    private StudyStatusType studyStatusType;
+
     @Comment("스터디 삭제 여부")
     private String studyIsRemoved;
 
@@ -70,6 +74,7 @@ public class Study extends BaseEntity {
             .studyIntro(studyCreateDto.getStudyIntro())
             .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
             .studyIsRemoved("N")
+            .studyStatusType(StudyStatusType.ing)
             .build();
     }
 
