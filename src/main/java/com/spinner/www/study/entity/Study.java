@@ -2,6 +2,7 @@ package com.spinner.www.study.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.study.dto.StudyCreateDto;
 import com.spinner.www.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -59,5 +60,14 @@ public class Study extends BaseEntity {
             this.studyMembers.add(studyMember);
             studyMember.addToStudy(this);
         }
+    }
+
+    static Study create(StudyCreateDto studyCreateDto) {
+        return Study.builder()
+            .studyName(studyCreateDto.getStudyName())
+            .studyIntro(studyCreateDto.getStudyIntro())
+            .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
+            .studyIsRemoved("N")
+            .build();
     }
 }
