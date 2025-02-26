@@ -98,7 +98,9 @@ public enum CommonResultCode {
      */
     RUNTIME_EXCEPTION(50003, "런타임 오류 익셉션"),
 
-    MARKETING_CONSENT_MISSING(40001, "마케팅 수신 동의 미체크");
+    MARKETING_CONSENT_MISSING(40001, "마케팅 수신 동의 미체크"),
+
+    BAD_REQUEST(40003, "올바르지 못한 요청입니다.");
 
 
     /**
