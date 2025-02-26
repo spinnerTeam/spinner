@@ -3,6 +3,8 @@ package com.spinner.www.study.entity;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.study.dto.StudyCreateDto;
+import com.spinner.www.study.dto.StudyUpdateDto;
+import com.spinner.www.study.io.StudyUpdateRequest;
 import com.spinner.www.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -71,7 +73,18 @@ public class Study extends BaseEntity {
             .build();
     }
 
-    public void createFile(Files files) {
+    public void updateFile(Files files) {
         this.files = files;
+    }
+
+    public void update(StudyUpdateDto studyUpdateDto) {
+        this.studyName = studyUpdateDto.getStudyName();
+        this.studyIntro = studyUpdateDto.getStudyIntro();
+        this.studyMaxPeople = studyUpdateDto.getStudyMaxPeople();
+        this.studyIsRemoved = "N";
+    }
+
+    public void softDelete() {
+        this.studyIsRemoved = "Y";
     }
 }
