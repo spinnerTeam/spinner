@@ -9,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class BoardRestController {
     }
 
     /**
-     * 게시글
+     * 게시글 조회
      * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
@@ -72,6 +76,22 @@ public class BoardRestController {
     @DeleteMapping("/{boardType}/{boardIdx}")
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
         return boardService.delete(boardType, boardIdx);
+    }
+
+    @PostMapping("/{boardType}/upload")
+    public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
+        return boardService.uploadBoardFile(files);
+    }
+
+    /**
+     * 좋아요
+     * @param boardType String
+     * @param boardIdx Long 게시글 요청 데이터
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @PostMapping("/{boardType}/like/{boardIdx}")
+    public ResponseEntity<CommonResponse> like(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
+        return boardService.upsertLike(boardType, boardIdx);
     }
 
 }

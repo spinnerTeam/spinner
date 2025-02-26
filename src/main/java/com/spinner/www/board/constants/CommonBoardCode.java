@@ -34,4 +34,12 @@ public enum CommonBoardCode {
                 .map(boardCode -> boardCode.code)
                 .orElseThrow();
     }
+
+    static public String getLetter(String code) {
+        return Arrays.stream(CommonBoardCode.values())
+                .filter(boardCode -> boardCode.code.equals(code))
+                .findFirst()
+                .map(boardCode -> boardCode.letter)
+                .orElseThrow();
+    }
 }

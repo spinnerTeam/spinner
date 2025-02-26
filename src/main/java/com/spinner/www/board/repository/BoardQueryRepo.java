@@ -20,6 +20,7 @@ import java.util.Map;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.types.Projections.list;
 import static com.spinner.www.board.entity.QBoard.board;
+import static com.spinner.www.like.entity.QLike.like;
 import static com.spinner.www.reply.entity.QReply.reply;
 
 @Repository
@@ -28,6 +29,7 @@ public class BoardQueryRepo {
     private final JPAQueryFactory jpaQueryFactory;
     private final int NOT_REMOVED = 0;
     private final int NOT_REPORTED = 0;
+    private final int IS_LIKE = 1;
 
     QReply childReply = new QReply("childReply");
     QMember memberReply = new QMember("memberReply");
@@ -53,6 +55,11 @@ public class BoardQueryRepo {
                                         .from(reply)
                                         .where(reply.boardIdx.eq(board.boardIdx)
                                                 .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
                                 board.createdDate,
                                 board.modifiedDate
                         )

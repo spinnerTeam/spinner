@@ -22,6 +22,13 @@ public interface FileService {
     ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) throws IOException;
 
     /**
+     * 파일 서버 업로드
+     * @param files List<MultipartFile>
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException;
+
+    /**
      * 파일 DB 저장
      * @param file MultipartFile
      * @return Long
@@ -49,11 +56,20 @@ public interface FileService {
     String fileUploadFolderUpdate(MultipartFile file, String FILE_PATH) throws IOException;
 
     /**
+     * 파일 종류에 해당하는 공통코드 리턴
+     * @param file MultipartFile
+     * @return Long
+     */
+    Long getContentTypeCodeIdx(MultipartFile file) throws IOException;
+
+    /**
      * 멀티파트 파일 스트링 -> 파일 DTO 변환
      * @param file MultipartFile
+     * @param fileUploadPath String
+     * @param contentTypeCodeIdx Long
      * @return FileDto
      */
-    FileDto convertFileDto(MultipartFile file, String fileUploadPath);
+    FileDto convertFileDto(MultipartFile file, String fileUploadPath, Long contentTypeCodeIdx);
 
     /**
      * 파일 조회
