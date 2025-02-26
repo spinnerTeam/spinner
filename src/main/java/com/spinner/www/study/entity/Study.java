@@ -62,12 +62,16 @@ public class Study extends BaseEntity {
         }
     }
 
-    static Study create(StudyCreateDto studyCreateDto) {
+    public static Study create(StudyCreateDto studyCreateDto) {
         return Study.builder()
             .studyName(studyCreateDto.getStudyName())
             .studyIntro(studyCreateDto.getStudyIntro())
             .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
             .studyIsRemoved("N")
             .build();
+    }
+
+    public void createFile(Files files) {
+        this.files = files;
     }
 }

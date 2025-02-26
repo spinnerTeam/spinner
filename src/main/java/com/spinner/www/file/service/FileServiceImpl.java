@@ -12,6 +12,7 @@ import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -235,5 +236,33 @@ public class FileServiceImpl implements FileService {
     @Override
     public Files getFiles(Long idx) {
         return fileRepo.findById(idx).orElseThrow(() -> new NoSuchElementException("파일을 찾을 수 없음"));
+    }
+
+    // StudyFile IDX 확인 메서드
+    public Files uploadStudyFile(List<MultipartFile> files) {
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                try {
+                    //(1) 파일 서버 저장
+                    //(1-1) 폴더가 없으면 폴더 생성
+                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
+                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
+                    //(1-2) 파일 저장
+                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
+                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
+                    file.transferTo(new File(fileUploadPathName));
+                    //(2) 파일 정보 DB 저장
+                    return saveStudyFile(fileMapper.fileDtoToFile(fileDto));
+                } catch (IOException e) {
+                    log.error("스터디 파일 업로드 중 생긴 익셉션" + e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    public Files saveStudyFile(Files fileDBString) {
+        return fileRepo.save(fileDBString);
     }
 }

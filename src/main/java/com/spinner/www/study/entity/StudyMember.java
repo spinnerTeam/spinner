@@ -50,4 +50,17 @@ public class StudyMember extends BaseEntity {
             this.study = study;
         }
     }
+
+    // 스터디장
+    public static StudyMember createStudyMember(Study study, Member member) {
+        return StudyMember
+            .builder()
+            .study(study)
+            .member(member)
+            .studyMemberRole(StudyMemberRoleType.leader)
+            .studyMemberRemoved("N")
+            .studyMemberJoinIntro("스터디장")
+            .studyMemberStatus(StudyMemberStatusType.join)
+            .build();
+    }
 }
