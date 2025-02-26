@@ -2,6 +2,8 @@ package com.spinner.www.study.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberRoleType;
+import com.spinner.www.study.constants.StudyMemberStatusType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
