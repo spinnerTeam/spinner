@@ -4,7 +4,7 @@ import com.spinner.www.like.entity.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface LikeRepo extends JpaRepository<Like, Long> {
@@ -14,12 +14,12 @@ public interface LikeRepo extends JpaRepository<Like, Long> {
      * @param boardIdx Long
      * @return Like
      */
-    Optional<Like> findByBoardIdx(Long boardIdx);
+    List<Like> findByBoardIdx(Long boardIdx);
 
     /**
      * 좋아요 조회
      * @param replyIdx Long
      * @return Like
      */
-    Optional<Like> findByReplyIdx(Long replyIdx);
+    List<Like> findByReplyIdx(Long replyIdx);
 }

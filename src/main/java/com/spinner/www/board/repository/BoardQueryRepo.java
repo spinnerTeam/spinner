@@ -22,6 +22,7 @@ import static com.querydsl.core.types.Projections.list;
 import static com.spinner.www.board.entity.QBoard.board;
 import static com.spinner.www.like.entity.QLike.like;
 import static com.spinner.www.reply.entity.QReply.reply;
+import static com.spinner.www.vote.entity.QVote.vote;
 
 @Repository
 @RequiredArgsConstructor
@@ -50,6 +51,10 @@ public class BoardQueryRepo {
                                 board.boardTitle,
                                 board.boardContent,
                                 board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
                                 JPAExpressions
                                         .select(reply.count())
                                         .from(reply)
