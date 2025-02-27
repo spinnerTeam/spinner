@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,12 +33,12 @@ public class StudyController {
 
     // 스터디 조회
     @GetMapping("/list")
-    public ResponseEntity<CommonResponse> getStudyList() {
+    public ResponseEntity<CommonResponse> getStudyList(Slice slice) {
         return studyService.getStudyList();
     }
 
     // 내 스터디 조회
-    @GetMapping("/mylist")
+    @GetMapping("/my/list")
     public ResponseEntity<CommonResponse> getMyStudyList() {
         return studyService.getStudyList();
     }
