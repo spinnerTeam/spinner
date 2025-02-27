@@ -40,6 +40,7 @@ public class Study extends BaseEntity {
     private Files files;
 
     @Comment("스터디 진행 여부 | ing (진행 중), end (종료)")
+    @Enumerated(EnumType.STRING)
     private StudyStatusType studyStatusType;
 
     @Comment("스터디 삭제 여부")
