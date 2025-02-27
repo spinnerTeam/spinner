@@ -1,6 +1,7 @@
 package com.spinner.www.member.mapper;
 
 import com.spinner.www.member.dto.MemberCreateDto;
+import com.spinner.www.member.dto.MemberDto;
 import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberJoin;
@@ -20,4 +21,5 @@ public interface MemberMapper {
     })
     MemberSessionDto memberLoginToMemberSessionDto(MemberLogin memberLogin);
     MemberCreateDto memberJoinToMemberCreate(MemberJoin memberJoin);
+    MemberDto memberToMemberDto(Member member);
 }

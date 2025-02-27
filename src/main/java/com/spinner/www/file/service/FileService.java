@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface FileService {
 
@@ -26,7 +27,7 @@ public interface FileService {
      * @param files List<MultipartFile>
      * @return ResponseEntity<CommonResponse>
      */
-    ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException;
+    Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException;
 
     /**
      * 파일 DB 저장

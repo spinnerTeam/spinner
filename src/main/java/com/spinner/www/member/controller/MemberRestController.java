@@ -23,7 +23,6 @@ public class MemberRestController {
     private final MemberService memberService;
     private final EmailService emailService;
     private final TokenService tokenService;
-    private final RedisService redisService;
 
     /**
      * 회원가입
@@ -73,5 +72,10 @@ public class MemberRestController {
     @PostMapping("/authCode")
     public ResponseEntity<CommonResponse> getAuthCode(@RequestBody EmailAuthRequest emailAuthRequest){
         return emailService.invalidateAuthCode(emailAuthRequest);
+    }
+
+    @GetMapping("/main")
+    public String test(){
+        return "success";
     }
 }

@@ -14,7 +14,6 @@ import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardListResponse;
 import com.spinner.www.board.io.BoardResponse;
 import com.spinner.www.board.io.BoardUpdateRequest;
-import com.spinner.www.board.mapper.BoardMapper;
 import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.reply.io.ReplyResponse;
@@ -28,7 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberService memberService;
     private final FileService fileService;
     private final LikeService likeService;
-    private final BoardMapper boardMapper;
+//    private final BoardMapper boardMapper;
 
     /**
      * 게시글 생성
@@ -50,20 +52,30 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest) {
+    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Long codeIdx = CommonBoardCode.getCode(boardType);
+        String updateSrcContent;
 
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        try {
+            Map<String, String> fileMap = uploadBoardFiles(files);
+            updateSrcContent = updateMediaSrc(fileMap, boardRequest.getContent());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Board board = Board.builder()
                 .codeIdx(codeIdx)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
-                .boardContent(boardRequest.getContent())
+                .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
                 .build();
 
         boardRepo.save(board);
@@ -71,7 +83,7 @@ public class BoardServiceImpl implements BoardService {
                 .nickname(member.getMemberNickname())
                 .idx(board.getBoardIdx())
                 .title(board.getBoardTitle())
-                .content(board.getBoardContent())
+                .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .createdDate(board.getCreatedDate())
                 .modifiedDate(board.getModifiedDate())
                 .build();
@@ -103,6 +115,10 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Board board = findByBoardIdx(codeIdx, boardIdx);
+
+        if (board == null)
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
@@ -121,6 +137,10 @@ public class BoardServiceImpl implements BoardService {
                 searchRequest.getIdx(),
                 searchRequest.getSize(),
                 searchRequest.getKeyword());
+
+        if(list.isEmpty())
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
 
@@ -137,20 +157,23 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public ResponseEntity<CommonResponse> update(String boardType, Long boardIdx, BoardUpdateRequest boardRequest) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
 
+        Long memberIdx = sessionInfo.getMemberIdx();
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         if (!Objects.equals(board.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        board.update(boardRequest.getTitle(), boardRequest.getContent());
+        board.update(boardRequest.getTitle(), org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()));
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
 
@@ -168,12 +191,14 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
@@ -225,7 +250,7 @@ public class BoardServiceImpl implements BoardService {
                 .idx(board.getBoardIdx())
                 .nickname(board.getMember().getMemberNickname())
                 .title(board.getBoardTitle())
-                .content(board.getBoardContent())
+                .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .replies(replyResponses)
                 .likeCount(likeCount)
                 .isLiked(isLiked)
@@ -239,8 +264,23 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadBoardFile(List<MultipartFile> files) throws IOException {
-        return fileService.uploadBoardFile(files);
+    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
+        return fileService.uploadBoardFiles(files);
+    }
+
+    public String updateMediaSrc(Map<String, String> fileUrlMap, String htmlText) {
+        if (fileUrlMap == null || fileUrlMap.isEmpty() || htmlText == null) return htmlText;
+        String updateHtmlText = htmlText;
+
+        String regex = "<(img|video)[^>]+src=[\"']([^\"']+)[\"']";
+        Matcher matcher= Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(htmlText);
+
+        while (matcher.find()) {
+            if(fileUrlMap.containsKey(matcher.group(2)))
+                updateHtmlText = updateHtmlText.replace(matcher.group(2), fileUrlMap.get(matcher.group(2)));
+        }
+
+        return updateHtmlText;
     }
 
     /**
@@ -254,17 +294,16 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = this.findByBoardIdx(codeIdx, boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        if (!Objects.equals(board.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
         return likeService.upsertBoard(boardIdx);
     }
