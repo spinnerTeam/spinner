@@ -78,4 +78,11 @@ public interface FileService {
      * @return Files
      */
     Files getFiles(Long idx);
+
+    /**
+     * 파일 스터디
+     * @param files List<MultipartFile>
+     * @return Files
+     */
+    Files uploadStudyFile(List<MultipartFile> files);
 }

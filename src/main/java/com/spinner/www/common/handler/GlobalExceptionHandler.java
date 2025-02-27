@@ -3,6 +3,7 @@ package com.spinner.www.common.handler;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
+import javax.naming.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    // IllegalArgumentException 처리
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CommonResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("IllegalArgumentException occurred: ", ex);
+        return buildErrorResponse(CommonResultCode.BAD_REQUEST.code(),
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST);
+    }
+
     // 정의되지 않은 Exception 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonResponse> handleException(Exception ex) {
@@ -46,5 +56,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 }
