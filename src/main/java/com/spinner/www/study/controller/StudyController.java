@@ -30,11 +30,19 @@ public class StudyController {
 
     private final StudyService studyService;
 
+    // 스터디 조회
     @GetMapping("/list")
     public ResponseEntity<CommonResponse> getStudyList() {
         return studyService.getStudyList();
     }
 
+    // 내 스터디 조회
+    @GetMapping("/mylist")
+    public ResponseEntity<CommonResponse> getMyStudyList() {
+        return studyService.getStudyList();
+    }
+
+    // 스터디 상세
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse> getStudy(@PathVariable Long id) {
         return studyService.getStudy(id);

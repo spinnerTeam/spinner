@@ -41,6 +41,8 @@ public class StudyServiceImpl implements StudyService {
 
     @Override
     public ResponseEntity<CommonResponse> getStudyList() {
+        // 나를 조건으로 걸려올 시
+        // 조건 검색
         return null;
     }
 
