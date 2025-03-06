@@ -65,6 +65,7 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(like.boardIdx.eq(board.boardIdx)
                                                 .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
                                 board.createdDate,
                                 board.modifiedDate
                         )

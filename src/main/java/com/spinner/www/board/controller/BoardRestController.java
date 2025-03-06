@@ -1,7 +1,6 @@
 package com.spinner.www.board.controller;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.board.service.BoardService;
@@ -89,7 +88,10 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/{boardType}")
-    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType, @RequestParam("idx") Long idx, @RequestParam("size") int size, @RequestParam("keyword") String keyword) {
+    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType,
+                                                    @RequestParam(value = "idx", required = false) Long idx,
+                                                    @RequestParam(value = "size", required = false) int size,
+                                                    @RequestParam(value = "keyword", required = false) String keyword) {
         return boardService.getSliceOfBoard(boardType, idx, size, keyword);
     }
 
