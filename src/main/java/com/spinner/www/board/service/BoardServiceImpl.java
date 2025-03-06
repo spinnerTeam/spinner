@@ -2,7 +2,6 @@ package com.spinner.www.board.service;
 
 import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.like.service.LikeService;
@@ -65,6 +64,7 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         try {
+
             Map<String, String> fileMap = uploadBoardFiles(files);
             updateSrcContent = updateMediaSrc(fileMap, boardRequest.getContent());
         } catch (IOException e) {
@@ -72,6 +72,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         Board board = Board.builder()
+                .hitCount(0L)
                 .codeIdx(codeIdx)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
@@ -84,6 +85,7 @@ public class BoardServiceImpl implements BoardService {
                 .idx(board.getBoardIdx())
                 .title(board.getBoardTitle())
                 .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
+                .hitCount(board.getHitCount())
                 .createdDate(board.getCreatedDate())
                 .modifiedDate(board.getModifiedDate())
                 .build();
@@ -112,6 +114,7 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
+    @Transactional
     public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Board board = findByBoardIdx(codeIdx, boardIdx);
@@ -119,9 +122,11 @@ public class BoardServiceImpl implements BoardService {
         if (board == null)
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
+        board.increaseHitCount();
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
+
 
     /**
      * 게시글 목록 조회
@@ -140,8 +145,8 @@ public class BoardServiceImpl implements BoardService {
                                                                             size,
                                                                             keyword);
 
-        if(list.isEmpty())
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
@@ -256,6 +261,7 @@ public class BoardServiceImpl implements BoardService {
                 .replies(replyResponses)
                 .likeCount(likeCount)
                 .isLiked(isLiked)
+                .hitCount(board.getHitCount())
                 .build();
     }
 
@@ -267,6 +273,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
+        if(files == null) return null;
         return fileService.uploadBoardFiles(files);
     }
 
