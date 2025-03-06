@@ -72,7 +72,9 @@ public class BoardRestController {
     /**
      * 게시글 목록 조회
      * @param boardType String
-     * @param searchRequest SearchParamRequest 검색 조건
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param keyword String 조회할 키워드
      * @return searchParamRequest<CommonResponse> 게시글 목록
      */
     @Operation(description = "게시글 목록을 조회합니다. <br/>" +
@@ -87,8 +89,8 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/{boardType}")
-    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType, @ModelAttribute SearchParamRequest searchRequest) {
-        return boardService.getSliceOfBoard(boardType, searchRequest);
+    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType, @RequestParam("idx") Long idx, @RequestParam("size") int size, @RequestParam("keyword") String keyword) {
+        return boardService.getSliceOfBoard(boardType, idx, size, keyword);
     }
 
     /**

@@ -127,16 +127,18 @@ public class BoardServiceImpl implements BoardService {
      * 게시글 목록 조회
      *
      * @param boardType     String 게시판 타입
-     * @param searchRequest SearchParamRequest 검색 조건
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param keyword String 조회할 키워드
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     @Override
-    public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, SearchParamRequest searchRequest) {
+    public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
-                searchRequest.getIdx(),
-                searchRequest.getSize(),
-                searchRequest.getKeyword());
+                                                                            idx,
+                                                                            size,
+                                                                            keyword);
 
         if(list.isEmpty())
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
