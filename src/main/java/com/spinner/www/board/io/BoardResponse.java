@@ -21,8 +21,9 @@ public class BoardResponse extends BaseResponse {
     private Long likeCount;
     @JsonProperty("isLiked")
     private boolean isLiked;
+    private Long hitCount;
 
-    public BoardResponse(Long idx, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
+    public BoardResponse(Long idx, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, Long hitCount, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
         super(createdAt, createdDate, modifiedAt, modifiedDate);
         this.idx = idx;
         this.nickname = nickname;
@@ -31,5 +32,6 @@ public class BoardResponse extends BaseResponse {
         this.replies = replies;
         this.likeCount = likeCount;
         this.isLiked = isLiked;
+        this.hitCount = hitCount;
     }
 }

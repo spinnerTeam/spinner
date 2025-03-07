@@ -7,12 +7,12 @@ public enum CommonBoardCode {
     /**
      * 공부인증 게시판
      */
-    VERIFY(6L, "verify"),
+    VERIFY(7L, "verify"),
 
     /**
      * 자유 게시판
      */
-    FREE(7L, "free");
+    FREE(8L, "free");
 
     private final Long code;
     private final String letter;
