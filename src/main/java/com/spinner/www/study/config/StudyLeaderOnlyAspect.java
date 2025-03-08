@@ -2,19 +2,16 @@ package com.spinner.www.study.config;
 
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.study.config.annotation.StudyLeaderOnly;
 import com.spinner.www.study.constants.StudyMemberRoleType;
-import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
-import com.spinner.www.study.repository.StudyMemberRepository;
-import com.spinner.www.study.repository.StudyRepository;
+import com.spinner.www.study.repository.StudyMemberRepo;
+import com.spinner.www.study.repository.StudyRepo;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -23,8 +20,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class StudyLeaderOnlyAspect {
 
-    private final StudyRepository studyRepository;
-    private final StudyMemberRepository studyMemberRepository;
+    private final StudyRepo studyRepo;
+    private final StudyMemberRepo studyMemberRepo;
     private final SessionInfo sessionInfo;
 
     @Around("@annotation(com.spinner.www.study.config.annotation.StudyLeaderOnly)")
@@ -46,13 +43,13 @@ public class StudyLeaderOnlyAspect {
         }
 
         // 스터디 정보를 조회하여 스터디장인지 확인
-        studyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
+        studyRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디입니다."));
 
         Member member = Member.builder()
             .memberIdx(memberIdx)
             .build();
 
-        StudyMember studyMember = studyMemberRepository.findByMember(member)
+        StudyMember studyMember = studyMemberRepo.findByMember(member)
             .orElseThrow(() -> new IllegalArgumentException("스터디에 가입되어 있지 않은 이용자입니다."));
 
         if (!studyMember.getStudyMemberRole().equals(StudyMemberRoleType.leader)) {

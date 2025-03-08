@@ -2,8 +2,10 @@ package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.config.annotation.StudyLeaderOnly;
+import com.spinner.www.study.constants.StudyMySearchStatusType;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.io.StudyCreateRequest;
+import com.spinner.www.study.io.StudySearchParamRequest;
 import com.spinner.www.study.io.StudyUpdateRequest;
 import com.spinner.www.study.service.StudyService;
 import jakarta.validation.Valid;
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,14 +36,17 @@ public class StudyController {
 
     // 스터디 조회
     @GetMapping("/list")
-    public ResponseEntity<CommonResponse> getStudyList(Slice slice) {
-        return studyService.getStudyList();
+    public ResponseEntity<CommonResponse> getStudyList(@RequestParam Pageable pageable, @RequestBody
+    StudySearchParamRequest studySearchParamRequest) {
+        return studyService.getStudyList(pageable, studySearchParamRequest);
     }
 
     // 내 스터디 조회
     @GetMapping("/my/list")
-    public ResponseEntity<CommonResponse> getMyStudyList() {
-        return studyService.getStudyList();
+    public ResponseEntity<CommonResponse> getMyStudyList(@RequestParam Pageable pageable,
+        @RequestParam StudyMySearchStatusType studyMySearchStatusType) {
+
+        return studyService.getMyStudyList(pageable, studyMySearchStatusType);
     }
 
     // 스터디 상세

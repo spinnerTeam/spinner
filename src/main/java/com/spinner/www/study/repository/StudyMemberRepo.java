@@ -5,8 +5,7 @@ import com.spinner.www.study.entity.StudyMember;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
+public interface StudyMemberRepo extends JpaRepository<StudyMember, Long> {
 
     Optional<StudyMember> findByMember(Member member);
-
 }

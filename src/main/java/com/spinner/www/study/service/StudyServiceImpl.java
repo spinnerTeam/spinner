@@ -10,19 +10,24 @@ import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
+import com.spinner.www.study.constants.StudyMySearchStatusType;
 import com.spinner.www.study.dto.StudyCreateDto;
+import com.spinner.www.study.dto.StudyMySearchDto;
 import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.StudyCreateRequest;
+import com.spinner.www.study.io.StudySearchParamRequest;
 import com.spinner.www.study.io.StudyUpdateRequest;
 import com.spinner.www.study.mapper.StudyMapper;
-import com.spinner.www.study.repository.StudyMemberRepository;
-import com.spinner.www.study.repository.StudyRepository;
+import com.spinner.www.study.repository.StudyMemberRepo;
+import com.spinner.www.study.repository.StudyQueryRepo;
+import com.spinner.www.study.repository.StudyRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,19 +39,37 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 public class StudyServiceImpl implements StudyService {
 
-    private final StudyRepository studyRepository;
+    private final StudyRepo studyRepo;
     private final FileService fileService;
     private final StudyMapper studyMapper;
     private final SessionInfo sessionInfo;
     private final MemberService memberService;
-    private final StudyMemberRepository studyMemberRepository;
+    private final StudyMemberRepo studyMemberRepo;
     private final CommonCodeRepo commonCodeRepo;
+    private final StudyQueryRepo studyQueryRepo;
 
     @Override
-    public ResponseEntity<CommonResponse> getStudyList() {
+    public ResponseEntity<CommonResponse> getStudyList(Pageable pageable, StudySearchParamRequest studySearchParamRequest) {
+        loginCheck();
         // 나를 조건으로 걸려올 시
+
         // 조건 검색
         return null;
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> getMyStudyList(Pageable pageable, StudyMySearchStatusType studyMySearchStatusType) {
+        loginCheck();
+        // where 조건 : memberIdx 기준 검색 및 StudyMySearchStatusType
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+        List<StudyMySearchDto> studyMySearchDto = studyQueryRepo.myStudySearch(pageable, member,
+            studyMySearchStatusType);
+
+        if (studyMySearchDto.isEmpty()) {
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyMySearchDto), HttpStatus.OK);
     }
 
     @Override
@@ -63,12 +86,12 @@ public class StudyServiceImpl implements StudyService {
         StudyCreateDto studyCreateDto = studyMapper.toStudyCreateDto(studyCreateRequest);
         CommonCode commonCode = getCommonCodeOrElseThrow(studyCreateDto.getStudyCategoryType());
         Study study = create(studyCreateDto, commonCode);
-        studyRepository.save(study);
+        studyRepo.save(study);
 
         // 스터디 멤버에 로그인된 유저 넣기
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
         StudyMember studyMember = StudyMember.createStudyMember(study, member);
-        studyMemberRepository.save(studyMember);
+        studyMemberRepo.save(studyMember);
 
         // 연관관계 설정
         study.addStudyMember(studyMember);
@@ -116,7 +139,7 @@ public class StudyServiceImpl implements StudyService {
     }
 
     private Study getStudyOrElseThrow(Long id) {
-        return studyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+        return studyRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
     }
 
     private CommonCode getCommonCodeOrElseThrow(Long commonIdx) {

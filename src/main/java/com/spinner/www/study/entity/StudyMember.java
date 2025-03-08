@@ -60,7 +60,7 @@ public class StudyMember extends BaseEntity {
             .studyMemberRole(StudyMemberRoleType.leader)
             .studyMemberRemoved("N")
             .studyMemberJoinIntro("스터디장")
-            .studyMemberStatus(StudyMemberStatusType.join)
+            .studyMemberStatus(StudyMemberStatusType.JOIN)
             .build();
     }
 }
