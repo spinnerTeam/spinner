@@ -52,6 +52,9 @@ public class Study extends BaseEntity {
     @Comment("스터디 분야")
     private CommonCode common;
 
+    @Comment("스터디 조회수")
+    private Long studyViews;
+
     @Comment("스터디 최대 인원")
     private int studyMaxPeople;
 
