@@ -77,7 +77,7 @@ public class Study extends BaseEntity {
             .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
             .common(commonCode)
             .studyIsRemoved("N")
-            .studyStatusType(StudyStatusType.ing)
+            .studyStatusType(StudyStatusType.ING)
             .build();
     }
 
