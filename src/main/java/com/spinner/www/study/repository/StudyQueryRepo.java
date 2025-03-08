@@ -3,9 +3,7 @@ package com.spinner.www.study.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.common.entity.CommonCode;
-import com.spinner.www.common.entity.Menu;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.member.entity.QMember;
 import com.spinner.www.study.constants.StudyMemberStatusType;
 import com.spinner.www.study.constants.StudyMySearchStatusType;
 import com.spinner.www.study.constants.StudySortType;
@@ -17,8 +15,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import com.spinner.www.member.entity.QMember.*;
 import org.springframework.util.StringUtils;
 
 import static com.spinner.www.common.entity.QCommonCode.*;
