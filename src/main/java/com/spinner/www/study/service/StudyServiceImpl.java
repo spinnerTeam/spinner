@@ -12,7 +12,8 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.study.constants.StudyMySearchStatusType;
 import com.spinner.www.study.dto.StudyCreateDto;
-import com.spinner.www.study.dto.StudyMySearchDto;
+import com.spinner.www.study.dto.StudySearchDto;
+import com.spinner.www.study.dto.StudySearchParamDto;
 import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
@@ -51,7 +52,11 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public ResponseEntity<CommonResponse> getStudyList(Pageable pageable, StudySearchParamRequest studySearchParamRequest) {
         loginCheck();
-        // 나를 조건으로 걸려올 시
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+        StudySearchParamDto studySearchParamDto = studyMapper.toStudySearchParamDto(
+            studySearchParamRequest);
+
+        List<StudySearchDto> studySearchDto = studyQueryRepo.studySearch(pageable, member, studySearchParamDto);
 
         // 조건 검색
         return null;
@@ -60,16 +65,17 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public ResponseEntity<CommonResponse> getMyStudyList(Pageable pageable, StudyMySearchStatusType studyMySearchStatusType) {
         loginCheck();
-        // where 조건 : memberIdx 기준 검색 및 StudyMySearchStatusType
+
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
-        List<StudyMySearchDto> studyMySearchDto = studyQueryRepo.myStudySearch(pageable, member,
+
+        List<StudySearchDto> studySearchDtoList = studyQueryRepo.myStudySearch(pageable, member,
             studyMySearchStatusType);
 
-        if (studyMySearchDto.isEmpty()) {
+        if (studySearchDtoList.isEmpty()) {
             return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."), HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyMySearchDto), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList), HttpStatus.OK);
     }
 
     @Override

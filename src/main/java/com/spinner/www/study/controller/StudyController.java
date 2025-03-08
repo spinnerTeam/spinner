@@ -36,8 +36,8 @@ public class StudyController {
 
     // 스터디 조회
     @GetMapping("/list")
-    public ResponseEntity<CommonResponse> getStudyList(@RequestParam Pageable pageable, @RequestBody
-    StudySearchParamRequest studySearchParamRequest) {
+    public ResponseEntity<CommonResponse> getStudyList(@RequestParam Pageable pageable,
+        @RequestParam(required = false) StudySearchParamRequest studySearchParamRequest) {
         return studyService.getStudyList(pageable, studySearchParamRequest);
     }
 
