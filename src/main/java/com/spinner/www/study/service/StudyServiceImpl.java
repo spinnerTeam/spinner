@@ -56,10 +56,13 @@ public class StudyServiceImpl implements StudyService {
         StudySearchParamDto studySearchParamDto = studyMapper.toStudySearchParamDto(
             studySearchParamRequest);
 
-        List<StudySearchDto> studySearchDto = studyQueryRepo.studySearch(pageable, member, studySearchParamDto);
+        List<StudySearchDto> studySearchDtoList = studyQueryRepo.studySearch(pageable, member, studySearchParamDto);
 
-        // 조건 검색
-        return null;
+        if (studySearchDtoList.isEmpty()) {
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList), HttpStatus.OK);
     }
 
     @Override
