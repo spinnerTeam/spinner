@@ -2,7 +2,9 @@ package com.spinner.www.study.service;
 
 import static com.spinner.www.study.entity.Study.create;
 
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.repository.CommonCodeRepo;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
@@ -38,6 +40,7 @@ public class StudyServiceImpl implements StudyService {
     private final SessionInfo sessionInfo;
     private final MemberService memberService;
     private final StudyMemberRepository studyMemberRepository;
+    private final CommonCodeRepo commonCodeRepo;
 
     @Override
     public ResponseEntity<CommonResponse> getStudyList() {
@@ -58,7 +61,8 @@ public class StudyServiceImpl implements StudyService {
 
         // 스터디 개설
         StudyCreateDto studyCreateDto = studyMapper.toStudyCreateDto(studyCreateRequest);
-        Study study = create(studyCreateDto);
+        CommonCode commonCode = getCommonCodeOrElseThrow(studyCreateDto.getStudyCategoryType());
+        Study study = create(studyCreateDto, commonCode);
         studyRepository.save(study);
 
         // 스터디 멤버에 로그인된 유저 넣기
@@ -90,8 +94,9 @@ public class StudyServiceImpl implements StudyService {
         StudyUpdateRequest studyUpdateRequest) {
 
         StudyUpdateDto studyUpdateDto = studyMapper.toStudyUpdateDto(studyUpdateRequest);
+        CommonCode commonCode = getCommonCodeOrElseThrow(studyUpdateDto.getStudyCategoryType());
         Study study = getStudyOrElseThrow(id);
-        study.update(studyUpdateDto);
+        study.update(studyUpdateDto, commonCode);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
@@ -112,5 +117,10 @@ public class StudyServiceImpl implements StudyService {
 
     private Study getStudyOrElseThrow(Long id) {
         return studyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+    }
+
+    private CommonCode getCommonCodeOrElseThrow(Long commonIdx) {
+        return commonCodeRepo.findById(commonIdx)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공통 코드 IDX 입니다."));
     }
 }

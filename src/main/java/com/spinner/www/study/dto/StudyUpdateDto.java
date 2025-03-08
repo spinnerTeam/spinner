@@ -1,6 +1,5 @@
 package com.spinner.www.study.dto;
 
-import com.spinner.www.study.constants.StudyCategoryType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,6 +8,6 @@ import lombok.Getter;
 public class StudyUpdateDto {
     private String studyName;
     private String studyIntro;
-    private StudyCategoryType studyCategoryType;
+    private Long studyCategoryType;
     private int studyMaxPeople;
 }

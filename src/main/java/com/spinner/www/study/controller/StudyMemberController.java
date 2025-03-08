@@ -1,6 +1,7 @@
 package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.study.config.annotation.StudyLeaderOnly;
 import com.spinner.www.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +35,14 @@ public class StudyMemberController {
     }
 
     // 가입 승인
+    @StudyLeaderOnly
     @PutMapping("/accept/{studyidx}")
     public ResponseEntity<CommonResponse> acceptStudyMember(@PathVariable("studyidx") Long id) {
         return studyMemberService.acceptStudyMember(id);
     }
 
     // 가입 거절
+    @StudyLeaderOnly
     @PutMapping("/disapprove/{studyidx}")
     public ResponseEntity<CommonResponse> disapproveStudyMember(@PathVariable("studyidx") Long id) {
         return studyMemberService.disapproveStudyMember(id);
@@ -52,12 +55,14 @@ public class StudyMemberController {
     }
 
     // 멤버 강퇴
+    @StudyLeaderOnly
     @DeleteMapping("/kick/{studyidx}")
     public ResponseEntity<CommonResponse> kickStudyMember(@PathVariable("studyidx") Long id) {
         return studyMemberService.kickStudyMember(id);
     }
 
     // 방장 권한 넘기기
+    @StudyLeaderOnly
     @PutMapping("/transfer/{studyidx}/{newleaderidx}")
     public ResponseEntity<CommonResponse> transferStudyMember(
         @PathVariable("studyidx") Long studyidx,
