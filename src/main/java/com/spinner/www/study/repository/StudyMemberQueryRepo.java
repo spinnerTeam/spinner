@@ -6,11 +6,13 @@ import static com.spinner.www.study.entity.QStudy.study;
 import static com.spinner.www.study.entity.QStudyMember.studyMember;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatusType;
 import com.spinner.www.study.dto.QStudyMemberSelectDto;
 import com.spinner.www.study.dto.StudyMemberSelectDto;
 import com.spinner.www.study.entity.QStudyMember;
 import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.entity.StudyMember;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -38,6 +40,17 @@ public class StudyMemberQueryRepo {
                 studyMember.studyMemberRemoved.eq("N"))
             .orderBy(studyMember.createdDate.asc())
             .fetch();
+    }
+
+    public StudyMember findJoinStudyMember(Member joinMember, Study joinStudy) {
+        return queryFactory
+            .select(studyMember)
+            .from(studyMember)
+            .where(studyMember.studyMemberRemoved.eq("N"),
+                studyMember.studyMemberStatus.eq(StudyMemberStatusType.JOIN),
+                studyMember.member.eq(joinMember),
+                studyMember.study.eq(joinStudy))
+            .fetchOne();
     }
 
 }

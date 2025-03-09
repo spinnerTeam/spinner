@@ -14,7 +14,7 @@ public interface StudyMemberService {
 
     ResponseEntity<CommonResponse> disapproveStudyMember(Long id, Long memberIdx);
 
-    ResponseEntity<CommonResponse> leaveStudyMember(Long id, Long memberIdx);
+    ResponseEntity<CommonResponse> leaveStudyMember(Long id);
 
     ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx);
 

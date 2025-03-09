@@ -94,4 +94,8 @@ public class StudyMember extends BaseEntity {
         this.studyMemberRemoved = "Y";
     }
 
+    // 멤버 탈퇴
+    public void leaveStudyMember() {
+        this.studyMemberRemoved = "Y";
+    }
 }

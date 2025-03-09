@@ -64,7 +64,7 @@ public class StudyMemberServiceImpl implements StudyMemberService {
                 HttpStatus.BAD_REQUEST);
         }
 
-        Member member = getMemberOrElseThrow();
+        Member member = getLoginMemberOrElseThrow();
         Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
 
         if (joinStudyMember.isPresent()) {
@@ -95,7 +95,7 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     @Transactional
     public ResponseEntity<CommonResponse> acceptStudyMember(Long id, Long memberIdx) {
         Study study = getStudyOrElseThrow(id);
-        Member member = getMemberOrElseThrow();
+        Member member = getMemberOrElseThrow(memberIdx);
         Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
 
         if (joinStudyMember.isPresent()) {
@@ -122,7 +122,7 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     @Transactional
     public ResponseEntity<CommonResponse> disapproveStudyMember(Long id, Long memberIdx) {
         Study study = getStudyOrElseThrow(id);
-        Member member = getMemberOrElseThrow();
+        Member member = getMemberOrElseThrow(memberIdx);
         Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
 
         if (joinStudyMember.isPresent()) {
@@ -146,14 +146,25 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> leaveStudyMember(Long id, Long memberIdx) {
+    @Transactional
+    public ResponseEntity<CommonResponse> leaveStudyMember(Long id) {
+        Study study = getStudyOrElseThrow(id);
+        Member member = getLoginMemberOrElseThrow();
+        StudyMember joinStudyMember = studyMemberQueryRepo.findJoinStudyMember(member, study);
+
+        if (joinStudyMember == null) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN),
+                HttpStatus.FORBIDDEN);
+        }
+
+        joinStudyMember.leaveStudyMember();
         return null;
     }
 
     @Override
     public ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx) {
         Study study = getStudyOrElseThrow(id);
-        Member member = getMemberOrElseThrow();
+        Member member = getMemberOrElseThrow(memberIdx);
         StudyMember joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member)
             .orElseThrow(() -> new IllegalArgumentException("스터디 멤버를 찾을 수 없습니다."));
         joinStudyMember.kickStudyMember();
@@ -163,17 +174,25 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> transferStudyMember(Long studyidx, Long newleaderidx) {
+    public ResponseEntity<CommonResponse> transferStudyMember(Long studyIdx, Long newLeaderIdx) {
         return null;
     }
+
 
     private Study getStudyOrElseThrow(Long id) {
         return studyRepo.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
     }
 
-    private Member getMemberOrElseThrow() {
+    // 로그인 멤버 찾는 로직
+    private Member getLoginMemberOrElseThrow() {
         return memberRepo.findById(sessionInfo.getMemberIdx()).orElseThrow(() ->
+            new IllegalArgumentException("멤버를 찾을 수 없습니다."));
+    }
+
+    // 타인 멤버 찾는 로직
+    private Member getMemberOrElseThrow(Long memberIdx) {
+        return memberRepo.findById(memberIdx).orElseThrow(() ->
             new IllegalArgumentException("멤버를 찾을 수 없습니다."));
     }
 }
