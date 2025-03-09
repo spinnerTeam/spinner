@@ -98,4 +98,14 @@ public class StudyMember extends BaseEntity {
     public void leaveStudyMember() {
         this.studyMemberRemoved = "Y";
     }
+
+    // 리더 변경
+    public void transferLeaderStudyMember() {
+        this.studyMemberRole = StudyMemberRoleType.leader;
+    }
+
+    // 리더 변경 후 본인 변경
+    public void transferMemberStudyMember() {
+        this.studyMemberRole = StudyMemberRoleType.member;
+    }
 }

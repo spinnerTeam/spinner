@@ -176,8 +176,23 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> transferStudyMember(Long studyIdx, Long newLeaderIdx) {
-        return null;
+    @Transactional
+    public ResponseEntity<CommonResponse> transferLeaderStudyMember(Long studyIdx, Long newLeaderIdx) {
+        Study study = getStudyOrElseThrow(studyIdx);
+        Member newLeadermember = getMemberOrElseThrow(newLeaderIdx);
+        StudyMember joinStudyMember = studyMemberRepo.findByStudyAndMember(study, newLeadermember)
+            .orElseThrow(() -> new IllegalArgumentException("스터디 멤버를 찾을 수 없습니다."));
+
+        joinStudyMember.transferLeaderStudyMember();
+
+        Member member = getLoginMemberOrElseThrow();
+        StudyMember studyMember = studyMemberRepo.findByStudyAndMember(study, member)
+            .orElseThrow(() -> new IllegalArgumentException("스터디 멤버를 찾을 수 없습니다."));
+
+        studyMember.transferMemberStudyMember();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("리더 변경 완료"),
+            HttpStatus.OK);
     }
 
 

@@ -72,7 +72,7 @@ public class StudyMemberController {
     // 방장 권한 넘기기
     @StudyLeaderOnly
     @PutMapping("/transfer/{studyIdx}/{newLeaderIdx}")
-    public ResponseEntity<CommonResponse> transferStudyMember(
+    public ResponseEntity<CommonResponse> transferLeaderStudyMember(
         @PathVariable("studyIdx") Long studyIdx,
         @PathVariable Long newLeaderIdx) {
         return studyMemberService.transferStudyMember(studyIdx, newLeaderIdx);

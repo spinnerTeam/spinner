@@ -18,5 +18,5 @@ public interface StudyMemberService {
 
     ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx);
 
-    ResponseEntity<CommonResponse> transferStudyMember(Long studyidx, Long newleaderidx);
+    ResponseEntity<CommonResponse> transferLeaderStudyMember(Long studyidx, Long newleaderidx);
 }
