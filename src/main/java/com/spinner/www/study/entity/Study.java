@@ -99,4 +99,8 @@ public class Study extends BaseEntity {
     public void softDelete() {
         this.studyIsRemoved = "Y";
     }
+
+    public void updateViews() {
+        this.studyViews++;
+    }
 }

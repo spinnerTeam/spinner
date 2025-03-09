@@ -50,39 +50,50 @@ public class StudyServiceImpl implements StudyService {
     private final StudyQueryRepo studyQueryRepo;
 
     @Override
-    public ResponseEntity<CommonResponse> getStudyList(Pageable pageable, StudySearchParamRequest studySearchParamRequest) {
+    public ResponseEntity<CommonResponse> getStudyList(Pageable pageable,
+        StudySearchParamRequest studySearchParamRequest) {
         loginCheck();
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
         StudySearchParamDto studySearchParamDto = studyMapper.toStudySearchParamDto(
             studySearchParamRequest);
 
-        List<StudySearchDto> studySearchDtoList = studyQueryRepo.studySearch(pageable, member, studySearchParamDto);
+        List<StudySearchDto> studySearchDtoList = studyQueryRepo.studySearch(pageable, member,
+            studySearchParamDto);
 
         if (studySearchDtoList.isEmpty()) {
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."),
+                HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList),
+            HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<CommonResponse> getMyStudyList(Pageable pageable, StudyMySearchStatusType studyMySearchStatusType) {
+    public ResponseEntity<CommonResponse> getMyStudyList(Pageable pageable,
+        StudyMySearchStatusType studyMySearchStatusType) {
         loginCheck();
-
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
 
         List<StudySearchDto> studySearchDtoList = studyQueryRepo.myStudySearch(pageable, member,
             studyMySearchStatusType);
 
         if (studySearchDtoList.isEmpty()) {
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."),
+                HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList),
+            HttpStatus.OK);
     }
 
     @Override
+    @Transactional
     public ResponseEntity<CommonResponse> getStudy(Long id) {
+        Study study = getStudyOrElseThrow(id);
+        study.updateViews();
+        // 미션과 커뮤니티쪽 완료되면 추가
+
         return null;
     }
 
@@ -105,12 +116,14 @@ public class StudyServiceImpl implements StudyService {
         // 연관관계 설정
         study.addStudyMember(studyMember);
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(study.getId()), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(study.getId()),
+            HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> uploadStudyInfoFile(Long id, List<MultipartFile> files) throws IOException {
+    public ResponseEntity<CommonResponse> uploadStudyInfoFile(Long id, List<MultipartFile> files)
+        throws IOException {
         // 파일 업로드
         Files file = fileService.uploadStudyFile(files);
 
@@ -148,7 +161,8 @@ public class StudyServiceImpl implements StudyService {
     }
 
     private Study getStudyOrElseThrow(Long id) {
-        return studyRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+        return studyRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
     }
 
     private CommonCode getCommonCodeOrElseThrow(Long commonIdx) {
