@@ -4,6 +4,7 @@ import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberRoleType;
 import com.spinner.www.study.constants.StudyMemberStatusType;
+import com.spinner.www.study.dto.StudyMemberJoinDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,7 +52,7 @@ public class StudyMember extends BaseEntity {
         }
     }
 
-    // 스터디장
+    // 스터디 생성 시 스터디장
     public static StudyMember createStudyMemberLeader(Study study, Member member) {
         return StudyMember
             .builder()
@@ -61,6 +62,19 @@ public class StudyMember extends BaseEntity {
             .studyMemberRemoved("N")
             .studyMemberJoinIntro("스터디장")
             .studyMemberStatus(StudyMemberStatusType.JOIN)
+            .build();
+    }
+
+    // 가입 신청
+    public static StudyMember createStudyMember(Study study, Member member, StudyMemberJoinDto studyMemberJoinDto) {
+        return StudyMember
+            .builder()
+            .study(study)
+            .member(member)
+            .studyMemberRole(StudyMemberRoleType.member)
+            .studyMemberRemoved("N")
+            .studyMemberJoinIntro(studyMemberJoinDto.getStudyMemberJoinIntro())
+            .studyMemberStatus(StudyMemberStatusType.WAITING)
             .build();
     }
 

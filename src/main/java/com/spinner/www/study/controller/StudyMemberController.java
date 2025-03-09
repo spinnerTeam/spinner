@@ -2,6 +2,7 @@ package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.config.annotation.StudyLeaderOnly;
+import com.spinner.www.study.io.StudyMemberJoinRequest;
 import com.spinner.www.study.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,55 +20,61 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/study/member")
 public class StudyMemberController {
 
-    // 스터디원 조회
     private final StudyMemberService studyMemberService;
 
-    // 가입 신청 멤버와 승인된 멤버 둘 다 보여 줌
-    @GetMapping("/{studyidx}")
-    public ResponseEntity<CommonResponse> findStudyMember(@PathVariable("studyidx") Long id) {
+    // 스터디 멤버 보기
+    @GetMapping("/{studyIdx}")
+    public ResponseEntity<CommonResponse> findStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.findStudyMember(id);
     }
 
     // 가입 신청
-    @PostMapping("/join/{studyidx}")
+    @PostMapping("/join/{studyIdx}")
     public ResponseEntity<CommonResponse> joinRequestStudyMember(
-        @PathVariable("studyidx") Long id) {
-        return studyMemberService.joinRequestStudyMember(id);
+        @PathVariable("studyIdx") Long id, @RequestBody StudyMemberJoinRequest studyMemberJoinRequest) {
+        return studyMemberService.joinRequestStudyMember(id, studyMemberJoinRequest);
+    }
+
+    // 스터디 리더 멤버 관리 : 가입 신청 멤버와 승인된 멤버 둘 다 보여 줌
+    @StudyLeaderOnly
+    @GetMapping("/manage/{studyIdx}")
+    public ResponseEntity<CommonResponse> manageStudyMember(@PathVariable("studyIdx") Long id) {
+        return null;
     }
 
     // 가입 승인
     @StudyLeaderOnly
-    @PutMapping("/accept/{studyidx}")
-    public ResponseEntity<CommonResponse> acceptStudyMember(@PathVariable("studyidx") Long id) {
+    @PutMapping("/accept/{studyIdx}")
+    public ResponseEntity<CommonResponse> acceptStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.acceptStudyMember(id);
     }
 
     // 가입 거절
     @StudyLeaderOnly
-    @PutMapping("/disapprove/{studyidx}")
-    public ResponseEntity<CommonResponse> disapproveStudyMember(@PathVariable("studyidx") Long id) {
+    @PutMapping("/disapprove/{studyIdx}")
+    public ResponseEntity<CommonResponse> disapproveStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.disapproveStudyMember(id);
     }
 
     // 스터디 탈퇴
-    @DeleteMapping("/leave/{studyidx}")
-    public ResponseEntity<CommonResponse> leaveStudyMember(@PathVariable("studyidx") Long id) {
+    @DeleteMapping("/leave/{studyIdx}")
+    public ResponseEntity<CommonResponse> leaveStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.leaveStudyMember(id);
     }
 
     // 멤버 강퇴
     @StudyLeaderOnly
-    @DeleteMapping("/kick/{studyidx}")
-    public ResponseEntity<CommonResponse> kickStudyMember(@PathVariable("studyidx") Long id) {
+    @DeleteMapping("/kick/{studyIdx}")
+    public ResponseEntity<CommonResponse> kickStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.kickStudyMember(id);
     }
 
     // 방장 권한 넘기기
     @StudyLeaderOnly
-    @PutMapping("/transfer/{studyidx}/{newleaderidx}")
+    @PutMapping("/transfer/{studyIdx}/{newLeaderIdx}")
     public ResponseEntity<CommonResponse> transferStudyMember(
-        @PathVariable("studyidx") Long studyidx,
-        @PathVariable Long newleaderidx) {
-        return studyMemberService.transferStudyMember(studyidx, newleaderidx);
+        @PathVariable("studyIdx") Long studyIdx,
+        @PathVariable Long newLeaderIdx) {
+        return studyMemberService.transferStudyMember(studyIdx, newLeaderIdx);
     }
 }

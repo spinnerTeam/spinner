@@ -1,13 +1,14 @@
 package com.spinner.www.study.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.study.io.StudyMemberJoinRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface StudyMemberService {
 
     ResponseEntity<CommonResponse> findStudyMember(Long id);
 
-    ResponseEntity<CommonResponse> joinRequestStudyMember(Long id);
+    ResponseEntity<CommonResponse> joinRequestStudyMember(Long id, StudyMemberJoinRequest studyMemberJoinRequest);
 
     ResponseEntity<CommonResponse> acceptStudyMember(Long id);
 
