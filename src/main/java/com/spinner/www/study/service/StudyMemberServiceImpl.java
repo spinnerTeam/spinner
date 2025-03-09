@@ -158,10 +158,12 @@ public class StudyMemberServiceImpl implements StudyMemberService {
         }
 
         joinStudyMember.leaveStudyMember();
-        return null;
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("멤버 탈퇴 완료"),
+            HttpStatus.OK);
     }
 
     @Override
+    @Transactional
     public ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx) {
         Study study = getStudyOrElseThrow(id);
         Member member = getMemberOrElseThrow(memberIdx);
