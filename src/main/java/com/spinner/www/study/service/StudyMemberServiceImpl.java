@@ -9,9 +9,11 @@ import com.spinner.www.study.constants.StudyMemberStatusType;
 import com.spinner.www.study.constants.StudyStatusType;
 import com.spinner.www.study.dto.StudyMemberJoinDto;
 import com.spinner.www.study.dto.StudyMemberSelectDto;
+import com.spinner.www.study.dto.StudyMemberSelectWaitingDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.StudyMemberJoinRequest;
+import com.spinner.www.study.io.StudyMemberManageResponse;
 import com.spinner.www.study.mapper.StudyMemberMapper;
 import com.spinner.www.study.repository.StudyMemberQueryRepo;
 import com.spinner.www.study.repository.StudyMemberRepo;
@@ -49,6 +51,23 @@ public class StudyMemberServiceImpl implements StudyMemberService {
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyMemberList),
             HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> manageStudyMember(Long id) {
+        Study study = getStudyOrElseThrow(id);
+
+        List<StudyMemberSelectDto> studyMemberList = studyMemberQueryRepo.findStudyMember(study);
+        List<StudyMemberSelectWaitingDto> studyMemberJoinWaitingList = studyMemberQueryRepo.findStudyWaitingMember(study);
+
+        if (studyMemberList.isEmpty() && studyMemberJoinWaitingList.isEmpty()) {
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입된 회원이 없습니다."),
+                HttpStatus.OK);
+        }
+
+        StudyMemberManageResponse studyMemberManageResponse = new StudyMemberManageResponse(studyMemberList, studyMemberJoinWaitingList);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyMemberManageResponse), HttpStatus.OK);
     }
 
     @Override

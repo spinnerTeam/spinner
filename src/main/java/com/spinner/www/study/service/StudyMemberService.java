@@ -8,6 +8,8 @@ public interface StudyMemberService {
 
     ResponseEntity<CommonResponse> findStudyMember(Long id);
 
+    ResponseEntity<CommonResponse> manageStudyMember(Long id);
+
     ResponseEntity<CommonResponse> joinRequestStudyMember(Long id, StudyMemberJoinRequest studyMemberJoinRequest);
 
     ResponseEntity<CommonResponse> acceptStudyMember(Long id, Long memberIdx);
@@ -19,4 +21,5 @@ public interface StudyMemberService {
     ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx);
 
     ResponseEntity<CommonResponse> transferLeaderStudyMember(Long studyidx, Long newleaderidx);
+
 }

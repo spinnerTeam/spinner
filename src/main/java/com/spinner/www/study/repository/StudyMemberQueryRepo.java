@@ -9,7 +9,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatusType;
 import com.spinner.www.study.dto.QStudyMemberSelectDto;
+import com.spinner.www.study.dto.QStudyMemberSelectWaitingDto;
 import com.spinner.www.study.dto.StudyMemberSelectDto;
+import com.spinner.www.study.dto.StudyMemberSelectWaitingDto;
 import com.spinner.www.study.entity.QStudyMember;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
@@ -37,6 +39,25 @@ public class StudyMemberQueryRepo {
             .on(member.eq(memberFile.member)) // 필요하면 leftJoin
             .where(studyMember.study.eq(joinStudy),
                 studyMember.studyMemberStatus.eq(StudyMemberStatusType.JOIN),
+                studyMember.studyMemberRemoved.eq("N"))
+            .orderBy(studyMember.createdDate.asc())
+            .fetch();
+    }
+
+
+    public List<StudyMemberSelectWaitingDto> findStudyWaitingMember(Study joinStudy) {
+
+        return queryFactory
+            .select(new QStudyMemberSelectWaitingDto(
+                member.memberIdx,
+                memberFile.memberFileIdx,
+                member.memberName))
+            .from(studyMember)
+            .join(studyMember.member, member)
+            .leftJoin(memberFile)
+            .on(member.eq(memberFile.member)) // 필요하면 leftJoin
+            .where(studyMember.study.eq(joinStudy),
+                studyMember.studyMemberStatus.eq(StudyMemberStatusType.WAITING),
                 studyMember.studyMemberRemoved.eq("N"))
             .orderBy(studyMember.createdDate.asc())
             .fetch();

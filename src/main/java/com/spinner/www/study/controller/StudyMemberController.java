@@ -39,7 +39,7 @@ public class StudyMemberController {
     @StudyLeaderOnly
     @GetMapping("/manage/{studyIdx}")
     public ResponseEntity<CommonResponse> manageStudyMember(@PathVariable("studyIdx") Long id) {
-        return null;
+        return studyMemberService.manageStudyMember(id);
     }
 
     // 가입 승인
@@ -75,6 +75,6 @@ public class StudyMemberController {
     public ResponseEntity<CommonResponse> transferLeaderStudyMember(
         @PathVariable("studyIdx") Long studyIdx,
         @PathVariable Long newLeaderIdx) {
-        return studyMemberService.transferStudyMember(studyIdx, newLeaderIdx);
+        return studyMemberService.transferLeaderStudyMember(studyIdx, newLeaderIdx);
     }
 }
