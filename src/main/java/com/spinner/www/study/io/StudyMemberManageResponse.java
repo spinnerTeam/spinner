@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class StudyMemberManageResponse {
     List<StudyMemberSelectWaitingDto> studyMemberWaitingList;
     List<StudyMemberSelectDto> studyMemberList;

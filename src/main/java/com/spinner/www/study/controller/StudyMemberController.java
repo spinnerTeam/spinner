@@ -57,7 +57,7 @@ public class StudyMemberController {
     }
 
     // 스터디 탈퇴
-    @DeleteMapping("/leave/{studyIdx}}")
+    @DeleteMapping("/leave/{studyIdx}")
     public ResponseEntity<CommonResponse> leaveStudyMember(@PathVariable("studyIdx") Long id) {
         return studyMemberService.leaveStudyMember(id);
     }
