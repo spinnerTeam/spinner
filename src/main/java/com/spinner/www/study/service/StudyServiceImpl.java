@@ -110,7 +110,7 @@ public class StudyServiceImpl implements StudyService {
 
         // 스터디 멤버에 로그인된 유저 넣기
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
-        StudyMember studyMember = StudyMember.createStudyMember(study, member);
+        StudyMember studyMember = StudyMember.createStudyMemberLeader(study, member);
         studyMemberRepo.save(studyMember);
 
         // 연관관계 설정

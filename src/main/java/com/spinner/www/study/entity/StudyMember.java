@@ -52,7 +52,7 @@ public class StudyMember extends BaseEntity {
     }
 
     // 스터디장
-    public static StudyMember createStudyMember(Study study, Member member) {
+    public static StudyMember createStudyMemberLeader(Study study, Member member) {
         return StudyMember
             .builder()
             .study(study)
@@ -63,4 +63,5 @@ public class StudyMember extends BaseEntity {
             .studyMemberStatus(StudyMemberStatusType.JOIN)
             .build();
     }
+
 }
