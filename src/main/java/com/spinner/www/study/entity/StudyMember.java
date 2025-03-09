@@ -66,8 +66,8 @@ public class StudyMember extends BaseEntity {
     }
 
     // 가입 신청
-    public static StudyMember createStudyMember(Study study, Member member, StudyMemberJoinDto studyMemberJoinDto) {
-        return StudyMember
+    public static void createStudyMember(Study study, Member member, StudyMemberJoinDto studyMemberJoinDto) {
+        StudyMember
             .builder()
             .study(study)
             .member(member)
@@ -76,6 +76,22 @@ public class StudyMember extends BaseEntity {
             .studyMemberJoinIntro(studyMemberJoinDto.getStudyMemberJoinIntro())
             .studyMemberStatus(StudyMemberStatusType.WAITING)
             .build();
+    }
+
+    // 가입 승인
+    public void acceptStudyMember() {
+        this.studyMemberStatus = StudyMemberStatusType.JOIN;
+    }
+
+    // 재가입 요청 가능 승인
+    public void disapproveStudyMember() {
+        this.studyMemberStatus = StudyMemberStatusType.DISAPPROVE;
+    }
+
+    // 멤버 강퇴
+    public void kickStudyMember() {
+        this.studyMemberStatus = StudyMemberStatusType.KICK;
+        this.studyMemberRemoved = "Y";
     }
 
 }

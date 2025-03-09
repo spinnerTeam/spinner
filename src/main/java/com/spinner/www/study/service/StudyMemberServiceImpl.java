@@ -65,7 +65,7 @@ public class StudyMemberServiceImpl implements StudyMemberService {
         }
 
         Member member = getMemberOrElseThrow();
-        Optional<StudyMember> joinStudyMember = studyMemberRepo.findByMember(member);
+        Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
 
         if (joinStudyMember.isPresent()) {
             if ((joinStudyMember.get().getStudyMemberStatus().equals(StudyMemberStatusType.JOIN))) {
@@ -92,23 +92,74 @@ public class StudyMemberServiceImpl implements StudyMemberService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> acceptStudyMember(Long id) {
+    @Transactional
+    public ResponseEntity<CommonResponse> acceptStudyMember(Long id, Long memberIdx) {
+        Study study = getStudyOrElseThrow(id);
+        Member member = getMemberOrElseThrow();
+        Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
+
+        if (joinStudyMember.isPresent()) {
+            if ((joinStudyMember.get().getStudyMemberStatus().equals(StudyMemberStatusType.JOIN))) {
+                return new ResponseEntity<>(
+                    ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST.code(),
+                        "이미 가입한 스터디입니다."),
+                    HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST.code(),
+                    "가입 신청 하고 있지 않은 이용자입니다."),
+                HttpStatus.BAD_REQUEST);
+        }
+
+        joinStudyMember.get().acceptStudyMember();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입 승인 완료"),
+            HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> disapproveStudyMember(Long id, Long memberIdx) {
+        Study study = getStudyOrElseThrow(id);
+        Member member = getMemberOrElseThrow();
+        Optional<StudyMember> joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member);
+
+        if (joinStudyMember.isPresent()) {
+            if ((joinStudyMember.get().getStudyMemberStatus().equals(StudyMemberStatusType.JOIN))) {
+                return new ResponseEntity<>(
+                    ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST.code(),
+                        "이미 가입한 스터디입니다."),
+                    HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST.code(),
+                    "가입 신청 하고 있지 않은 이용자입니다."),
+                HttpStatus.BAD_REQUEST);
+        }
+
+        joinStudyMember.get().disapproveStudyMember();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입 거절 완료"),
+            HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> leaveStudyMember(Long id, Long memberIdx) {
         return null;
     }
 
     @Override
-    public ResponseEntity<CommonResponse> disapproveStudyMember(Long id) {
-        return null;
-    }
+    public ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx) {
+        Study study = getStudyOrElseThrow(id);
+        Member member = getMemberOrElseThrow();
+        StudyMember joinStudyMember = studyMemberRepo.findByStudyAndMember(study, member)
+            .orElseThrow(() -> new IllegalArgumentException("스터디 멤버를 찾을 수 없습니다."));
+        joinStudyMember.kickStudyMember();
 
-    @Override
-    public ResponseEntity<CommonResponse> leaveStudyMember(Long id) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<CommonResponse> kickStudyMember(Long id) {
-        return null;
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("멤버 강퇴 완료"),
+            HttpStatus.OK);
     }
 
     @Override

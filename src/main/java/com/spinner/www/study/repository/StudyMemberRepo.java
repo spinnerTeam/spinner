@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface StudyMemberRepo extends JpaRepository<StudyMember, Long> {
-
     Optional<StudyMember> findByMember(Member member);
+    Optional<StudyMember> findByStudyAndMember(Study study, Member member);
 }

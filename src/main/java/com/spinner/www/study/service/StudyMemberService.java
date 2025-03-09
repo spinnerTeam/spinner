@@ -10,13 +10,13 @@ public interface StudyMemberService {
 
     ResponseEntity<CommonResponse> joinRequestStudyMember(Long id, StudyMemberJoinRequest studyMemberJoinRequest);
 
-    ResponseEntity<CommonResponse> acceptStudyMember(Long id);
+    ResponseEntity<CommonResponse> acceptStudyMember(Long id, Long memberIdx);
 
-    ResponseEntity<CommonResponse> disapproveStudyMember(Long id);
+    ResponseEntity<CommonResponse> disapproveStudyMember(Long id, Long memberIdx);
 
-    ResponseEntity<CommonResponse> leaveStudyMember(Long id);
+    ResponseEntity<CommonResponse> leaveStudyMember(Long id, Long memberIdx);
 
-    ResponseEntity<CommonResponse> kickStudyMember(Long id);
+    ResponseEntity<CommonResponse> kickStudyMember(Long id, Long memberIdx);
 
     ResponseEntity<CommonResponse> transferStudyMember(Long studyidx, Long newleaderidx);
 }

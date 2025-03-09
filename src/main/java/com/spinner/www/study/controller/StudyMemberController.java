@@ -44,29 +44,29 @@ public class StudyMemberController {
 
     // 가입 승인
     @StudyLeaderOnly
-    @PutMapping("/accept/{studyIdx}")
-    public ResponseEntity<CommonResponse> acceptStudyMember(@PathVariable("studyIdx") Long id) {
-        return studyMemberService.acceptStudyMember(id);
+    @PutMapping("/accept/{studyIdx}/{memberIdx}")
+    public ResponseEntity<CommonResponse> acceptStudyMember(@PathVariable("studyIdx") Long id, @PathVariable("memberIdx") Long memberIdx) {
+        return studyMemberService.acceptStudyMember(id, memberIdx);
     }
 
     // 가입 거절
     @StudyLeaderOnly
-    @PutMapping("/disapprove/{studyIdx}")
-    public ResponseEntity<CommonResponse> disapproveStudyMember(@PathVariable("studyIdx") Long id) {
-        return studyMemberService.disapproveStudyMember(id);
+    @PutMapping("/disapprove/{studyIdx}/{memberIdx}")
+    public ResponseEntity<CommonResponse> disapproveStudyMember(@PathVariable("studyIdx") Long id, @PathVariable("memberIdx") Long memberIdx) {
+        return studyMemberService.disapproveStudyMember(id, memberIdx);
     }
 
     // 스터디 탈퇴
-    @DeleteMapping("/leave/{studyIdx}")
-    public ResponseEntity<CommonResponse> leaveStudyMember(@PathVariable("studyIdx") Long id) {
-        return studyMemberService.leaveStudyMember(id);
+    @DeleteMapping("/leave/{studyIdx}/{memberIdx}")
+    public ResponseEntity<CommonResponse> leaveStudyMember(@PathVariable("studyIdx") Long id, @PathVariable("memberIdx") Long memberIdx) {
+        return studyMemberService.leaveStudyMember(id, memberIdx);
     }
 
     // 멤버 강퇴
     @StudyLeaderOnly
-    @DeleteMapping("/kick/{studyIdx}")
-    public ResponseEntity<CommonResponse> kickStudyMember(@PathVariable("studyIdx") Long id) {
-        return studyMemberService.kickStudyMember(id);
+    @DeleteMapping("/kick/{studyIdx}/{memberIdx}")
+    public ResponseEntity<CommonResponse> kickStudyMember(@PathVariable("studyIdx") Long id, @PathVariable("memberIdx") Long memberIdx) {
+        return studyMemberService.kickStudyMember(id, memberIdx);
     }
 
     // 방장 권한 넘기기
