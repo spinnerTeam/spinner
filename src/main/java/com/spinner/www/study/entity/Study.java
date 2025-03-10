@@ -1,6 +1,7 @@
 package com.spinner.www.study.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.study.constants.StudyStatusType;
 import com.spinner.www.study.dto.StudyCreateDto;
@@ -40,15 +41,19 @@ public class Study extends BaseEntity {
     private Files files;
 
     @Comment("스터디 진행 여부 | ing (진행 중), end (종료)")
+    @Enumerated(EnumType.STRING)
     private StudyStatusType studyStatusType;
 
     @Comment("스터디 삭제 여부")
     private String studyIsRemoved;
 
-    @OneToOne
-    @JoinColumn(name = "tagIdx")
+    @ManyToOne
+    @JoinColumn(name = "commonIdx")
     @Comment("스터디 분야")
-    private Tag tag;
+    private CommonCode common;
+
+    @Comment("스터디 조회수")
+    private Long studyViews;
 
     @Comment("스터디 최대 인원")
     private int studyMaxPeople;
@@ -68,13 +73,14 @@ public class Study extends BaseEntity {
         }
     }
 
-    public static Study create(StudyCreateDto studyCreateDto) {
+    public static Study create(StudyCreateDto studyCreateDto, CommonCode commonCode) {
         return Study.builder()
             .studyName(studyCreateDto.getStudyName())
             .studyIntro(studyCreateDto.getStudyIntro())
             .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
+            .common(commonCode)
             .studyIsRemoved("N")
-            .studyStatusType(StudyStatusType.ing)
+            .studyStatusType(StudyStatusType.ING)
             .build();
     }
 
@@ -82,14 +88,19 @@ public class Study extends BaseEntity {
         this.files = files;
     }
 
-    public void update(StudyUpdateDto studyUpdateDto) {
+    public void update(StudyUpdateDto studyUpdateDto, CommonCode commonCode) {
         this.studyName = studyUpdateDto.getStudyName();
         this.studyIntro = studyUpdateDto.getStudyIntro();
         this.studyMaxPeople = studyUpdateDto.getStudyMaxPeople();
+        this.common = commonCode;
         this.studyIsRemoved = "N";
     }
 
     public void softDelete() {
         this.studyIsRemoved = "Y";
+    }
+
+    public void updateViews() {
+        this.studyViews++;
     }
 }
