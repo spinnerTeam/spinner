@@ -54,7 +54,7 @@ public class BoardRestController {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Operation(description = "게시글을 조회합니다. <br/>" +
-            "idx에 해당하는 게시글 정보를 반환합니다. <br/><br/>" +
+            "idx(pk)에 해당하는 게시글 정보를 반환합니다. <br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
             "free   : 자유글",
