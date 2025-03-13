@@ -64,4 +64,4 @@ jobs:
         run: sudo docker system prune -f
 
       - name: docker run new container
-        run: sudo docker run -it -d -p 80:8080 --name spring-cicd-test ${{ secrets.DOCKER_ID }}/spring-cicd-test
+        run: sudo docker run -it -d -p 80:3030 --name spring-cicd-test ${{ secrets.DOCKER_ID }}/spring-cicd-test
