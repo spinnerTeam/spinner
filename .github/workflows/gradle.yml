@@ -30,6 +30,10 @@ jobs:
           echo "JWT_ISSUER=${{ vars.JWT_ISSUER }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
+      # .env 파일 확인
+      - name: Verify .env file on EC2
+        run: cat .env
+
       # 도커 이그노어 파일에 .env 파일을 추가해서 .env가 도커 허브에 안올라가도록 처리
       - name: Ensure .dockerignore exists
         run: |
