@@ -18,6 +18,24 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # .env 파일 생성 단계 추가
+      - name: Create .env file
+        run: |
+          echo "DOMAIN_URL=${{ vars.DOMAIN_URL }}" > .env
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
+          echo "DATABASE_USERNAME=${{ vars.DATABASE_USERNAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "JWT_ISSUER=${{ vars.JWT_ISSUER }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+      # 도커 이그노어 파일에 .env 파일을 추가해서 .env가 도커 허브에 안올라가도록 처리
+      - name: Ensure .dockerignore exists
+        run: |
+          echo ".env" >> .dockerignore
+          sort -u .dockerignore -o .dockerignore
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
