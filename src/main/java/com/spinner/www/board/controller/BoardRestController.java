@@ -1,7 +1,6 @@
 package com.spinner.www.board.controller;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.board.service.BoardService;
@@ -55,7 +54,7 @@ public class BoardRestController {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Operation(description = "게시글을 조회합니다. <br/>" +
-            "idx에 해당하는 게시글 정보를 반환합니다. <br/><br/>" +
+            "idx(pk)에 해당하는 게시글 정보를 반환합니다. <br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
             "free   : 자유글",
@@ -72,7 +71,9 @@ public class BoardRestController {
     /**
      * 게시글 목록 조회
      * @param boardType String
-     * @param searchRequest SearchParamRequest 검색 조건
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param keyword String 조회할 키워드
      * @return searchParamRequest<CommonResponse> 게시글 목록
      */
     @Operation(description = "게시글 목록을 조회합니다. <br/>" +
@@ -87,8 +88,11 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/{boardType}")
-    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType, @ModelAttribute SearchParamRequest searchRequest) {
-        return boardService.getSliceOfBoard(boardType, searchRequest);
+    public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType,
+                                                    @RequestParam(value = "idx", required = false) Long idx,
+                                                    @RequestParam(value = "size", required = false) int size,
+                                                    @RequestParam(value = "keyword", required = false) String keyword) {
+        return boardService.getSliceOfBoard(boardType, idx, size, keyword);
     }
 
     /**

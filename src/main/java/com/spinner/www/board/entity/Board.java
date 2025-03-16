@@ -54,6 +54,11 @@ public class Board extends BaseEntity {
     @Comment("신고여부")
     private int boardIsReported;
 
+    @ColumnDefault("0")
+    @Comment("조회수")
+    @Column(nullable = false)
+    private Long hitCount;
+
     @OneToMany(mappedBy = "boardIdx"
             ,fetch = FetchType.LAZY)
     private List<Reply> replies = new ArrayList<>();
@@ -65,6 +70,10 @@ public class Board extends BaseEntity {
     public void update(String boardTitle, String boardContent) {
         this.boardTitle = boardTitle;
         this.boardContent = boardContent;
+    }
+
+    public void increaseHitCount() {
+        this.hitCount += 1;
     }
 
     public void delete() {
