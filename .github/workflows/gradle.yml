@@ -61,5 +61,18 @@ jobs:
       - name: delete old docker image
         run: sudo docker system prune -f
 
+      # .env 파일 생성 단계 추가
+      - name: Create .env file
+        run: |
+          echo "DOMAIN_URL=${{ vars.DOMAIN_URL }}" > .env
+          echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
+          echo "DATABASE_USERNAME=${{ vars.DATABASE_USERNAME }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "JWT_ISSUER=${{ vars.JWT_ISSUER }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+      # Docker 컨테이너 실행 시 .env 파일을 적용하도록 변경
       - name: docker run new container
-        run: sudo docker run -it -d -p 80:3030 --name spring-cicd-test ${{ secrets.DOCKER_ID }}/spring-cicd-test
+        run: sudo docker run -it -d -p 80:3030 --name spring-cicd-test --env-file .env ${{ secrets.DOCKER_ID }}/spring-cicd-test
