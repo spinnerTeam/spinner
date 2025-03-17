@@ -1,6 +1,7 @@
 package com.spinner.www.member.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.member.io.EmailSend;
 import com.spinner.www.member.io.MemberLogin;
@@ -77,5 +78,13 @@ public class MemberRestController {
     @GetMapping("/main")
     public String test(){
         return "success";
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<CommonResponse> refreshToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            @RequestParam("memberIdx") Long memberIdx) {
+        Member member = memberService.getMember(memberIdx);
+        return tokenService.refreshToken(refreshToken, member);
     }
 }

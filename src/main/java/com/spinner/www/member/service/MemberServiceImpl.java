@@ -39,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     private static final int DEFAULT_REFRESH_EXPIRATION_DAYS = 7;
 
     private final MemberRepo memberRepo;
-    private final EncryptionUtils encryptionUtils;
+    private EncryptionUtils encryptionUtils;
     private final SessionInfo sessionInfo;
     private final MemberMapper memberMapper;
     private final TokenService tokenService;
