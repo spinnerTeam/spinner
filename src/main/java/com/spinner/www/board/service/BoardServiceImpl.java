@@ -1,7 +1,9 @@
 package com.spinner.www.board.service;
 
 import com.spinner.www.board.constants.CommonBoardCode;
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.like.service.LikeService;
@@ -42,7 +44,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberService memberService;
     private final FileService fileService;
     private final LikeService likeService;
-//    private final BoardMapper boardMapper;
+    private final CommonCodeService commonCodeService;
 
     /**
      * 게시글 생성
@@ -71,9 +73,10 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException(e);
         }
 
+        CommonCode commonCode = commonCodeService.getComonCode(codeIdx);
         Board board = Board.builder()
                 .hitCount(0L)
-                .codeIdx(codeIdx)
+                .commonCode(commonCode)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
                 .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
@@ -103,7 +106,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board findByBoardIdx(Long codeIdx, Long boardIdx) {
         int isNotRemove = 0;
-        return boardRepo.findByCodeIdxAndBoardIdxAndBoardIsRemoved(codeIdx, boardIdx, isNotRemove).orElse(null);
+        CommonCode commoncode = commonCodeService.getComonCode(codeIdx);
+        return boardRepo.findByCommonCodeAndBoardIdxAndBoardIsRemoved(commoncode, boardIdx, isNotRemove).orElse(null);
     }
 
     /**
@@ -255,6 +259,7 @@ public class BoardServiceImpl implements BoardService {
 
         return BoardResponse.builder()
                 .idx(board.getBoardIdx())
+                .boardName(board.getCommonCode().getCodeName())
                 .nickname(board.getMember().getMemberNickname())
                 .title(board.getBoardTitle())
                 .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))

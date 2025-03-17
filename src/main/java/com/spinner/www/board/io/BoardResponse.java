@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 public class BoardResponse extends BaseResponse {
     private Long idx;
+    private String boardName;
     private String nickname;
     private String title;
     private String content;
@@ -23,9 +24,10 @@ public class BoardResponse extends BaseResponse {
     private boolean isLiked;
     private Long hitCount;
 
-    public BoardResponse(Long idx, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, Long hitCount, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
+    public BoardResponse(Long idx, String boardName, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, Long hitCount, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
         super(createdAt, createdDate, modifiedAt, modifiedDate);
         this.idx = idx;
+        this.boardName = boardName;
         this.nickname = nickname;
         this.title = title;
         this.content = content;

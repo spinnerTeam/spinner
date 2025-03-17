@@ -159,7 +159,7 @@ public class ReplyServiceImpl implements ReplyService {
 
 
         Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
-        if (Objects.isNull(board) || !board.getCodeIdx().equals(codeIdx))
+        if (Objects.isNull(board) || !board.getCommonCode().getCodeIdx().equals(codeIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
 

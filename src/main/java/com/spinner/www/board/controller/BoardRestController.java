@@ -85,7 +85,6 @@ public class BoardRestController {
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/{boardType}")
     public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType,

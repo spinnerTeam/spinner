@@ -48,6 +48,7 @@ public class BoardQueryRepo {
                         Projections.constructor(
                                 BoardListResponse.class,
                                 board.boardIdx,
+                                board.commonCode.codeName,
                                 board.boardTitle,
                                 board.boardContent,
                                 board.member.memberNickname,
@@ -127,7 +128,7 @@ public class BoardQueryRepo {
     }
 
     private BooleanBuilder getCodeIdx(Long codeIdx) {
-        return new BooleanBuilder(board.codeIdx.eq(codeIdx));
+        return new BooleanBuilder(board.commonCode.codeIdx.eq(codeIdx));
     }
 
     private BooleanBuilder getNotRemoved() {

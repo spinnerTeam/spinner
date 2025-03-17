@@ -1,7 +1,6 @@
 package com.spinner.www.board.service;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.io.SearchParamRequest;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;

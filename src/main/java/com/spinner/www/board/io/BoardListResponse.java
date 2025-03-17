@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 public class BoardListResponse extends BaseResponse {
     private Long idx;
+    private String boardName;
     private String title;
     private String content;
     private String nickName;
@@ -20,9 +21,10 @@ public class BoardListResponse extends BaseResponse {
     private Long likeCount;
     private Long hitCount;
 
-    public BoardListResponse(Long idx, String title, String content, String nickName, Long voteCount, Long replyCount, Long likeCount, Long hitCount, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+    public BoardListResponse(Long idx, String boardName, String title, String content, String nickName, Long voteCount, Long replyCount, Long likeCount, Long hitCount, LocalDateTime createdDate, LocalDateTime modifiedDate) {
         super(createdDate, modifiedDate);
         this.idx = idx;
+        this.boardName = boardName;
         this.title = title;
         this.content = content;
         this.nickName = nickName;
