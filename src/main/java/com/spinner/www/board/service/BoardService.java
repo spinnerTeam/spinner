@@ -85,12 +85,4 @@ public interface BoardService {
      * @return ResponseEntity<CommonResponse>
      */
     Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException;
-
-    /**
-     * 좋아요 생성 또는 업데이트
-     * @param boardType String 게시판 타입
-     * @param boardIdx Long 게시글 idx
-     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
-     */
-    ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx);
 }

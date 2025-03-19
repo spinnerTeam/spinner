@@ -6,7 +6,6 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.service.FileService;
-import com.spinner.www.like.service.LikeService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
@@ -43,7 +42,6 @@ public class BoardServiceImpl implements BoardService {
     private final BoardQueryRepo boardQueryRepo;
     private final MemberService memberService;
     private final FileService fileService;
-    private final LikeService likeService;
     private final CommonCodeService commonCodeService;
 
     /**
@@ -339,30 +337,5 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return updateHtmlText;
-    }
-
-    /**
-     * 좋아요 생성 또는 업데이트
-     *
-     * @param boardType String 게시판 타입
-     * @param boardIdx  Long 게시글 idx
-     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
-     */
-    @Override
-    public ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx) {
-        Long codeIdx = CommonBoardCode.getCode(boardType);
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        return likeService.upsertBoard(boardIdx);
     }
 }

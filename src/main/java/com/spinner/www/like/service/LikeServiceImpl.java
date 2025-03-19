@@ -34,6 +34,7 @@ public class LikeServiceImpl implements LikeService {
      */
     @Override
     public ResponseEntity<CommonResponse> upsertBoard(Long boardIdx) {
+
         Long memberIdx = sessionInfo.getMemberIdx();
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
