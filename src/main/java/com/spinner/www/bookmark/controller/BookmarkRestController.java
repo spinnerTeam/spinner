@@ -20,8 +20,8 @@ public class BookmarkRestController {
 
     /**
      * 북마크한 게시글 목록 조회
-     * @param idx
-     * @param size
+     * @param idx Long
+     * @param size int
      * @return ResponseEntity<CommonResponse>
      */
     @Operation(description = "북마크한 게시글 목록을 조회합니다. <br/>" +

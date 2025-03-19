@@ -1,13 +1,9 @@
 package com.spinner.www.like.mapper;
 
-import com.spinner.www.like.dto.LikeCreateDto;
 import com.spinner.www.like.dto.LikeGetDto;
-import com.spinner.www.like.dto.LikeUpdateDto;
 import com.spinner.www.like.entity.Like;
-import com.spinner.www.like.io.LikeCreateRequest;
 import com.spinner.www.like.io.LikeBoardResponse;
 import com.spinner.www.like.io.LikeReplyResponse;
-import com.spinner.www.like.io.LikeUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
