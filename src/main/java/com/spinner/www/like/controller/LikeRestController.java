@@ -42,7 +42,6 @@ public class LikeRestController {
         return likeService.upsertBoard(boardIdx);
     }
 
-
     /**
      * 좋아요
      * @param boardType String

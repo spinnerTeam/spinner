@@ -52,7 +52,7 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        List<Like> likes = this.findByBoardIdx(boardIdx);
+        List<Like> likes = this.findByBoard(board);
 
         Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
 
@@ -82,11 +82,11 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        Board board = boardService.findByBoardIdx(reply.getBoardIdx());
+        Board board = boardService.findByBoardIdx(reply.getBoard().getBoardIdx());
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        List<Like> likes = this.findByReplyIdx(replyIdx);
+        List<Like> likes = this.findByReply(reply);
 
         Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
 
@@ -105,11 +105,21 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> insertBoard(Long boardIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = boardService.findByBoardIdx(boardIdx);
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
 
         Like like = Like.builder()
                 .member(member)
-                .boardIdx(boardIdx)
+                .board(board)
                 .likeIsLiked(1)
                 .build();
 
@@ -128,11 +138,20 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> insertReply(Long replyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Reply reply = replyService.findByReplyIdx(replyIdx);
+        if (Objects.isNull(reply))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         Like like = Like.builder()
                 .member(member)
-                .replyIdx(replyIdx)
+                .reply(reply)
                 .likeIsLiked(1)
                 .build();
 
@@ -145,13 +164,13 @@ public class LikeServiceImpl implements LikeService {
 
 
     @Override
-    public List<Like> findByBoardIdx(Long boardIdx) {
-        return likeRepo.findByBoardIdx(boardIdx);
+    public List<Like> findByBoard(Board board) {
+        return likeRepo.findByBoard(board);
     }
 
     @Override
-    public List<Like> findByReplyIdx(Long boardIdx) {
-        return likeRepo.findByReplyIdx(boardIdx);
+    public List<Like> findByReply(Reply reply) {
+        return likeRepo.findByReply(reply);
     }
 
     /**
@@ -170,7 +189,7 @@ public class LikeServiceImpl implements LikeService {
         like.update();
         likeRepo.save(like);
 
-        if(Objects.isNull(like.getBoardIdx())){
+        if(Objects.isNull(like.getBoard())){
             LikeReplyResponse response = likeMapper.likeToLikeReplyResponse(like);
 
             return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);

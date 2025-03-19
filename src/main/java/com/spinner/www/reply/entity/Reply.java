@@ -1,5 +1,6 @@
 package com.spinner.www.reply.entity;
 
+import com.spinner.www.board.entity.Board;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
@@ -32,9 +33,10 @@ public class Reply extends BaseEntity {
     @Comment("유저 식별자")
     private Member member;
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardIdx", nullable = false)
     @Comment("게시글 식별자")
-    private Long boardIdx;
+    private Board board;
 
     @Column(nullable = false)
     @Comment("내용")
@@ -52,7 +54,7 @@ public class Reply extends BaseEntity {
             fetch = FetchType.LAZY)
     private List<Reply> childReplies;
 
-    @OneToMany(mappedBy = "replyIdx",
+    @OneToMany(mappedBy = "reply",
             fetch = FetchType.LAZY)
     private List<Like> likes;
 

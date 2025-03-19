@@ -1,7 +1,9 @@
 package com.spinner.www.like.entity;
 
+import com.spinner.www.board.entity.Board;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.reply.entity.Reply;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,13 +31,15 @@ public class Like extends BaseEntity {
     @Comment("유저 식별자")
     private Member member;
 
-    @Column(nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardIdx", nullable = true)
     @Comment("게시글 식별자")
-    private Long boardIdx;
+    private Board board;
 
-    @Column(nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "replyIdx", nullable = true)
     @Comment("댓글 식별자")
-    private Long replyIdx;
+    private Reply reply;
 
     @ColumnDefault("1")
     @Comment("좋아요 여부")

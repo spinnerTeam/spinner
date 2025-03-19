@@ -3,7 +3,6 @@ package com.spinner.www.reply.service;
 import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
-import com.spinner.www.like.service.LikeService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
@@ -59,7 +58,7 @@ public class ReplyServiceImpl implements ReplyService {
 
         Reply reply = Reply.builder()
                 .member(member)
-                .boardIdx(board.getBoardIdx())
+                .board(board)
                 .replyParentIdx(replyParentIdx)
                 .replyContent(replyDto.getReplyContent())
                 .build();
@@ -110,10 +109,12 @@ public class ReplyServiceImpl implements ReplyService {
         if (!Objects.equals(reply.getMember(), member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
-        Long boardIdx = reply.getBoardIdx();
-        Board board = boardService.findByBoardIdx(codeIdx, boardIdx);
-
+        Board board = reply.getBoard();
         if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        Long boardIdx = board.getBoardIdx();
+        if (Objects.isNull(boardIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
@@ -157,11 +158,9 @@ public class ReplyServiceImpl implements ReplyService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
 
 
-        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoardIdx());
+        Board board = boardService.findByBoardIdx(codeIdx, reply.getBoard().getBoardIdx());
         if (Objects.isNull(board) || !board.getCommonCode().getCodeIdx().equals(codeIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-
 
         reply.delete();
 
