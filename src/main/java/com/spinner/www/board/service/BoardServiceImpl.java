@@ -1,10 +1,11 @@
 package com.spinner.www.board.service;
 
 import com.spinner.www.board.constants.CommonBoardCode;
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.service.FileService;
-import com.spinner.www.like.service.LikeService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
@@ -41,8 +42,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardQueryRepo boardQueryRepo;
     private final MemberService memberService;
     private final FileService fileService;
-    private final LikeService likeService;
-//    private final BoardMapper boardMapper;
+    private final CommonCodeService commonCodeService;
 
     /**
      * 게시글 생성
@@ -71,9 +71,10 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException(e);
         }
 
+        CommonCode commonCode = commonCodeService.getComonCode(codeIdx);
         Board board = Board.builder()
                 .hitCount(0L)
-                .codeIdx(codeIdx)
+                .commonCode(commonCode)
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
                 .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
@@ -95,6 +96,17 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
+     * @param boardIdx Long 게시글 idx
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    public Board findByBoardIdx(Long boardIdx) {
+        int isNotRemove = 0;
+        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElse(null);
+    }
+
+    /**
+     * 게시글 uuid로 삭제되지 않은 게시글 조회
      *
      * @param codeIdx  Long 게시판 타입
      * @param boardIdx Long 게시글 idx
@@ -103,7 +115,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board findByBoardIdx(Long codeIdx, Long boardIdx) {
         int isNotRemove = 0;
-        return boardRepo.findByCodeIdxAndBoardIdxAndBoardIsRemoved(codeIdx, boardIdx, isNotRemove).orElse(null);
+        CommonCode commoncode = commonCodeService.getComonCode(codeIdx);
+        return boardRepo.findByCommonCodeAndBoardIdxAndBoardIsRemoved(commoncode, boardIdx, isNotRemove).orElse(null);
     }
 
     /**
@@ -139,11 +152,41 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+
+        // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
+        if (Objects.isNull(memberIdx))
+            memberIdx = -1L;
         Long codeIdx = CommonBoardCode.getCode(boardType);
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
                                                                             idx,
                                                                             size,
-                                                                            keyword);
+                                                                            keyword,
+                                                                            memberIdx);
+
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
+
+
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
+
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
+                                                                                    size,
+                                                                                    memberIdx);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -252,16 +295,20 @@ public class BoardServiceImpl implements BoardService {
 
         boolean isLiked = board.getLikes().stream()
                 .anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1);
+        boolean isBookmarked = board.getBookmarks().stream()
+                .anyMatch(bookmark -> bookmark.getMember().getMemberIdx().equals(memberIdx) && bookmark.getIsBookmarked() == 1);
 
         return BoardResponse.builder()
                 .idx(board.getBoardIdx())
+                .boardName(board.getCommonCode().getCodeName())
                 .nickname(board.getMember().getMemberNickname())
                 .title(board.getBoardTitle())
                 .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .replies(replyResponses)
                 .likeCount(likeCount)
-                .isLiked(isLiked)
+                .liked(isLiked)
                 .hitCount(board.getHitCount())
+                .bookmarked(isBookmarked)
                 .build();
     }
 
@@ -290,30 +337,5 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return updateHtmlText;
-    }
-
-    /**
-     * 좋아요 생성 또는 업데이트
-     *
-     * @param boardType String 게시판 타입
-     * @param boardIdx  Long 게시글 idx
-     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
-     */
-    @Override
-    public ResponseEntity<CommonResponse> upsertLike(String boardType, Long boardIdx) {
-        Long codeIdx = CommonBoardCode.getCode(boardType);
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        return likeService.upsertBoard(boardIdx);
     }
 }

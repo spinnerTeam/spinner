@@ -1,5 +1,7 @@
 package com.spinner.www.board.entity;
+import com.spinner.www.bookmark.entity.Bookmark;
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
@@ -29,9 +31,10 @@ public class Board extends BaseEntity {
     @Comment("게시판 PK")
     private Long boardIdx;
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codeIdx", nullable = false)
     @Comment("공통코드 식별자")
-    private Long codeIdx;
+    private CommonCode commonCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberIdx", nullable = false)
@@ -66,6 +69,10 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "boardIdx"
             ,fetch = FetchType.LAZY)
     private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board"
+            ,fetch = FetchType.LAZY)
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
     public void update(String boardTitle, String boardContent) {
         this.boardTitle = boardTitle;
