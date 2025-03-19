@@ -184,9 +184,68 @@ public class BoardServiceImpl implements BoardService {
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
-                                                                                    size,
-                                                                                    memberIdx);
+                size,
+                memberIdx);
+
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
+
+
+    /**
+     * 내가 좋아요를 누른 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfLikedBoard(idx,
+                                                                                size,
+                                                                                memberIdx);
+
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
+
+
+    /**
+     * 내가 작성한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size) {
+
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
+                size,
+                memberIdx);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));

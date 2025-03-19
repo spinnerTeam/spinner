@@ -36,14 +36,4 @@ public interface BookmarkService {
      * @return List<Bookmark> 북마크 목록
      */
     List<Bookmark> findByBoard(Board board);
-
-    /**
-     * 북마크한 게시글 목록 조회
-     * @param boardIdx Long
-     * @param size int
-     * @return List<Board> 게시글 조회
-     */
-    ResponseEntity<CommonResponse> findAllBookmarkedBoards(Long boardIdx, int size);
-
-
 }

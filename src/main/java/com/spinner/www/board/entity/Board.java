@@ -62,11 +62,11 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private Long hitCount;
 
-    @OneToMany(mappedBy = "boardIdx"
+    @OneToMany(mappedBy = "board"
             ,fetch = FetchType.LAZY)
     private List<Reply> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "boardIdx"
+    @OneToMany(mappedBy = "board"
             ,fetch = FetchType.LAZY)
     private List<Like> likes = new ArrayList<>();
 

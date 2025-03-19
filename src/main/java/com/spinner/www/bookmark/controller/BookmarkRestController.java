@@ -19,28 +19,6 @@ public class BookmarkRestController {
     private final BookmarkService bookmarkService;
 
     /**
-     * 북마크한 게시글 목록 조회
-     * @param idx Long
-     * @param size int
-     * @return ResponseEntity<CommonResponse>
-     */
-    @Operation(description = "북마크한 게시글 목록을 조회합니다. <br/>" +
-            "<strong>[boardType]</strong> <br/>" +
-            "verify : 공부인증글 <br/>" +
-            "free   : 자유글",
-            responses = {
-                    @ApiResponse(content = @Content(mediaType = "application/json")),
-                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
-                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
-            })
-    @GetMapping("/board")
-    public ResponseEntity<CommonResponse> findAllBookmarkedBoards(@RequestParam(value = "idx", required = false) Long idx,
-                                                                  @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return bookmarkService.findAllBookmarkedBoards(idx, size);
-    }
-
-    /**
      * 북마크
      * @param boardIdx Long 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보

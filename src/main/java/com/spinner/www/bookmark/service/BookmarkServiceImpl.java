@@ -98,10 +98,12 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public ResponseEntity<CommonResponse> update(Bookmark bookmark) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        if (!Objects.equals(bookmark.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         bookmark.update();
         bookmarkRepo.save(bookmark);
@@ -124,16 +126,5 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public List<Bookmark> findByBoard(Board board) {
         return bookmarkRepo.findByBoard(board);
-    }
-
-    /**
-     * 북마크한 게시글 목록 조회
-     * @param boardIdx Long
-     * @param size int
-     * @return List<Board> 게시글 조회
-     */
-    @Override
-    public ResponseEntity<CommonResponse> findAllBookmarkedBoards(Long boardIdx, int size) {
-        return boardService.getSliceOfBookmarkedBoard(boardIdx, size);
     }
 }
