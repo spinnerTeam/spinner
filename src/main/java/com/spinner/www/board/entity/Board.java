@@ -1,4 +1,5 @@
 package com.spinner.www.board.entity;
+import com.spinner.www.bookmark.entity.Bookmark;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.like.entity.Like;
@@ -68,6 +69,10 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "boardIdx"
             ,fetch = FetchType.LAZY)
     private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board"
+            ,fetch = FetchType.LAZY)
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
     public void update(String boardTitle, String boardContent) {
         this.boardTitle = boardTitle;

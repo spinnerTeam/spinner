@@ -89,7 +89,7 @@ public class BoardRestController {
     @GetMapping("/{boardType}")
     public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType,
                                                     @RequestParam(value = "idx", required = false) Long idx,
-                                                    @RequestParam(value = "size", required = false) int size,
+                                                    @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                                                     @RequestParam(value = "keyword", required = false) String keyword) {
         return boardService.getSliceOfBoard(boardType, idx, size, keyword);
     }

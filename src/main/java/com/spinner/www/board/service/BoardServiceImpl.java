@@ -98,6 +98,17 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
+     * @param boardIdx Long 게시글 idx
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    public Board findByBoardIdx(Long boardIdx) {
+        int isNotRemove = 0;
+        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElse(null);
+    }
+
+    /**
+     * 게시글 uuid로 삭제되지 않은 게시글 조회
      *
      * @param codeIdx  Long 게시판 타입
      * @param boardIdx Long 게시글 idx
@@ -143,11 +154,41 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+
+        // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
+        if (Objects.isNull(memberIdx))
+            memberIdx = -1L;
         Long codeIdx = CommonBoardCode.getCode(boardType);
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
                                                                             idx,
                                                                             size,
-                                                                            keyword);
+                                                                            keyword,
+                                                                            memberIdx);
+
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
+
+
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
+
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
+                                                                                    size,
+                                                                                    memberIdx);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -256,6 +297,8 @@ public class BoardServiceImpl implements BoardService {
 
         boolean isLiked = board.getLikes().stream()
                 .anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1);
+        boolean isBookmarked = board.getBookmarks().stream()
+                .anyMatch(bookmark -> bookmark.getMember().getMemberIdx().equals(memberIdx) && bookmark.getIsBookmarked() == 1);
 
         return BoardResponse.builder()
                 .idx(board.getBoardIdx())
@@ -265,8 +308,9 @@ public class BoardServiceImpl implements BoardService {
                 .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
                 .replies(replyResponses)
                 .likeCount(likeCount)
-                .isLiked(isLiked)
+                .liked(isLiked)
                 .hitCount(board.getHitCount())
+                .bookmarked(isBookmarked)
                 .build();
     }
 

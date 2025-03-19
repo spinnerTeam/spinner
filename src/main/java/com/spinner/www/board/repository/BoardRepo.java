@@ -13,6 +13,15 @@ public interface BoardRepo extends JpaRepository<Board, Long> {
 
     /**
      * 삭제되지 않은 board 조회
+     * @param boardIdx Long
+     * @param isRemove int
+     * @return Board
+     */
+    @EntityGraph(attributePaths = {"member", "replies"})
+    Optional<Board> findByBoardIdxAndBoardIsRemoved(Long boardIdx, int isRemove);
+
+    /**
+     * 삭제되지 않은 board 조회
      * @param commonCode CommonCode
      * @param boardIdx Long
      * @param isRemove int
@@ -20,6 +29,7 @@ public interface BoardRepo extends JpaRepository<Board, Long> {
      */
     @EntityGraph(attributePaths = {"member", "replies"})
     Optional<Board> findByCommonCodeAndBoardIdxAndBoardIsRemoved(CommonCode commonCode, Long boardIdx, int isRemove);
+
 
 
 }

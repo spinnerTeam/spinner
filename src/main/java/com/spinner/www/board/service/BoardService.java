@@ -23,6 +23,13 @@ public interface BoardService {
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글
+     * @param boardIdx Long 게시글 idx
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    Board findByBoardIdx(Long boardIdx);
+
+    /**
+     * 게시글 uuid로 삭제되지 않은 게시글
      * @param codeIdx Long 게시판 타입
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
@@ -46,6 +53,14 @@ public interface BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword);
+
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size);
 
     /**
      * 게시글 수정
