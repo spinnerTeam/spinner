@@ -1,5 +1,7 @@
 package com.spinner.www.like.service;
 
+import com.spinner.www.board.entity.Board;
+import com.spinner.www.board.service.BoardService;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.like.entity.Like;
@@ -10,6 +12,8 @@ import com.spinner.www.like.repository.LikeRepo;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
+import com.spinner.www.reply.entity.Reply;
+import com.spinner.www.reply.service.ReplyService;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +30,8 @@ public class LikeServiceImpl implements LikeService {
     private final SessionInfo sessionInfo;
     private final LikeRepo likeRepo;
     private final MemberService memberService;
+    private final ReplyService replyService;
+    private final BoardService boardService;
     private final LikeMapper likeMapper;
     /**
      * 좋아요 생성 또는 업데이트
@@ -34,7 +40,6 @@ public class LikeServiceImpl implements LikeService {
      */
     @Override
     public ResponseEntity<CommonResponse> upsertBoard(Long boardIdx) {
-
         Long memberIdx = sessionInfo.getMemberIdx();
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -42,6 +47,10 @@ public class LikeServiceImpl implements LikeService {
         Member member = memberService.getMember(memberIdx);
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = boardService.findByBoardIdx(boardIdx);
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<Like> likes = this.findByBoardIdx(boardIdx);
 
@@ -68,6 +77,14 @@ public class LikeServiceImpl implements LikeService {
         Member member = memberService.getMember(memberIdx);
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Reply reply= replyService.findByReplyIdx(replyIdx);
+        if (Objects.isNull(reply))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        Board board = boardService.findByBoardIdx(reply.getBoardIdx());
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<Like> likes = this.findByReplyIdx(replyIdx);
 

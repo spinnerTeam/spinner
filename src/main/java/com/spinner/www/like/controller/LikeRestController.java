@@ -37,9 +37,33 @@ public class LikeRestController {
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     // boardType은 엔드포인트 구색 맞추기용
-    @PostMapping("/{boardType}/{boardIdx}")
-    public ResponseEntity<CommonResponse> like(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
+    @PostMapping("/board/{boardType}/{boardIdx}")
+    public ResponseEntity<CommonResponse> setLikeBoard(@PathVariable("boardType") String boardType, @PathVariable("boardIdx") Long boardIdx) {
         return likeService.upsertBoard(boardIdx);
+    }
+
+
+    /**
+     * 좋아요
+     * @param boardType String
+     * @param replyIdx Long 게시글 요청 데이터
+     * @return ResponseEntity<CommonResponse> 댓글 상세 정보
+     */
+    @Operation(description = "댓글에 좋아요를 누릅니다. <br/>" +
+            "기존에 좋아요를 누른 상태가 아닐 시 좋아요가 됩니다 <br/>" +
+            "기존에 좋아요를 누른 상태 일시 좋아요가 취소됩니다 <br/><br/>" +
+            "<strong>[boardType]</strong> <br/>" +
+            "verify : 공부인증글 <br/>" +
+            "free   : 자유글",
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
+                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+            })
+    @PostMapping("/reply/{boardType}/{replyIdx}")
+    public ResponseEntity<CommonResponse> setLikeReply(@PathVariable("boardType") String boardType, @PathVariable("replyIdx") Long replyIdx) {
+        return likeService.upsertReply(replyIdx);
     }
 
 }
