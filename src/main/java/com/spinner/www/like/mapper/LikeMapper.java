@@ -19,18 +19,11 @@ public interface LikeMapper {
     LikeGetDto likeToLikeGetDto(Like like);
 
     @Mapping(target = "nickname", source = "member.memberNickname")
-    @Mapping(target = "isLiked", source = "likeIsLiked")
+    @Mapping(target = "liked", expression = "java(like.getLikeIsLiked() == 1)")
     LikeBoardResponse likeToLikeBoardResponse(Like like);
 
     @Mapping(target = "nickname", source = "member.memberNickname")
-    @Mapping(target = "isLiked", source = "likeIsLiked")
+    @Mapping(target = "liked", expression = "java(like.getLikeIsLiked() == 1)")
     LikeReplyResponse likeToLikeReplyResponse(Like like);
 
-//    @Mapping(target = "likeContent", source = "content")
-//    LikeCreateDto likeCreateRequestToLikeCreateDto(LikeCreateRequest likeRequest);
-//
-//    @Mapping(target = "likeContent", source = "content")
-//    LikeUpdateDto likeUpdateRequestToLikeUpdateDto(LikeUpdateRequest likeRequest);
-//
-//    List<LikeGetDto> likeListToLikeGetDtoList(List<Like> replies);
 }
