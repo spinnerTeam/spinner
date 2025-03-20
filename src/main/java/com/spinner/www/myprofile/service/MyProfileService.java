@@ -1,9 +1,9 @@
-package com.spinner.www.mypage.service;
+package com.spinner.www.myprofile.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import org.springframework.http.ResponseEntity;
 
-public interface MypageService {
+public interface MyProfileService {
 
     /**
      * 내가 작성한 게시글 목록 조회

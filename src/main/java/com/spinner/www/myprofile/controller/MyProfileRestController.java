@@ -1,7 +1,7 @@
-package com.spinner.www.mypage.controller;
+package com.spinner.www.myprofile.controller;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.mypage.service.MypageService;
+import com.spinner.www.myprofile.service.MyProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/mypage")
-public class MypageRestController {
-    private final MypageService mypageService;
+@RequestMapping("/myprofile")
+public class MyProfileRestController {
+    private final MyProfileService myProfileService;
 
     /**
      * 내가 작성한 게시글 목록 조회
@@ -39,7 +39,7 @@ public class MypageRestController {
     @GetMapping("/member/board")
     public ResponseEntity<CommonResponse> findAllMemberBoards(@RequestParam(value = "idx", required = false) Long idx,
                                                                   @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return mypageService.getSliceOfMemberBoard(idx, size);
+        return myProfileService.getSliceOfMemberBoard(idx, size);
     }
 
     /**
@@ -61,7 +61,7 @@ public class MypageRestController {
     @GetMapping("/like/board")
     public ResponseEntity<CommonResponse> findAllLikedBoards(@RequestParam(value = "idx", required = false) Long idx,
                                                                   @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return mypageService.getSliceOfLikedBoard(idx, size);
+        return myProfileService.getSliceOfLikedBoard(idx, size);
     }
 
     /**
@@ -83,6 +83,6 @@ public class MypageRestController {
     @GetMapping("/bookmark/board")
     public ResponseEntity<CommonResponse> findAllBookmarkedBoards(@RequestParam(value = "idx", required = false) Long idx,
                                                                   @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return mypageService.getSliceOfBookmarkedBoard(idx, size);
+        return myProfileService.getSliceOfBookmarkedBoard(idx, size);
     }
 }

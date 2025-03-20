@@ -1,4 +1,4 @@
-package com.spinner.www.mypage.service;
+package com.spinner.www.myprofile.service;
 
 import com.spinner.www.board.service.BoardService;
 import com.spinner.www.common.io.CommonResponse;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MypageServiceImpl implements MypageService {
+public class MyProfileServiceImpl implements MyProfileService {
     private final BoardService boardService;
 
     /**
