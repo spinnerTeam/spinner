@@ -158,6 +158,9 @@ public class BoardServiceImpl implements BoardService {
         if (Objects.isNull(memberIdx))
             memberIdx = -1L;
         Long codeIdx = CommonBoardCode.getCode(boardType);
+        if(Objects.isNull(codeIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
                                                                             idx,
                                                                             size,
@@ -246,6 +249,37 @@ public class BoardServiceImpl implements BoardService {
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
                 size,
                 memberIdx);
+
+        if(!list.isEmpty())
+            list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
+    }
+
+    /**
+     * 인기글 게시글 목록 조회
+     * @param boardType String 게시판 타입
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        if(Objects.isNull(codeIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        List<BoardListResponse> list = this.boardQueryRepo.getSliceOfHotBoard(codeIdx,
+                                                                                idx,
+                                                                                size,
+                                                                                memberIdx);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));

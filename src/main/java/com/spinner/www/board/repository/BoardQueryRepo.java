@@ -2,6 +2,8 @@ package com.spinner.www.board.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.board.io.BoardListResponse;
@@ -90,6 +92,74 @@ public class BoardQueryRepo {
                 .from(board)
                 .where(getCodeIdx(codeIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx), search(keyword))
                 .orderBy(board.boardIdx.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    public List<BoardListResponse> getSliceOfHotBoard(
+            Long codeIdx,
+            @Nullable
+            Long idx,
+            int size,
+            @Nullable
+            Long memberIdx
+    ) {
+        NumberExpression<Long> replyCount = Expressions.numberTemplate(
+                Long.class,
+                "({0})",
+                JPAExpressions.select(reply.count())
+                        .from(reply)
+                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                .and(reply.replyIsRemoved.eq(NOT_REMOVED)))
+        );
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                BoardListResponse.class,
+                                board.boardIdx,
+                                board.commonCode.codeName,
+                                board.boardTitle,
+                                board.boardContent,
+                                board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
+                                JPAExpressions
+                                        .select(reply.count())
+                                        .from(reply)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                                .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
+                                board.createdDate,
+                                board.modifiedDate
+                        )
+                )
+                .from(board)
+                .where(getCodeIdx(codeIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx))
+                .orderBy(
+                        replyCount.desc(),
+                        board.hitCount.desc(),
+                        board.boardIdx.desc()
+                )
+
                 .limit(size)
                 .fetch();
     }
