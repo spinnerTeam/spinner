@@ -1,4 +1,4 @@
-package com.spinner.www.mypage.service;
+package com.spinner.www.myprofile.service;
 
 import com.spinner.www.board.service.BoardService;
 import com.spinner.www.common.io.CommonResponse;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MypageServiceImpl implements MypageService {
+public class MyProfileServiceImpl implements MyProfileService {
     private final BoardService boardService;
 
     /**
@@ -44,4 +44,17 @@ public class MypageServiceImpl implements MypageService {
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
         return boardService.getSliceOfBookmarkedBoard(idx,size);
     }
+
+    /**
+     * 인기글 게시글 목록 조회
+     * @param boardType String 조회할 게시판의 codeIdx
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size) {
+        return boardService.getSliceOfHotBoard(boardType,idx,size);
+    }
+
 }
