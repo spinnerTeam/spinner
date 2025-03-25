@@ -77,6 +77,10 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
 
+    // S3
+    implementation platform("software.amazon.awssdk:bom:2.25.8")
+    implementation 'software.amazon.awssdk:s3'
+
     // AssertJ
     testImplementation 'org.assertj:assertj-core:3.23.1'
 

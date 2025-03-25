@@ -2,9 +2,12 @@ package com.spinner.www.file.controller;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.file.service.FileService;
+import com.spinner.www.file.service.S3Service;
+import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,11 +26,13 @@ import java.util.List;
 public class FileController {
 
     private final FileService fileService;
+    private final S3Service s3Service;
 
     @PostMapping
     public ResponseEntity<CommonResponse> uploadFile(@RequestParam("multiFile") List<MultipartFile> files) throws IOException {
-        log.info(String.valueOf(files));
-        return fileService.uploadFile(files);
+        s3Service.uploadFile(files);
+//        fileService.saveFile(files);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
     @GetMapping("/{fileIdx}")
