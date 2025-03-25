@@ -48,47 +48,6 @@ public class FileServiceImpl implements FileService {
     @Value("${file.upload.path}")
     private String FILE_PATH;
 
-    /**
-     * 파일 한개 업로드
-     * @param file MultipartFile
-     * @return uploadFile
-     */
-    @Override
-    public ResponseEntity<CommonResponse> uploadFile(MultipartFile file){
-        return uploadFile(Collections.singletonList(file));
-    }
-
-    /**
-     * 파일 서버 업로드
-     * @param files MultipartFile
-     * @return ResponseEntity<CommonResponse>
-     */
-    @Override
-    public ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) {
-        // 파일 저장 ID 확인 리스트 세팅
-        List<Long> fileUploadResults = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    //(1) 파일 서버 저장
-                    //(1-1) 폴더가 없으면 폴더 생성
-                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
-                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
-                    //(1-2) 파일 저장
-                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
-                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
-                    file.transferTo(new File(fileUploadPathName));
-                    //(2) 파일 정보 DB 저장
-                    fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
-                } catch (IOException e) {
-                    return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
-                }
-            }
-        }
-
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
-    }
 
     /**
      * 파일 서버 업로드
@@ -166,6 +125,8 @@ public class FileServiceImpl implements FileService {
         return uuid + extension;
     }
 
+
+
     /**
      * 파일 업로드 폴더 생성 및 패스 반환
      * @param FILE_PATH String
@@ -236,6 +197,21 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
+    /**
+     * 진행중
+     * @param file
+     * @return
+     */
+    public Files convertFiles(MultipartFile file){
+        String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("");
+        return Files.builder()
+                .fileOriginName(fileName)
+                .fileConvertName(convertFileName(fileName))
+//                .filePath(fileUploadPath)
+//                .fileTypeCodeIdx(fileTypeCodeIdx)
+                .build();
+    }
+
     @Override
     public Files getFiles(Long idx) {
         return fileRepo.findById(idx).orElseThrow(() -> new NoSuchElementException("파일을 찾을 수 없음"));
@@ -267,5 +243,16 @@ public class FileServiceImpl implements FileService {
 
     public Files saveStudyFile(Files fileDBString) {
         return fileRepo.save(fileDBString);
+    }
+
+    /**
+     * MultipartFile -> File
+     * @param file MultipartFile
+     * @return File
+     * @throws IOException io
+     */
+    @Override
+    public File convertFile(MultipartFile file) throws IOException {
+        return File.createTempFile("temp", file.getOriginalFilename());
     }
 }
