@@ -14,14 +14,14 @@ import java.util.Map;
 
 public interface FileService {
 
-    ResponseEntity<CommonResponse> uploadFile(MultipartFile file);
-
     /**
-     * 파일 서버 업로드
+     * 파일 업로드
      * @param files List<MultipartFile>
-     * @return ResponseEntity<CommonResponse>
+     * @return ResponseEntity
+     * @throws IOException IOException
      */
-    ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) throws IOException;
+    ResponseEntity<CommonResponse> uploadFiles(List<MultipartFile> files) throws IOException;
+    ResponseEntity<CommonResponse> uploadFiles(MultipartFile files) throws IOException;
 
     /**
      * 파일 서버 업로드
@@ -86,6 +86,4 @@ public interface FileService {
      * @return Files
      */
     Files uploadStudyFile(List<MultipartFile> files);
-
-    File convertFile(MultipartFile file) throws IOException;
 }

@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +32,7 @@ public class MemberRestController {
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> joinMember(@ModelAttribute MemberJoin memberJoin) {
+    public ResponseEntity<CommonResponse> joinMember(@ModelAttribute MemberJoin memberJoin) throws IOException {
         return memberService.insertUser(memberJoin);
     }
 

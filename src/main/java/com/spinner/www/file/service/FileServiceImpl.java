@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +40,7 @@ public class FileServiceImpl implements FileService {
 
     private final FileRepo fileRepo;
     private final FileMapper fileMapper;
+    private final S3Service s3Service;
 
     @Autowired
     private ServerInfo serverInfo;
@@ -48,6 +48,34 @@ public class FileServiceImpl implements FileService {
     @Value("${file.upload.path}")
     private String FILE_PATH;
 
+    /**
+     * 파일 한개만 받을 때 List<MultipartFile> 로 변환
+     * @param files MultipartFile
+     * @return List<MultipartFile>
+     * @throws IOException Io
+     */
+    @Override
+    public ResponseEntity<CommonResponse> uploadFiles(MultipartFile files) throws IOException {
+        return uploadFiles(Collections.singletonList(files));
+    }
+
+    /**
+     * 파일 s3에 업로드 후 디비 저장
+     * @param files List<MultipartFile>
+     * @return ResponseEntity
+     * @throws IOException Io
+     */
+    @Override
+    public ResponseEntity<CommonResponse> uploadFiles(List<MultipartFile> files) throws IOException {
+        List<Long> fileUploadResults = new ArrayList<>();
+        for (MultipartFile file : files){
+            String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
+            Files filesEntity = s3Service.uploadFile(file, key);
+            saveFile(filesEntity);
+            fileUploadResults.add(saveFile(filesEntity));
+        }
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
+    }
 
     /**
      * 파일 서버 업로드
@@ -197,21 +225,6 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
-    /**
-     * 진행중
-     * @param file
-     * @return
-     */
-    public Files convertFiles(MultipartFile file){
-        String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("");
-        return Files.builder()
-                .fileOriginName(fileName)
-                .fileConvertName(convertFileName(fileName))
-//                .filePath(fileUploadPath)
-//                .fileTypeCodeIdx(fileTypeCodeIdx)
-                .build();
-    }
-
     @Override
     public Files getFiles(Long idx) {
         return fileRepo.findById(idx).orElseThrow(() -> new NoSuchElementException("파일을 찾을 수 없음"));
@@ -241,18 +254,11 @@ public class FileServiceImpl implements FileService {
         return null;
     }
 
+    /**
+     * 파일 저장
+     * @param fileDBString Files
+     */
     public Files saveStudyFile(Files fileDBString) {
         return fileRepo.save(fileDBString);
-    }
-
-    /**
-     * MultipartFile -> File
-     * @param file MultipartFile
-     * @return File
-     * @throws IOException io
-     */
-    @Override
-    public File convertFile(MultipartFile file) throws IOException {
-        return File.createTempFile("temp", file.getOriginalFilename());
     }
 }

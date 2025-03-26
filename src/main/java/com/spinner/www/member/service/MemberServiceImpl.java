@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
@@ -88,7 +89,7 @@ public class MemberServiceImpl implements MemberService {
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @Override
-    public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) {
+    public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
 
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
@@ -118,7 +119,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
 
         // 사진 업로드
-        ResponseEntity<CommonResponse> response = fileService.uploadFile(memberJoin.getFile());
+        ResponseEntity<CommonResponse> response = fileService.uploadFiles(memberJoin.getFile());
         List<Long> idxs = (List<Long>) response.getBody().getResults();
 
         // 파일 저장
