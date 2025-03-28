@@ -9,6 +9,8 @@ import com.spinner.www.member.io.MemberJoin;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+
 public interface MemberService {
 
     /**
@@ -16,7 +18,7 @@ public interface MemberService {
      * @param memberRequest UserRequestDto 회원가입 요청 데이터
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
-    ResponseEntity<CommonResponse> insertUser(MemberJoin memberRequest);
+    ResponseEntity<CommonResponse> insertUser(MemberJoin memberRequest) throws IOException;
 
     /**
      * 로그인

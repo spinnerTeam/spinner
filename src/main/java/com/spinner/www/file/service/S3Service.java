@@ -1,6 +1,7 @@
 package com.spinner.www.file.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.file.entity.Files;
 import com.spinner.www.util.ResponseVOUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,30 +25,44 @@ import java.util.List;
 public class S3Service {
 
     private final S3Client s3Client;
-    private final FileService fileService;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
     /**
      * s3 업로드 파일
-     * @param files List<MultipartFile>
+     * @param file MultipartFile
+     * @return Files
      * @throws IOException Io
-     * https://spinnerbucket.s3.us-east-1.amazonaws.com/1d5f8672-349b-4021-b5a2-9bd62cf8de00.png
      */
     @Transactional
-    public String uploadFile(List<MultipartFile> files) throws IOException {
+    public Files uploadFile(MultipartFile file, String key) throws IOException {
+
 
         // s3 upload
-        for(MultipartFile file : files){
-            String key = fileService.convertFileName(file.getOriginalFilename());
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
                     .build();
+        File covFile = convertFile(file);
+        s3Client.putObject(request, RequestBody.fromFile(covFile));
 
-            File covFile = fileService.convertFile(file);
-            s3Client.putObject(request, RequestBody.fromFile(covFile));
-        }
+        Files files = Files.builder()
+                .fileOriginName(file.getOriginalFilename())
+                .fileConvertName(key)
+                .filePath("https://" + bucketName + ".s3.us-east-1.amazonaws.com/" + key)
+                .build();
+
+        return files;
+    }
+
+    /**
+     * MultipartFile -> File
+     * @param file MultipartFile
+     * @return File
+     * @throws IOException io
+     */
+    public File convertFile(MultipartFile file) throws IOException {
+        return File.createTempFile("temp", file.getOriginalFilename());
     }
 }
