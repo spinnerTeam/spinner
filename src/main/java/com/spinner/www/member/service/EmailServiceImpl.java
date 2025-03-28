@@ -6,6 +6,7 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.EmailLog;
 import com.spinner.www.member.entity.EmailTemplate;
+import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.util.EmailTemplateCacheStorage;
 import com.spinner.www.util.ResponseVOUtils;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.DuplicateFormatFlagsException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ public class EmailServiceImpl implements EmailService{
     private final RedisService redisService;
     private final SessionInfo sessionInfo;
     private final EmailLogService emailLogService;
+    private final MemberService memberService;
 
     /**
      * 6자리 랜덤 숫자 (인증코드)
@@ -87,6 +90,13 @@ public class EmailServiceImpl implements EmailService{
      */
     @Override
     public ResponseEntity<CommonResponse> sendEmail(String toEmail, String type) {
+
+        // 이미 회원가입 했는지 중복 검사
+        Member member = memberService.getMember(toEmail);
+        if(member != null){
+            throw new DuplicateFormatFlagsException("이미 가입된 이메일입니다." + toEmail);
+        }
+
         // 인증 코드 생성
         String authCode = createAuthCode();
 
