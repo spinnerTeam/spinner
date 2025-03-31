@@ -1,11 +1,13 @@
 package com.spinner.www.common.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Table(name = "common_code")
 @Comment("공통코드")
+@Getter
 public class CommonCode {
 
     @Id

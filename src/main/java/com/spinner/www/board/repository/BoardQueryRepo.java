@@ -2,12 +2,13 @@ package com.spinner.www.board.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.board.io.BoardListResponse;
 import com.spinner.www.board.io.BoardResponse;
-import com.spinner.www.member.entity.QMember;
-import com.spinner.www.reply.entity.QReply;
+import com.spinner.www.like.entity.QLike;
 import com.spinner.www.reply.io.ReplyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -19,7 +20,9 @@ import java.util.Map;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.types.Projections.list;
+import static com.querydsl.jpa.JPAExpressions.selectOne;
 import static com.spinner.www.board.entity.QBoard.board;
+import static com.spinner.www.bookmark.entity.QBookmark.bookmark;
 import static com.spinner.www.like.entity.QLike.like;
 import static com.spinner.www.reply.entity.QReply.reply;
 import static com.spinner.www.vote.entity.QVote.vote;
@@ -32,9 +35,9 @@ public class BoardQueryRepo {
     private final int NOT_REPORTED = 0;
     private final int IS_LIKE = 1;
 
-    QReply childReply = new QReply("childReply");
-    QMember memberReply = new QMember("memberReply");
-    QMember memberChildReply = new QMember("memberChildReply");
+//    QReply childReply = new QReply("childReply");
+//    QMember memberReply = new QMember("memberReply");
+//    QMember memberChildReply = new QMember("memberChildReply");
 
     public List<BoardListResponse> getSliceOfBoard(
             Long codeIdx,
@@ -42,12 +45,15 @@ public class BoardQueryRepo {
             Long idx,
             int size,
             @Nullable
-            String keyword
+            String keyword,
+            @Nullable
+            Long memberIdx
     ) {
         return jpaQueryFactory.select(
                         Projections.constructor(
                                 BoardListResponse.class,
                                 board.boardIdx,
+                                board.commonCode.codeName,
                                 board.boardTitle,
                                 board.boardContent,
                                 board.member.memberNickname,
@@ -58,20 +64,262 @@ public class BoardQueryRepo {
                                 JPAExpressions
                                         .select(reply.count())
                                         .from(reply)
-                                        .where(reply.boardIdx.eq(board.boardIdx)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
                                                 .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
                                 JPAExpressions
                                         .select(like.count())
                                         .from(like)
-                                        .where(like.boardIdx.eq(board.boardIdx)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
                                                 .and(like.likeIsLiked.eq(IS_LIKE))),
                                 board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate
                         )
                 )
                 .from(board)
                 .where(getCodeIdx(codeIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx), search(keyword))
+                .orderBy(board.boardIdx.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    public List<BoardListResponse> getSliceOfHotBoard(
+            Long codeIdx,
+            @Nullable
+            Long idx,
+            int size,
+            @Nullable
+            Long memberIdx
+    ) {
+        NumberExpression<Long> replyCount = Expressions.numberTemplate(
+                Long.class,
+                "({0})",
+                JPAExpressions.select(reply.count())
+                        .from(reply)
+                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                .and(reply.replyIsRemoved.eq(NOT_REMOVED)))
+        );
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                BoardListResponse.class,
+                                board.boardIdx,
+                                board.commonCode.codeName,
+                                board.boardTitle,
+                                board.boardContent,
+                                board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
+                                JPAExpressions
+                                        .select(reply.count())
+                                        .from(reply)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                                .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
+                                board.createdDate,
+                                board.modifiedDate
+                        )
+                )
+                .from(board)
+                .where(getCodeIdx(codeIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx))
+                .orderBy(
+                        replyCount.desc(),
+                        board.hitCount.desc(),
+                        board.boardIdx.desc()
+                )
+
+                .limit(size)
+                .fetch();
+    }
+
+    public List<BoardListResponse> getSliceOfMemberBoard(
+            @Nullable
+            Long idx,
+            int size,
+            Long memberIdx
+    ) {
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                BoardListResponse.class,
+                                board.boardIdx,
+                                board.commonCode.codeName,
+                                board.boardTitle,
+                                board.boardContent,
+                                board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
+                                JPAExpressions
+                                        .select(reply.count())
+                                        .from(reply)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                                .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
+                                board.createdDate,
+                                board.modifiedDate
+                        )
+                )
+                .from(board)
+                .where(getCreateMemberIdx(memberIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx))
+                .orderBy(board.boardIdx.desc())
+                .limit(size)
+                .fetch();
+    }
+
+
+    public List<BoardListResponse> getSliceOfLikedBoard(
+            @Nullable
+            Long idx,
+            int size,
+            Long memberIdx
+    ) {
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                BoardListResponse.class,
+                                board.boardIdx,
+                                board.commonCode.codeName,
+                                board.boardTitle,
+                                board.boardContent,
+                                board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
+                                JPAExpressions
+                                        .select(reply.count())
+                                        .from(reply)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                                .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
+                                board.createdDate,
+                                board.modifiedDate
+                        )
+                )
+                .from(board)
+                .where(getLikedMemberIdx(memberIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx))
+                .orderBy(board.boardIdx.desc())
+                .limit(size)
+                .fetch();
+    }
+
+
+    public List<BoardListResponse> getSliceOfBookmarkedBoard(
+            @Nullable
+            Long idx,
+            int size,
+            Long memberIdx
+    ) {
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                BoardListResponse.class,
+                                board.boardIdx,
+                                board.commonCode.codeName,
+                                board.boardTitle,
+                                board.boardContent,
+                                board.member.memberNickname,
+                                JPAExpressions.select(vote.count())
+                                        .from(vote)
+                                        .where(vote.board.boardIdx.eq(board.boardIdx)
+                                                .and(vote.voteIsRemoved.eq("N"))),
+                                JPAExpressions
+                                        .select(reply.count())
+                                        .from(reply)
+                                        .where(reply.board.boardIdx.eq(board.boardIdx)
+                                                .and(reply.replyIsRemoved.eq(NOT_REMOVED))),
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(like.board.boardIdx.eq(board.boardIdx)
+                                                .and(like.likeIsLiked.eq(IS_LIKE))),
+                                board.hitCount,
+                                JPAExpressions
+                                        .select(like.count())
+                                        .from(like)
+                                        .where(
+                                                like.board.boardIdx.eq(board.boardIdx)
+                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(like.likeIsLiked.eq(IS_LIKE))),
+                                JPAExpressions
+                                        .select(bookmark.count())
+                                        .from(bookmark)
+                                        .where(bookmark.board.boardIdx.eq(board.boardIdx)
+                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(bookmark.isBookmarked.eq(1))),
+                                board.createdDate,
+                                board.modifiedDate
+                        )
+                )
+                .from(board)
+                .where(getBookmarkMemberIdx(memberIdx), getNotRemoved(), getNotReported(), ltBoardIdx(idx))
                 .orderBy(board.boardIdx.desc())
                 .limit(size)
                 .fetch();
@@ -84,7 +332,7 @@ public class BoardQueryRepo {
         Map<Long, BoardResponse> result = jpaQueryFactory
                 .from(board)
 //                .leftJoin(reply).on(
-//                        reply.boardIdx.eq(board.boardIdx)
+//                        reply.board.boardIdx.eq(board.boardIdx)
 //                )
 //                .leftJoin(reply.childReplies, childReply)
 //                .on(
@@ -127,7 +375,7 @@ public class BoardQueryRepo {
     }
 
     private BooleanBuilder getCodeIdx(Long codeIdx) {
-        return new BooleanBuilder(board.codeIdx.eq(codeIdx));
+        return new BooleanBuilder(board.commonCode.codeIdx.eq(codeIdx));
     }
 
     private BooleanBuilder getNotRemoved() {
@@ -162,4 +410,25 @@ public class BoardQueryRepo {
         return new BooleanBuilder(board.boardIdx.eq(idx));
     }
 
+    private BooleanBuilder getCreateMemberIdx(Long memberIdx) {
+        return new BooleanBuilder(board.member.memberIdx.eq(memberIdx));
+    }
+
+    private BooleanBuilder getLikedMemberIdx(Long memberIdx) {
+        QLike like = QLike.like; // QLike의 별도 인스턴스 사용
+        return new BooleanBuilder(
+                selectOne()
+                        .from(like)
+                        .where(
+                                like.board.eq(board), // board는 QBoard 인스턴스 (예: QBoard.board)
+                                like.likeIsLiked.eq(1),
+                                like.member.memberIdx.eq(memberIdx)
+                        )
+                        .exists()
+        );
+    }
+
+    private BooleanBuilder getBookmarkMemberIdx(Long memberIdx) {
+        return new BooleanBuilder(board.bookmarks.any().isBookmarked.eq(1).and(board.bookmarks.any().member.memberIdx.eq(memberIdx)));
+    }
 }

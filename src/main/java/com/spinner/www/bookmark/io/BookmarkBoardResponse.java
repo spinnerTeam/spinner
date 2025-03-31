@@ -1,4 +1,4 @@
-package com.spinner.www.like.io;
+package com.spinner.www.bookmark.io;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spinner.www.common.io.BaseResponse;
@@ -9,9 +9,10 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @AllArgsConstructor
-public class LikeReplyResponse extends BaseResponse {
-    @JsonProperty("isLiked")
-    private boolean liked;
+public class BookmarkBoardResponse extends BaseResponse {
+    @JsonProperty("isBookmarked")
+    private boolean bookmarked;
     private String nickname;
-    private Long replyIdx;
+    private Long boardIdx;
+    private String boardName;
 }
