@@ -19,6 +19,10 @@ jobs:
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
       JWT_ISSUER: ${{ vars.JWT_ISSUER }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+      S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+      S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+      S3_REGION: ${{ vars.S3_REGION }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +37,10 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      # 환경 변수 출력 단계 추가
+      - name: Print environment variables
+        run: printenv
 
       # Spring Boot 어플리케이션 Build
       - name: Build with Gradle Wrapper
@@ -83,6 +91,10 @@ jobs:
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
           echo "JWT_ISSUER=${{ vars.JWT_ISSUER }}" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" >> .env
+          echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .env
+          echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+          echo "S3_REGION=${{ vars.S3_REGION }}" >> .env
 
       # Docker 컨테이너 실행 시 .env 파일을 적용하도록 변경
       - name: docker run new container
