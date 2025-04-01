@@ -1,11 +1,13 @@
 package com.spinner.www.common.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Table(name = "menu")
 @Comment("메뉴")
+@Getter
 public class Menu {
 
     @Id
@@ -20,6 +22,6 @@ public class Menu {
     private Long menuParentIdx;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_idx")
+    @JoinColumn(name = "codeIdx")
     private CommonCode commonCode;
 }
