@@ -111,6 +111,13 @@ tasks.named('test') {
 // Querydsl 빌드 옵션 설정
 def generated = 'src/main/generated'
 
+// compileJava 실행 전에 generated 디렉토리 삭제
+tasks.named('compileJava') {
+    doFirst {
+        delete file(generated)
+    }
+}
+
 // querydsl QClass 파일 생성 위치를 지정
 tasks.withType(JavaCompile) {
     options.getGeneratedSourceOutputDirectory().set(file(generated))
