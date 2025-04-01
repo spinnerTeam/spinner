@@ -15,10 +15,15 @@ public class ServerInfo {
     @Value("${server.port}")
     private int serverPort;
 
+    @Value("${domain.file.path}")
+    private String filePath;
+
     private String serverUrlWithPort;
+    private String fullFileUrl;
 
     @PostConstruct
     public void init() {
         this.serverUrlWithPort = serverUrl + ":" + serverPort;
+        this.fullFileUrl = serverUrlWithPort + filePath;
     }
 }
