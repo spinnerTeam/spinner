@@ -93,6 +93,7 @@ public class MemberServiceImpl implements MemberService {
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @Override
+    @Transactional
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
@@ -121,12 +122,19 @@ public class MemberServiceImpl implements MemberService {
         Member member = Member.insertMember(updateMemberCreateDto);
         memberRepo.save(member);
 
-        // 사진 업로드
-        ResponseEntity<CommonResponse> response = fileService.uploadFiles(memberJoin.getFile());
-        List<Long> idxs = (List<Long>) response.getBody().getResults();
+        Files files = null;
+        // 프로필 이미지 첨부 여부
+        if(memberJoin.getFile() != null && !memberJoin.getFile().isEmpty()){
+            // 사진 업로드
+            ResponseEntity<CommonResponse> response = fileService.uploadFiles(memberJoin.getFile());
+            List<Long> idxs = (List<Long>) response.getBody().getResults();
+            // 파일 저장
+            files = fileService.getFiles(idxs.get(0));
+        } else {
+            // 기본이미지
+            files = fileService.getFiles(111L);
+        }
 
-        // 파일 저장
-        Files files = fileService.getFiles(idxs.get(0));
         memberFileService.create(member, files);
 
         // 마케팅 수신 동의 저장
