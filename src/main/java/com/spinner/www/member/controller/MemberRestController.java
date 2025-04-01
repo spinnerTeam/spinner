@@ -1,6 +1,7 @@
 package com.spinner.www.member.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.member.io.EmailSend;
@@ -10,16 +11,19 @@ import com.spinner.www.member.service.EmailService;
 import com.spinner.www.member.service.RedisService;
 import com.spinner.www.member.service.TokenService;
 import com.spinner.www.member.service.MemberService;
+import com.spinner.www.util.ResponseVOUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.DuplicateFormatFlagsException;
 
 @Tag(name = "member", description = "회원 API")
 @Slf4j
@@ -88,6 +92,11 @@ public class MemberRestController {
     })
     @PostMapping("/sendEmail")
     public ResponseEntity<CommonResponse> sendEmail(@RequestBody EmailSend emailSend) {
+
+        boolean email = memberService.isEmailInvalid(emailSend.getEmail());
+        if(email){
+            throw new DuplicateFormatFlagsException("이미 가입된 이메일입니다." + emailSend.getEmail());
+        }
         return emailService.sendEmail(emailSend.getEmail(), emailSend.getType());
     }
 
@@ -145,5 +154,42 @@ public class MemberRestController {
             @RequestParam("memberIdx") Long memberIdx) {
         Member member = memberService.getMember(memberIdx);
         return tokenService.refreshToken(refreshToken, member);
+    }
+
+    /**
+     * 비밀번호 찾기
+     * @param email String
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "비밀번호 찾기 API"
+    )
+    @Parameters({
+            @Parameter(name = "email", description = "이메일")
+    })
+    @PostMapping("findPw")
+    public ResponseEntity<CommonResponse> findPw(@RequestParam  String email){
+        boolean member = memberService.isEmailInvalid(email);
+        if(!member){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        return emailService.sendEmail(email, "FIND_PASSWORD");
+
+    }
+
+    /**
+     * 비밀번호 변경
+     * @param password String
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "비밀번호 변경 API"
+    )
+    @Parameters({
+            @Parameter(name = "password", description = "비밀번호")
+    })
+    @PostMapping("updatePw")
+    public ResponseEntity<CommonResponse> updatePw(@RequestParam String password){
+        return memberService.updatePw(password);
     }
 }

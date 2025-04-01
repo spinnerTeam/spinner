@@ -55,4 +55,19 @@ public interface MemberService {
      * @param memberSessionDto MemberLoginDto
      */
     void makeLoginToken(Member member, MemberSessionDto memberSessionDto);
+
+
+    /**
+     * user 이메일 중복검사
+     * @param memberEmail String
+     * @return 조회한 결과 Boolean
+     */
+    boolean isEmailInvalid (String memberEmail);
+
+    /**
+     * 비밀번호 변경
+     * @param password String
+     * @return  ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> updatePw(String password);
 }
