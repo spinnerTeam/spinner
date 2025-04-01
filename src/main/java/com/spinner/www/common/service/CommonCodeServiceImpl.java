@@ -17,7 +17,7 @@ public class CommonCodeServiceImpl implements CommonCodeService {
      * @return
      */
     @Override
-    public CommonCode getComonCode(Long codeIdx) {
+    public CommonCode getCommonCode(Long codeIdx) {
         return commonCodeRepo.findByCodeIdx(codeIdx);
     }
 }

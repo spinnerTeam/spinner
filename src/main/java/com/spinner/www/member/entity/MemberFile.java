@@ -4,6 +4,7 @@ import com.spinner.www.file.entity.Files;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
+@Getter
 public class MemberFile implements Serializable {
 
     @Id

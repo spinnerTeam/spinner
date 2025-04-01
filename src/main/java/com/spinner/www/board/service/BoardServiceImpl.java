@@ -71,7 +71,7 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException(e);
         }
 
-        CommonCode commonCode = commonCodeService.getComonCode(codeIdx);
+        CommonCode commonCode = commonCodeService.getCommonCode(codeIdx);
         Board board = Board.builder()
                 .hitCount(0L)
                 .commonCode(commonCode)
@@ -115,7 +115,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board findByBoardIdx(Long codeIdx, Long boardIdx) {
         int isNotRemove = 0;
-        CommonCode commoncode = commonCodeService.getComonCode(codeIdx);
+        CommonCode commoncode = commonCodeService.getCommonCode(codeIdx);
         return boardRepo.findByCommonCodeAndBoardIdxAndBoardIsRemoved(commoncode, boardIdx, isNotRemove).orElse(null);
     }
 

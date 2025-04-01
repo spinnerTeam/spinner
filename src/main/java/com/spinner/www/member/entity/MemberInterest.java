@@ -31,10 +31,18 @@ public class MemberInterest {
     @JoinColumn(name = "menuIdx")
     private Menu menu;
 
+    @Comment("관심분야 선택 여부")
+    private boolean memberIsSelected;
+
     public static MemberInterest insertMemberInterest(MemberInterestCreateDto memberInterestCreateDto){
         return MemberInterest.builder()
                 .member(memberInterestCreateDto.getMember())
                 .menu(memberInterestCreateDto.getMenu())
+                .memberIsSelected(true)
                 .build();
+    }
+
+    public void updateMemberIsSelected(boolean isSelected){
+        this.memberIsSelected = isSelected;
     }
 }

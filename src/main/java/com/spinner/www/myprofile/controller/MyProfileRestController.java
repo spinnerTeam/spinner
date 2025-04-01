@@ -1,12 +1,14 @@
 package com.spinner.www.myprofile.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.io.MemberProfileUpdateRequest;
 import com.spinner.www.myprofile.service.MyProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,59 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/myprofile")
 public class MyProfileRestController {
     private final MyProfileService myProfileService;
+
+    /**
+     * 나의 프로필 조회
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(description = "나의 프로필을 조회합니다. <br/>" +
+            "nickName       : String <br/>" +
+            "birth          : String YYYY-MM-DD<br/>" +
+            "profileImageUrl: String<br/>" +
+            "interests      : [{<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;idx        : String<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;name       : String<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;isSelected : boolean<br/>" +
+            "}..]"
+            ,
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
+                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+            })
+    @GetMapping("")
+    public ResponseEntity<CommonResponse> getMemberProfile() {
+        return myProfileService.getMemberProfile();
+    }
+
+    /**
+     * 나의 프로필 업데이트
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(description = "나의 프로필을 수정합니다. <br/>" +
+            "profileRequest(json) : {" +
+            "&nbsp;&nbsp;nickName       : String <br/>" +
+            "&nbsp;&nbsp;birth          : String YYYY-MM-DD<br/>" +
+            "&nbsp;&nbsp;profileImageUrl: <b>미구현 파일 업로드 처리할 예정</b>" +
+            "&nbsp;&nbsp;interests      : [{<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;idx        : String<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;isSelected : boolean<br/>" +
+            "&nbsp;&nbsp;}..]" +
+            "}",
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
+                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+            })
+    @PatchMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> updateMemberProfile(@RequestPart(value="profileRequest") MemberProfileUpdateRequest profileRequest
+//            ,
+//                                                              @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        return myProfileService.updateMemberProfile(profileRequest);
+    }
 
     /**
      * 내가 작성한 게시글 목록 조회

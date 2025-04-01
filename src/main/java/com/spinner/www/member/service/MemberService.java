@@ -70,4 +70,12 @@ public interface MemberService {
      * @return  ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> updatePw(String password);
+
+    /**
+     * 프로필 수정 시 멤버 닉네임과 생년월일을 수정하기 위한 함수
+     * @param memberIdx Long
+     * @param nickname String
+     * @param birth String
+     */
+    void updateNicknameAndBirth(Long memberIdx, String nickname, String birth);
 }

@@ -2,6 +2,7 @@ package com.spinner.www.member.service;
 
 import com.spinner.www.common.entity.Menu;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.MenuService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
@@ -22,12 +23,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -49,11 +51,11 @@ public class MemberServiceImpl implements MemberService {
     private final RedisService redisService;
     private final MemberRoleService memberRoleService;
     private final FileService fileService;
-    private final MemberFileRepo memberFileRepo;
+    private final MemberFileService memberFileService;
     private final ServiceTermsRepo serviceTermsRepo;
     private final MarketingRepo marketingRepo;
-    private final MenuRepo menuRepo;
-    private final MemberInterestRepo memberInterestRepo;
+    private final MenuService menuService;
+    private final MemberInterestService memberInterestService;
 
     /**
      * 이메일로 회원조회
@@ -125,8 +127,7 @@ public class MemberServiceImpl implements MemberService {
 
         // 파일 저장
         Files files = fileService.getFiles(idxs.get(0));
-        MemberFile memberFile = MemberFile.insertMemberFile(member, files);
-        memberFileRepo.save(memberFile);
+        memberFileService.create(member, files);
 
         // 마케팅 수신 동의 저장
         List<ServiceTerms> serviceTermsList = serviceTermsRepo.findByServiceTermsIsUse(true);
@@ -145,13 +146,12 @@ public class MemberServiceImpl implements MemberService {
         // 관심분야
         List<Long> menuList = memberJoin.getMenuList();
         for(Long idx : menuList){
-            Menu menu = menuRepo.findById(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
+            Menu menu = menuService.getMenuByMenuIdx(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
             MemberInterestCreateDto memberInterestCreateDto = new MemberInterestCreateDto(
                     menu,
                     member
             );
-            MemberInterest memberInterest = MemberInterest.insertMemberInterest(memberInterestCreateDto);
-            memberInterestRepo.save(memberInterest);
+            memberInterestService.insertMemberInterest(memberInterestCreateDto);
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
@@ -251,5 +251,21 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(updateMember);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
+    /**
+     * 프로필 수정 시 멤버 닉네임과 생년월일을 수정하기 위한 함수
+     * @param memberIdx Long
+     * @param nickname String
+     * @param birth String
+     */
+    @Override
+    @Transactional
+    public void updateNicknameAndBirth(Long memberIdx, String nickname, String birth) {
+        Member member = getMember(memberIdx);
 
+        LocalDate birthDate = null;
+        try {
+            birthDate = LocalDate.parse(birth);
+        } catch (DateTimeParseException e) {}
+        member.updateNicknameAndBirth(nickname, birthDate);
+    }
 }

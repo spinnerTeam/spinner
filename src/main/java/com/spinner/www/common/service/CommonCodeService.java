@@ -9,5 +9,5 @@ public interface CommonCodeService {
      * @param codeIdx
      * @return
      */
-    CommonCode getComonCode(Long codeIdx);
+    CommonCode getCommonCode(Long codeIdx);
 }
