@@ -53,4 +53,12 @@ public interface MemberService {
      * @param memberSessionDto MemberLoginDto
      */
     void makeLoginToken(Member member, MemberSessionDto memberSessionDto);
+
+    /**
+     * 프로필 수정 시 멤버 닉네임과 생년월일을 수정하기 위한 함수
+     * @param memberIdx Long
+     * @param nickname String
+     * @param birth String
+     */
+    void updateNicknameAndBirth(Long memberIdx, String nickname, String birth);
 }

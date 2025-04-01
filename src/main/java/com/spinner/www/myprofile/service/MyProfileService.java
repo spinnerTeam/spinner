@@ -1,6 +1,7 @@
 package com.spinner.www.myprofile.service;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.io.MemberProfileUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface MyProfileService {
@@ -37,4 +38,18 @@ public interface MyProfileService {
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size);
+
+
+    /**
+     * idx로 회원 프로필 조회
+     * @return MemberProfile
+     */
+    ResponseEntity<CommonResponse> getMemberProfile();
+
+    /**
+     * 멤버 프로필 업데이트
+     * @param memberProfileUpdateRequest MemberProfileUpdateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> updateMemberProfile(MemberProfileUpdateRequest memberProfileUpdateRequest);
 }

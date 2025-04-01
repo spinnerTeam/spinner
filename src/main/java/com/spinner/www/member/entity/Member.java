@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "member")
@@ -49,5 +50,10 @@ public class Member extends BaseEntity {
                 .memberNickname(memberCreateDto.getNickName())
                 .memberBirth(LocalDate.parse(memberCreateDto.getBirth()))
                 .build();
+    }
+
+    public void updateNicknameAndBirth(String newNickname, LocalDate newBirth) {
+        if(!Objects.isNull(newNickname)) this.memberNickname = newNickname;
+        if(!Objects.isNull(newBirth))this.memberBirth = newBirth;
     }
 }
