@@ -3,10 +3,7 @@ package com.spinner.www.member.entity;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.member.dto.MemberCreateDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
@@ -18,6 +15,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Comment("유저 테이블")
 public class Member extends BaseEntity {
 

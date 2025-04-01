@@ -22,8 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -80,7 +82,8 @@ public class MemberServiceImpl implements MemberService {
      * @param memberEmail String
      * @return 조회한 결과 Boolean
      */
-    private boolean isEmailInvalid (String memberEmail){
+    @Override
+    public boolean isEmailInvalid (String memberEmail){
         return memberRepo.existsByMemberEmail(memberEmail);
     }
 
@@ -90,8 +93,7 @@ public class MemberServiceImpl implements MemberService {
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
     @Override
-    public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) {
-
+    public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
         if(key == null)  {
@@ -120,7 +122,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
 
         // 사진 업로드
-        ResponseEntity<CommonResponse> response = fileService.uploadFile(memberJoin.getFile());
+        ResponseEntity<CommonResponse> response = fileService.uploadFiles(memberJoin.getFile());
         List<Long> idxs = (List<Long>) response.getBody().getResults();
 
         // 파일 저장
@@ -223,6 +225,32 @@ public class MemberServiceImpl implements MemberService {
         sessionInfo.setSession(memberSessionDto);
     }
 
+    /**
+     * 비밀번호 변경
+     * @param password String
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> updatePw(@RequestParam String password) {
+        Member member = memberRepo.findByMemberEmail(sessionInfo.getMemberEmail());
+        if(member == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        encryptionUtils.checkPasswordFormat(password);
+        String afterPassword = encryptionUtils.encrypt(password);
+
+        Member updateMember = new Member(
+                member.getMemberIdx(),
+                member.getMemberRole(),
+                member.getMemberEmail(),
+                afterPassword,
+                member.getMemberName(),
+                member.getMemberNickname(),
+                member.getMemberBirth()
+        );
+        memberRepo.save(updateMember);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
     /**
      * 프로필 수정 시 멤버 닉네임과 생년월일을 수정하기 위한 함수
      * @param memberIdx Long

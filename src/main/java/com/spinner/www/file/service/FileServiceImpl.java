@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +40,7 @@ public class FileServiceImpl implements FileService {
 
     private final FileRepo fileRepo;
     private final FileMapper fileMapper;
+    private final S3Service s3Service;
 
     @Autowired
     private ServerInfo serverInfo;
@@ -49,44 +49,31 @@ public class FileServiceImpl implements FileService {
     private String FILE_PATH;
 
     /**
-     * 파일 한개 업로드
-     * @param file MultipartFile
-     * @return uploadFile
+     * 파일 한개만 받을 때 List<MultipartFile> 로 변환
+     * @param files MultipartFile
+     * @return List<MultipartFile>
+     * @throws IOException Io
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadFile(MultipartFile file){
-        return uploadFile(Collections.singletonList(file));
+    public ResponseEntity<CommonResponse> uploadFiles(MultipartFile files) throws IOException {
+        return uploadFiles(Collections.singletonList(files));
     }
 
     /**
-     * 파일 서버 업로드
-     * @param files MultipartFile
-     * @return ResponseEntity<CommonResponse>
+     * 파일 s3에 업로드 후 디비 저장
+     * @param files List<MultipartFile>
+     * @return ResponseEntity
+     * @throws IOException Io
      */
     @Override
-    public ResponseEntity<CommonResponse> uploadFile(List<MultipartFile> files) {
-        // 파일 저장 ID 확인 리스트 세팅
+    public ResponseEntity<CommonResponse> uploadFiles(List<MultipartFile> files) throws IOException {
         List<Long> fileUploadResults = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    //(1) 파일 서버 저장
-                    //(1-1) 폴더가 없으면 폴더 생성
-                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
-                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
-                    //(1-2) 파일 저장
-                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
-                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
-                    file.transferTo(new File(fileUploadPathName));
-                    //(2) 파일 정보 DB 저장
-                    fileUploadResults.add(saveFile(fileMapper.fileDtoToFile(fileDto)));
-                } catch (IOException e) {
-                    return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FILE_UPLOAD_FAIL), HttpStatus.CONFLICT);
-                }
-            }
+        for (MultipartFile file : files){
+            String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
+            Files filesEntity = s3Service.uploadFile(file, key);
+            saveFile(filesEntity);
+            fileUploadResults.add(saveFile(filesEntity));
         }
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
     }
 
@@ -165,6 +152,8 @@ public class FileServiceImpl implements FileService {
         UUID uuid = UUID.randomUUID();
         return uuid + extension;
     }
+
+
 
     /**
      * 파일 업로드 폴더 생성 및 패스 반환
@@ -265,6 +254,10 @@ public class FileServiceImpl implements FileService {
         return null;
     }
 
+    /**
+     * 파일 저장
+     * @param fileDBString Files
+     */
     public Files saveStudyFile(Files fileDBString) {
         return fileRepo.save(fileDBString);
     }

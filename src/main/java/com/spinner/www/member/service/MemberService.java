@@ -9,6 +9,8 @@ import com.spinner.www.member.io.MemberJoin;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+
 public interface MemberService {
 
     /**
@@ -16,7 +18,7 @@ public interface MemberService {
      * @param memberRequest UserRequestDto 회원가입 요청 데이터
      * @return ResponseEntity<CommonResponse> 회원가입 결과
      */
-    ResponseEntity<CommonResponse> insertUser(MemberJoin memberRequest);
+    ResponseEntity<CommonResponse> insertUser(MemberJoin memberRequest) throws IOException;
 
     /**
      * 로그인
@@ -53,6 +55,21 @@ public interface MemberService {
      * @param memberSessionDto MemberLoginDto
      */
     void makeLoginToken(Member member, MemberSessionDto memberSessionDto);
+
+
+    /**
+     * user 이메일 중복검사
+     * @param memberEmail String
+     * @return 조회한 결과 Boolean
+     */
+    boolean isEmailInvalid (String memberEmail);
+
+    /**
+     * 비밀번호 변경
+     * @param password String
+     * @return  ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> updatePw(String password);
 
     /**
      * 프로필 수정 시 멤버 닉네임과 생년월일을 수정하기 위한 함수

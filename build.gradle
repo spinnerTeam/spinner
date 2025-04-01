@@ -77,6 +77,10 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
 
+    // S3
+    implementation platform("software.amazon.awssdk:bom:2.25.8")
+    implementation 'software.amazon.awssdk:s3'
+
     // AssertJ
     testImplementation 'org.assertj:assertj-core:3.23.1'
 
@@ -111,7 +115,11 @@ def generated = 'src/main/generated'
 tasks.withType(JavaCompile) {
     options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
-
+tasks.named('compileJava') {
+    doFirst {
+        delete file(generated)
+    }
+}
 // java source set 에 querydsl QClass 위치 추가
 sourceSets {
     main.java.srcDirs += [ generated ]
