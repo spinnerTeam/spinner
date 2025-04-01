@@ -38,16 +38,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Create .env file
-        run: |
-          echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" > .env
-          echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .env
-          echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
-          echo "S3_REGION=${{ vars.S3_REGION }}" >> .env
-
-      - name: Display .env file
-        run: cat .env
-
       # Spring Boot 어플리케이션 Build
       - name: Build with Gradle Wrapper
         run: ./gradlew build
