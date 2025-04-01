@@ -38,6 +38,16 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Create .env file
+        run: |
+          echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}" > .env
+          echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .env
+          echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+          echo "S3_REGION=${{ vars.S3_REGION }}" >> .env
+
+      - name: Display .env file
+        run: cat .env
+
       # Spring Boot 어플리케이션 Build
       - name: Build with Gradle Wrapper
         run: ./gradlew build
@@ -91,10 +101,6 @@ jobs:
           echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}" >> .env
           echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
           echo "S3_REGION=${{ vars.S3_REGION }}" >> .env
-
-      # .env 파일 내용 출력
-      - name: Display .env file
-        run: cat .env
 
       # Docker 컨테이너 실행 시 .env 파일을 적용하도록 변경
       - name: docker run new container
