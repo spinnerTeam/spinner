@@ -91,12 +91,6 @@ public class EmailServiceImpl implements EmailService{
     @Override
     public ResponseEntity<CommonResponse> sendEmail(String toEmail, String type) {
 
-        // 이미 회원가입 했는지 중복 검사
-        Member member = memberService.getMember(toEmail);
-        if(member != null){
-            throw new DuplicateFormatFlagsException("이미 가입된 이메일입니다." + toEmail);
-        }
-
         // 인증 코드 생성
         String authCode = createAuthCode();
 
@@ -108,7 +102,7 @@ public class EmailServiceImpl implements EmailService{
 
         // Redis에 인증 코드 저장
         redisService.saveRedis(toEmail, authCode, DEFAULT_AUTHCODE_MINUTES, TimeUnit.MINUTES);
-
+        sessionInfo.setMemberEmail(toEmail);
         // 이메일 발송
         return sendEmailMessage(toEmail, authCode, emailTemplate);
     }

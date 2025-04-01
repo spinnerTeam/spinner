@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -79,7 +80,8 @@ public class MemberServiceImpl implements MemberService {
      * @param memberEmail String
      * @return 조회한 결과 Boolean
      */
-    private boolean isEmailInvalid (String memberEmail){
+    @Override
+    public boolean isEmailInvalid (String memberEmail){
         return memberRepo.existsByMemberEmail(memberEmail);
     }
 
@@ -90,7 +92,6 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
-
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
         if(key == null)  {
@@ -224,5 +225,31 @@ public class MemberServiceImpl implements MemberService {
         sessionInfo.setSession(memberSessionDto);
     }
 
+    /**
+     * 비밀번호 변경
+     * @param password String
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> updatePw(@RequestParam String password) {
+        Member member = memberRepo.findByMemberEmail(sessionInfo.getMemberEmail());
+        if(member == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        encryptionUtils.checkPasswordFormat(password);
+        String afterPassword = encryptionUtils.encrypt(password);
+
+        Member updateMember = new Member(
+                member.getMemberIdx(),
+                member.getMemberRole(),
+                member.getMemberEmail(),
+                afterPassword,
+                member.getMemberName(),
+                member.getMemberNickname(),
+                member.getMemberBirth()
+        );
+        memberRepo.save(updateMember);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
 
 }
