@@ -132,7 +132,7 @@ public class MemberServiceImpl implements MemberService {
             files = fileService.getFiles(idxs.get(0));
         } else {
             // 기본이미지
-            files = fileService.getFiles(111L);
+            files = fileService.getFiles(114L);
         }
 
         memberFileService.create(member, files);

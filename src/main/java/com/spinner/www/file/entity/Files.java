@@ -38,4 +38,6 @@ public class Files extends BaseEntity {
 
     @Comment("파일 종류(공통코드)")
     private Long codeIdx;
+
+
 }
