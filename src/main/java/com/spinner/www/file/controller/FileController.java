@@ -1,6 +1,7 @@
 package com.spinner.www.file.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.file.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.Parameters;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,4 +53,16 @@ public class FileController {
     public ResponseEntity<CommonResponse> uploadFile(@RequestPart(name = "file") MultipartFile file) throws IOException {
         return fileService.uploadFiles(file);
     }
+
+
+//    @GetMapping("/downFile/{fileIdx}")
+//    public ResponseEntity<byte[]> downFile(@PathVariable("fileIdx") Long idx){
+//        Files files = fileService.getFiles(idx);
+//        byte[] fileBytes = s3Service.downloadFile(files.getFileConvertName());
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType(files.get))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + files.getFileOriginName() + "\"")
+//                .body(fileBytes);
+//    }
 }
