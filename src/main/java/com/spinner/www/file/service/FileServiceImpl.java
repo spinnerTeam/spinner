@@ -98,9 +98,9 @@ public class FileServiceImpl implements FileService {
                     FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
                     String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
                     file.transferTo(new File(fileUploadPathName));
-                    Files fileEntity = fileMapper.fileDtoToFile(fileDto);
-                    Long fileIdx = saveFile(fileEntity);
-                    fileMap.put(fileDto.getFileOriginName(), serverInfo.getServerUrlWithPort() + "/common/file/"+fileIdx);
+//                    Files fileEntity = fileMapper.fileDtoToFile(fileDto);
+//                    Long fileIdx = saveFile(fileEntity);
+//                    fileMap.put(fileDto.getFileOriginName(), serverInfo.getServerUrlWithPort() + "/common/file/"+fileIdx);
                 } catch (IOException e) {
                     return null;
                 }
@@ -245,7 +245,8 @@ public class FileServiceImpl implements FileService {
                     String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
                     file.transferTo(new File(fileUploadPathName));
                     //(2) 파일 정보 DB 저장
-                    return saveStudyFile(fileMapper.fileDtoToFile(fileDto));
+//                    return saveStudyFile(fileMapper.fileDtoToFile(fileDto));
+                    return null;
                 } catch (IOException e) {
                     log.error("스터디 파일 업로드 중 생긴 익셉션" + e.getMessage());
                 }
@@ -260,5 +261,46 @@ public class FileServiceImpl implements FileService {
      */
     public Files saveStudyFile(Files fileDBString) {
         return fileRepo.save(fileDBString);
+    }
+
+    /**
+     * Common의 타입을 midiaType으로 변경
+     * @param commonName String
+     * @return MediaType
+     */
+    @Override
+    public MediaType covMediaType(String commonName) {
+
+        MediaType mediaType;
+        switch (commonName) {
+            case "IMAGE":
+                mediaType = MediaType.IMAGE_PNG;
+                break;
+            case "VIDEO":
+                mediaType = MediaType.valueOf("video/mp4");
+                break;
+            case "DOCUMENT":
+                mediaType = MediaType.APPLICATION_PDF;
+                break;
+            case "FILE":
+            default:
+                mediaType = MediaType.APPLICATION_OCTET_STREAM;
+                break;
+        }
+        return mediaType;
+    }
+
+    /**
+     * 파일 삭제
+     * @param fileIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> deleteFile(Long fileIdx) {
+        Files files = getFiles(fileIdx);
+        fileRepo.deleteById(fileIdx);
+        s3Service.deleteFile(files.getFileConvertName());
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 }

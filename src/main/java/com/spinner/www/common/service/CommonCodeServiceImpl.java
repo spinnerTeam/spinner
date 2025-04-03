@@ -20,4 +20,28 @@ public class CommonCodeServiceImpl implements CommonCodeService {
     public CommonCode getCommonCode(Long codeIdx) {
         return commonCodeRepo.findByCodeIdx(codeIdx);
     }
+
+    /**
+     * commonCode 파일 타입 정의
+     * @param contentType String
+     * @return CommonCode
+     */
+    @Override
+    public CommonCode covContentType(String contentType) {
+
+        if (contentType.startsWith("image/")) {
+            return commonCodeRepo.findByCodeName("IMAGE");
+
+        } else if (contentType.startsWith("video/")) {
+            return commonCodeRepo.findByCodeName("VIDEO");
+
+        } else if (contentType.equals("application/pdf")
+                || contentType.equals("application/msword")
+                || contentType.equals("application/vnd.ms-excel")
+                || contentType.equals("application/vnd.ms-powerpoint")
+                ) {
+            return commonCodeRepo.findByCodeName("DOCUMENT");
+        }
+        return commonCodeRepo.findByCodeName("FILE");
+    }
 }

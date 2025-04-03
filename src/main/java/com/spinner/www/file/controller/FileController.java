@@ -1,6 +1,7 @@
 package com.spinner.www.file.controller;
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.file.service.S3Service;
@@ -30,6 +31,7 @@ public class FileController {
 
     private final FileService fileService;
     private final S3Service s3Service;
+    private final CommonCodeService commonCodeService;
 
     @GetMapping("/{fileIdx}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileIdx") Long id) throws IOException {
@@ -54,15 +56,42 @@ public class FileController {
         return fileService.uploadFiles(file);
     }
 
+    /**
+     * 파일 다운로드
+     * @param idx Long
+     * @return ResponseEntity<byte[]>
+     */
+    @Operation(
+            summary = "파일다운로드 API",
+            description = "파일/이미지/동영상 다운로드입니다."
+    )
+    @Parameters({
+            @Parameter(name = "fileIdx", description = "파일번호"),
+    })
+    @GetMapping("/downFile/{fileIdx}")
+    public ResponseEntity<byte[]> downFile(@PathVariable("fileIdx") Long idx){
+        Files files = fileService.getFiles(idx);
+        byte[] fileBytes = s3Service.downloadFile(files.getFileConvertName());
+        return ResponseEntity.ok()
+                .contentType(fileService.covMediaType(files.getCommonCode().getCodeName()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + files.getFileOriginName() + "\"")
+                .body(fileBytes);
+    }
 
-//    @GetMapping("/downFile/{fileIdx}")
-//    public ResponseEntity<byte[]> downFile(@PathVariable("fileIdx") Long idx){
-//        Files files = fileService.getFiles(idx);
-//        byte[] fileBytes = s3Service.downloadFile(files.getFileConvertName());
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType(files.get))
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + files.getFileOriginName() + "\"")
-//                .body(fileBytes);
-//    }
+    /**
+     * s3 파일 삭제
+     * @param idx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "파일 삭제 API",
+            description = "파일/이미지/동영상 삭제입니다."
+    )
+    @Parameters({
+            @Parameter(name = "fileIdx", description = "파일번호"),
+    })
+    @DeleteMapping("/deleteFile/{fileIdx}")
+    public ResponseEntity<CommonResponse> deleteFile(@PathVariable("fileIdx") Long idx){
+        return fileService.deleteFile(idx);
+    }
 }
