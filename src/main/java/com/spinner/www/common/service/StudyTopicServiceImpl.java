@@ -1,6 +1,6 @@
 package com.spinner.www.common.service;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.common.repository.MenuRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class MenuServiceImpl implements MenuService {
+public class StudyTopicServiceImpl implements StudyTopicService {
 
     private final MenuRepo menuRepo;
 
@@ -20,8 +20,8 @@ public class MenuServiceImpl implements MenuService {
      * @return Menu
      */
     @Override
-    public Optional<Menu> getMenuByMenuIdx(Long menuIdx) {
-        return menuRepo.findByMenuIdx(menuIdx);
+    public Optional<StudyTopic> getStudyTopicByStudyTopicIdx(Long menuIdx) {
+        return menuRepo.findByStudyTopicIdx(menuIdx);
     }
 
     /**
@@ -29,7 +29,7 @@ public class MenuServiceImpl implements MenuService {
      * @return List<Menu>
      */
     @Override
-    public List<Menu> getAll() {
+    public List<StudyTopic> getAll() {
         return menuRepo.findAll();
     }
 
@@ -38,7 +38,7 @@ public class MenuServiceImpl implements MenuService {
      * @return List<Menu>
      */
     @Override
-    public List<Menu> getAllInterest() {
-        return menuRepo.findAllByMenuParentIdxIsNotNull();
+    public List<StudyTopic> getAllInterest() {
+        return menuRepo.findAllByStudyTopicParentIdxIsNotNull();
     }
 }

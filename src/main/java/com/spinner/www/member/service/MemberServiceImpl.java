@@ -1,8 +1,8 @@
 package com.spinner.www.member.service;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.service.MenuService;
+import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
@@ -54,7 +54,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberFileService memberFileService;
     private final ServiceTermsRepo serviceTermsRepo;
     private final MarketingRepo marketingRepo;
-    private final MenuService menuService;
+    private final StudyTopicService studyTopicService;
     private final MemberInterestService memberInterestService;
 
     /**
@@ -154,9 +154,9 @@ public class MemberServiceImpl implements MemberService {
         // 관심분야
         List<Long> menuList = memberJoin.getMenuList();
         for(Long idx : menuList){
-            Menu menu = menuService.getMenuByMenuIdx(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
+            StudyTopic studyTopic = studyTopicService.getStudyTopicByStudyTopicIdx(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
             MemberInterestCreateDto memberInterestCreateDto = new MemberInterestCreateDto(
-                    menu,
+                    studyTopic,
                     member
             );
             memberInterestService.insertMemberInterest(memberInterestCreateDto);

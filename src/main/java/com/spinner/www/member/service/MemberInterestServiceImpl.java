@@ -1,7 +1,7 @@
 package com.spinner.www.member.service;
 
-import com.spinner.www.common.entity.Menu;
-import com.spinner.www.common.service.MenuService;
+import com.spinner.www.common.entity.StudyTopic;
+import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.member.dto.MemberInterestCreateDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.MemberInterest;
@@ -11,7 +11,6 @@ import com.spinner.www.member.repository.MemberInterestRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class MemberInterestServiceImpl implements MemberInterestService {
 
     private final MemberInterestRepo memberInterestRepo;
-    private final MenuService menuService;
+    private final StudyTopicService studyTopicService;
 
     /**
      * MemberInterest 객체 생성
@@ -57,7 +56,7 @@ public class MemberInterestServiceImpl implements MemberInterestService {
     public void upsertMemberInterests(Member member, List<MemberInterestRequest> memberInterestRequests) {
         List<MemberInterest> memberInterests = getAllMemberInterest(member);
         Map<Long, MemberInterest> mapInterest = memberInterests.stream()
-                .collect(Collectors.toMap(memberInterest -> memberInterest.getMenu().getMenuIdx(), memberInterest -> memberInterest));
+                .collect(Collectors.toMap(memberInterest -> memberInterest.getStudyTopic().getStudyTopicIdx(), memberInterest -> memberInterest));
         memberInterestRequests.forEach(memberInterestRequest -> {
             Long menuIdx = memberInterestRequest.getIdx();
             MemberInterest memberInterest = mapInterest.get(menuIdx);
@@ -68,10 +67,10 @@ public class MemberInterestServiceImpl implements MemberInterestService {
                 updateMemberInterest(memberInterest, isSelected);
             }
             else if(isSelected) {
-                Menu menu = menuService.getMenuByMenuIdx(menuIdx).orElse(null);
-                if(Objects.isNull(menu)) return;
+                StudyTopic studyTopic = studyTopicService.getStudyTopicByStudyTopicIdx(menuIdx).orElse(null);
+                if(Objects.isNull(studyTopic)) return;
                 MemberInterestCreateDto memberInterestCreateDto = MemberInterestCreateDto.builder()
-                        .menu(menu)
+                        .studyTopic(studyTopic)
                         .member(member)
                         .build();
                 insertMemberInterest(memberInterestCreateDto);
@@ -96,15 +95,15 @@ public class MemberInterestServiceImpl implements MemberInterestService {
     @Override
     public List<MemberInterestResponse> getAllMemberInterestResponses(Member member) {
 
-        List<Menu> menus = menuService.getAllInterest();
+        List<StudyTopic> studyTopics = studyTopicService.getAllInterest();
         List<MemberInterest> interests = getAllMemberInterest(member);
 
         List<MemberInterestResponse> responses = new ArrayList<>();
-        for (Menu menu : menus) {
+        for (StudyTopic studyTopic : studyTopics) {
             responses.add(MemberInterestResponse.builder()
-                    .idx(menu.getMenuIdx())
-                    .name(menu.getCommonCode().getCodeName())
-                    .selected(interests.stream().anyMatch(interest -> interest.getMenu().equals(menu)&&interest.isMemberIsSelected()))
+                    .idx(studyTopic.getStudyTopicIdx())
+                    .name(studyTopic.getCommonCode().getCodeName())
+                    .selected(interests.stream().anyMatch(interest -> interest.getStudyTopic().equals(studyTopic)&&interest.isMemberIsSelected()))
                     .build());
         }
         return responses;

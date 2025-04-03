@@ -1,6 +1,6 @@
 package com.spinner.www.common.repository;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,8 +9,18 @@ import java.util.Optional;
 
 
 @Repository
-public interface MenuRepo extends JpaRepository<Menu, Long> {
-    Optional<Menu> findByMenuIdx(Long menuIdx);
+public interface MenuRepo extends JpaRepository<StudyTopic, Long> {
 
-    List<Menu> findAllByMenuParentIdxIsNotNull();
+    /**
+     * 스터디 주제 조회
+     * @param menuIdx Long
+     * @return Optional<StudyTopic>
+     */
+    Optional<StudyTopic> findByStudyTopicIdx(Long menuIdx);
+
+    /**
+     * 부모 idx 가 있는 스터디 조회
+     * @return List<StudyTopic>
+     */
+    List<StudyTopic> findAllByStudyTopicParentIdxIsNotNull();
 }

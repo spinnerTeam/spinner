@@ -1,6 +1,6 @@
 package com.spinner.www.member.dto;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.member.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,11 +11,11 @@ import lombok.Setter;
 @Setter
 public class MemberInterestCreateDto {
 
-    private Menu menu;
+    private StudyTopic studyTopic;
     private Member member;
 
-    public MemberInterestCreateDto(Menu menu, Member member){
-        this.menu = menu;
+    public MemberInterestCreateDto(StudyTopic studyTopic, Member member){
+        this.studyTopic = studyTopic;
         this.member = member;
     }
 }
