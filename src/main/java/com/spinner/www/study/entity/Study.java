@@ -3,6 +3,7 @@ package com.spinner.www.study.entity;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.study.dto.StudyCreateDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -29,6 +30,9 @@ public class Study extends BaseEntity {
     @Comment("스터디 대표 이미지")
     private Files files;
 
+    @Comment("스터디 소개")
+    private String studyInfo;
+
     @Comment("스터디 삭제 여부")
     private boolean studyIsRemoved;
 
@@ -40,4 +44,14 @@ public class Study extends BaseEntity {
     @Comment("스터디 최대 인원")
     private Integer studyMaxPeople;
 
+    public static Study insertStudy(StudyCreateDto studyCreateDto){
+        return Study.builder()
+                .studyName(studyCreateDto.getStudyName())
+                .studyInfo(studyCreateDto.getStudyInfo())
+                .studyMaxPeople(studyCreateDto.getStudyMaxPeople())
+                .studyIsRemoved(false)
+                .studyTopic(studyCreateDto.getStudyTopic())
+                .files(studyCreateDto.getFiles())
+                .build();
+    }
 }
