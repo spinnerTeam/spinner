@@ -1,6 +1,8 @@
 package com.spinner.www.file.service;
 
+import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.util.ResponseVOUtils;
 import jakarta.transaction.Transactional;
@@ -25,6 +27,7 @@ import java.util.List;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final CommonCodeService commonCodeService;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -51,11 +54,13 @@ public class S3Service {
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize())
         );
 
+        CommonCode commonCode = commonCodeService.covContentType(file.getContentType());
 
         Files files = Files.builder()
                 .fileOriginName(file.getOriginalFilename())
                 .fileConvertName(key)
                 .filePath("https://" + bucketName + ".s3.us-east-1.amazonaws.com/" + key)
+                .commonCode(commonCode)
                 .build();
 
         return files;
@@ -73,19 +78,20 @@ public class S3Service {
                 .build();
         ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
         return objectBytes.asByteArray();
-
     }
 
     /**
      * 파일 삭제
      * @param fileKey String
      */
-    public void deleteFile(String fileKey){
+    @Transactional
+    public ResponseEntity<CommonResponse> deleteFile(String fileKey){
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileKey)
                 .build();
         s3Client.deleteObject(deleteObjectRequest);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
     /**

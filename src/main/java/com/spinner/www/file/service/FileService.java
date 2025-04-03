@@ -4,6 +4,7 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,4 +87,18 @@ public interface FileService {
      * @return Files
      */
     Files uploadStudyFile(List<MultipartFile> files);
+
+    /**
+     * Common의 타입을 midiaType으로 변경
+     * @param mediaType String
+     * @return MediaType
+     */
+    MediaType covMediaType(String mediaType);
+
+    /**
+     * s3 파일 삭제
+     * @param fileIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> deleteFile(Long fileIdx);
 }

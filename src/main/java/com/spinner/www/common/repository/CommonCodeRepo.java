@@ -13,4 +13,11 @@ public interface CommonCodeRepo extends JpaRepository<CommonCode, Long> {
      * @return CommonCode
      */
     CommonCode findByCodeIdx(Long codeIdx);
+
+    /**
+     * codeName 별 공통코드 객체 조회
+     * @param name String
+     * @return CommonCode
+     */
+    CommonCode findByCodeName(String name);
 }
