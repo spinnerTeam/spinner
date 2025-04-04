@@ -97,7 +97,7 @@ public class MemberServiceImpl implements MemberService {
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
 
         if(sessionInfo.getMemberEmail() == null){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.EMAIL_SESSION_NOT_FOUND),HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(0000, sessionInfo.getMemberEmail()),HttpStatus.NOT_FOUND);
         }
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());

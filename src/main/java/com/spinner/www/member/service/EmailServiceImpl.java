@@ -75,7 +75,7 @@ public class EmailServiceImpl implements EmailService{
             EmailLog emailSend = EmailLog.insertEmailLog(toEmail, emailTemplate);
             emailLogService.saveEmailSend(emailSend);
 
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(authCode), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(toEmail), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
