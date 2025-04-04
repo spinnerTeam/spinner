@@ -95,6 +95,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
+
+        if(sessionInfo.getMemberEmail() == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.EMAIL_SESSION_NOT_FOUND),HttpStatus.NOT_FOUND);
+        }
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
         if(key == null)  {
@@ -140,7 +144,6 @@ public class MemberServiceImpl implements MemberService {
         // 마케팅 수신 동의 저장
         List<ServiceTerms> serviceTermsList = serviceTermsRepo.findByServiceTermsIsUse(true);
         List<Boolean> marketingList = memberJoin.getMarketingList();
-
         for (int i = 0; i < serviceTermsList.size(); i++) {
             MarketingCreateDto marketingCreateDto = new MarketingCreateDto(
                     serviceTermsList.get(i),

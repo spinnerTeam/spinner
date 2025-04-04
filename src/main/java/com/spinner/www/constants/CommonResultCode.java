@@ -78,6 +78,11 @@ public enum CommonResultCode {
     DATA_NOT_FOUND(50001, "데이터를 찾을 수 없음"),
 
     /**
+     * 이메일 세션 조회 실패
+     */
+    EMAIL_SESSION_NOT_FOUND(5003, "세션이 없습니다. 이메일 인증 다시해주세요."),
+    
+    /**
      * 파일 업로드 실패
      */
     FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
