@@ -1,10 +1,13 @@
 package com.spinner.www.common.service;
 
+import com.spinner.www.common.dto.StudyTopicNameListDto;
 import com.spinner.www.common.entity.StudyTopic;
-import com.spinner.www.common.repository.MenuRepo;
+import com.spinner.www.common.repository.StudyTopicRepo;
+import com.spinner.www.util.StudyTopicCacheStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +15,8 @@ import java.util.Optional;
 @Service
 public class StudyTopicServiceImpl implements StudyTopicService {
 
-    private final MenuRepo menuRepo;
+    private final StudyTopicRepo studyTopicRepo;
+    private final StudyTopicCacheStorage studyTopicCacheStorage;
 
     /**
      * menuIdx로 Menu 조회
@@ -21,7 +25,7 @@ public class StudyTopicServiceImpl implements StudyTopicService {
      */
     @Override
     public Optional<StudyTopic> getStudyTopicByStudyTopicIdx(Long menuIdx) {
-        return menuRepo.findByStudyTopicIdx(menuIdx);
+        return studyTopicRepo.findByStudyTopicIdx(menuIdx);
     }
 
     /**
@@ -30,7 +34,7 @@ public class StudyTopicServiceImpl implements StudyTopicService {
      */
     @Override
     public List<StudyTopic> getAll() {
-        return menuRepo.findAll();
+        return studyTopicRepo.findAll();
     }
 
     /**
@@ -39,6 +43,25 @@ public class StudyTopicServiceImpl implements StudyTopicService {
      */
     @Override
     public List<StudyTopic> getAllInterest() {
-        return menuRepo.findAllByStudyTopicParentIdxIsNotNull();
+        return studyTopicRepo.findAllByStudyTopicParentIdxIsNotNull();
+    }
+
+    /**
+     * 스터디 주제 조회
+     * @return  List<StudyTopicNameListDto>
+     */
+    @Override
+    public List<StudyTopicNameListDto> getStudyTopicName() {
+        List<StudyTopicNameListDto> studyTopicNameListDto = new ArrayList<>();
+        List<StudyTopic> studyTopics = studyTopicCacheStorage.getStudyTopics();
+        for(StudyTopic studyTopic : studyTopics){
+
+            StudyTopicNameListDto dto = StudyTopicNameListDto.builder()
+                    .studyTopicIdx(studyTopic.getStudyTopicIdx())
+                    .studyName(studyTopic.getCommonCode().getCodeName())
+                    .build();
+            studyTopicNameListDto.add(dto);
+        }
+        return studyTopicNameListDto;
     }
 }

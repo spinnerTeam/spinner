@@ -21,5 +21,4 @@ public interface MemberMapper {
     })
     MemberSessionDto memberLoginToMemberSessionDto(MemberLogin memberLogin);
     MemberCreateDto memberJoinToMemberCreate(MemberJoin memberJoin);
-    MemberDto memberToMemberDto(Member member);
 }

@@ -1,5 +1,6 @@
 package com.spinner.www.common.service;
 
+import com.spinner.www.common.dto.StudyTopicNameListDto;
 import com.spinner.www.common.entity.StudyTopic;
 
 import java.util.List;
@@ -25,4 +26,10 @@ public interface StudyTopicService {
      * @return List<Menu>
      */
     List<StudyTopic> getAllInterest();
+
+    /**
+     * 스터디 주제 리스트
+     * @return List<StudyTopicNameListDto>
+     */
+    List<StudyTopicNameListDto> getStudyTopicName();
 }
