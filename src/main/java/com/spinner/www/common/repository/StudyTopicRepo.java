@@ -9,7 +9,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface MenuRepo extends JpaRepository<StudyTopic, Long> {
+public interface StudyTopicRepo extends JpaRepository<StudyTopic, Long> {
 
     /**
      * 스터디 주제 조회
@@ -23,4 +23,6 @@ public interface MenuRepo extends JpaRepository<StudyTopic, Long> {
      * @return List<StudyTopic>
      */
     List<StudyTopic> findAllByStudyTopicParentIdxIsNotNull();
+
+    List<StudyTopic> findByStudyTopicDepthAndStudyTopicParentIdx(Integer depth, Long parentIdx);
 }
