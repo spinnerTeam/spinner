@@ -2,6 +2,9 @@ package com.spinner.www.common.controller;
 
 import com.spinner.www.common.dto.StudyTopicNameListDto;
 import com.spinner.www.common.service.StudyTopicService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,9 @@ public class CommonController {
      * 스터디 주제 조회
      * @return  List<StudyTopicNameListDto>
      */
+    @Operation(
+            summary = "스터디 주제 조회 API"
+    )
     @GetMapping("/studyTopics")
     public List<StudyTopicNameListDto> getStudyTopicNameList(){
         return studyTopicService.getStudyTopicName();
