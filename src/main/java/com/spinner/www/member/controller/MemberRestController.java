@@ -8,7 +8,6 @@ import com.spinner.www.member.io.EmailSend;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
 import com.spinner.www.member.service.EmailService;
-import com.spinner.www.member.service.RedisService;
 import com.spinner.www.member.service.TokenService;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.util.ResponseVOUtils;
