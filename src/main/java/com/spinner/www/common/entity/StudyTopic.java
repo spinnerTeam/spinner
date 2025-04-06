@@ -5,23 +5,24 @@ import lombok.Getter;
 import org.hibernate.annotations.Comment;
 
 @Entity
-@Table(name = "menu")
+@Table(name = "study_topic")
 @Comment("메뉴")
 @Getter
-public class Menu {
+public class StudyTopic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("메뉴 PK")
-    private Long menuIdx;
+    @Comment("스터디 주제 PK")
+    private Long studyTopicIdx;
 
-    @Comment("메뉴 뎁스")
-    private Integer menuDepth;
+    @Comment("스터디 뎁스")
+    private Integer studyTopicDepth;
 
-    @Comment("부모메뉴 IDX")
-    private Long menuParentIdx;
-
+    @Comment("부모 스터디 주제 IDX")
+    private Long studyTopicParentIdx;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "codeIdx")
+    @Comment("공통코드 IDX")
     private CommonCode commonCode;
 }

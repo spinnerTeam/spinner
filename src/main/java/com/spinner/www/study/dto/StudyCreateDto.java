@@ -1,13 +1,15 @@
 package com.spinner.www.study.dto;
 
-import lombok.Builder;
+import com.spinner.www.common.entity.StudyTopic;
+import com.spinner.www.file.entity.Files;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class StudyCreateDto {
+
     private String studyName;
-    private String studyIntro;
-    private Long studyCategoryType;
-    private int studyMaxPeople;
+    private Files files;
+    private String studyInfo;
+    private Integer studyMaxPeople;
+    private StudyTopic studyTopic;
 }

@@ -1,11 +1,9 @@
-package com.spinner.www.member.service;
+package com.spinner.www.common.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor

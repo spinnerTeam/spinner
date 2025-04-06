@@ -1,8 +1,9 @@
 package com.spinner.www.member.service;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.service.MenuService;
+import com.spinner.www.common.redis.RedisService;
+import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
@@ -54,7 +55,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberFileService memberFileService;
     private final ServiceTermsRepo serviceTermsRepo;
     private final MarketingRepo marketingRepo;
-    private final MenuService menuService;
+    private final StudyTopicService studyTopicService;
     private final MemberInterestService memberInterestService;
 
     /**
@@ -95,6 +96,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public ResponseEntity<CommonResponse> insertUser(MemberJoin memberJoin) throws IOException {
+
+        if(sessionInfo.getMemberEmail() == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(0000, sessionInfo.getMemberEmail()),HttpStatus.NOT_FOUND);
+        }
         // 세션에 있는 이메일이 레디스에 있나 없나 체크
         String key = redisService.getValue(sessionInfo.getMemberEmail());
         if(key == null)  {
@@ -132,7 +137,7 @@ public class MemberServiceImpl implements MemberService {
             files = fileService.getFiles(idxs.get(0));
         } else {
             // 기본이미지
-            files = fileService.getFiles(111L);
+            files = fileService.getFiles(114L);
         }
 
         memberFileService.create(member, files);
@@ -140,7 +145,6 @@ public class MemberServiceImpl implements MemberService {
         // 마케팅 수신 동의 저장
         List<ServiceTerms> serviceTermsList = serviceTermsRepo.findByServiceTermsIsUse(true);
         List<Boolean> marketingList = memberJoin.getMarketingList();
-
         for (int i = 0; i < serviceTermsList.size(); i++) {
             MarketingCreateDto marketingCreateDto = new MarketingCreateDto(
                     serviceTermsList.get(i),
@@ -154,9 +158,9 @@ public class MemberServiceImpl implements MemberService {
         // 관심분야
         List<Long> menuList = memberJoin.getMenuList();
         for(Long idx : menuList){
-            Menu menu = menuService.getMenuByMenuIdx(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
+            StudyTopic studyTopic = studyTopicService.getStudyTopicByStudyTopicIdx(idx).orElseThrow(() -> new NoSuchElementException("존재하지 않는 관심분야입니다."));
             MemberInterestCreateDto memberInterestCreateDto = new MemberInterestCreateDto(
-                    menu,
+                    studyTopic,
                     member
             );
             memberInterestService.insertMemberInterest(memberInterestCreateDto);

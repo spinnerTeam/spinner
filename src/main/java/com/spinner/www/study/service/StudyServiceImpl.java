@@ -1,172 +1,115 @@
 package com.spinner.www.study.service;
 
-import static com.spinner.www.study.entity.Study.create;
-
-import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.repository.CommonCodeRepo;
+import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
-import com.spinner.www.member.entity.Member;
-import com.spinner.www.member.service.MemberService;
-import com.spinner.www.study.constants.StudyMySearchStatusType;
-import com.spinner.www.study.dto.StudyCreateDto;
-import com.spinner.www.study.dto.StudySearchDto;
-import com.spinner.www.study.dto.StudySearchParamDto;
-import com.spinner.www.study.dto.StudyUpdateDto;
-import com.spinner.www.study.entity.Study;
-import com.spinner.www.study.entity.StudyMember;
-import com.spinner.www.study.io.StudyCreateRequest;
-import com.spinner.www.study.io.StudySearchParamRequest;
-import com.spinner.www.study.io.StudyUpdateRequest;
-import com.spinner.www.study.mapper.StudyMapper;
-import com.spinner.www.study.repository.StudyMemberRepo;
-import com.spinner.www.study.repository.StudyQueryRepo;
+import com.spinner.www.study.io.CreateStudy;
 import com.spinner.www.study.repository.StudyRepo;
 import com.spinner.www.util.ResponseVOUtils;
-import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class StudyServiceImpl implements StudyService {
 
+    private final SessionInfo sessionInfo;
     private final StudyRepo studyRepo;
     private final FileService fileService;
-    private final StudyMapper studyMapper;
-    private final SessionInfo sessionInfo;
-    private final MemberService memberService;
-    private final StudyMemberRepo studyMemberRepo;
-    private final CommonCodeRepo commonCodeRepo;
-    private final StudyQueryRepo studyQueryRepo;
 
+    /**
+     * 스터디 생성
+     * @param createStudy CreateStudy
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
-    public ResponseEntity<CommonResponse> getStudyList(Pageable pageable,
-        StudySearchParamRequest studySearchParamRequest) {
-        loginCheck();
-        Member member = memberService.getMember(sessionInfo.getMemberIdx());
-        StudySearchParamDto studySearchParamDto = studyMapper.toStudySearchParamDto(
-            studySearchParamRequest);
+    public ResponseEntity<CommonResponse> createStudy(CreateStudy createStudy) throws IOException {
 
-        List<StudySearchDto> studySearchDtoList = studyQueryRepo.studySearch(pageable, member,
-            studySearchParamDto);
-
-        if (studySearchDtoList.isEmpty()) {
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."),
-                HttpStatus.OK);
+        if(sessionInfo.getMemberIdx() == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList),
-            HttpStatus.OK);
-    }
+        String studyName = createStudy.getStudyName().replaceAll("\\s+", "");
 
-    @Override
-    public ResponseEntity<CommonResponse> getMyStudyList(Pageable pageable,
-        StudyMySearchStatusType studyMySearchStatusType) {
-        loginCheck();
-        Member member = memberService.getMember(sessionInfo.getMemberIdx());
-
-        List<StudySearchDto> studySearchDtoList = studyQueryRepo.myStudySearch(pageable, member,
-            studyMySearchStatusType);
-
-        if (studySearchDtoList.isEmpty()) {
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 목록이 없습니다."),
-                HttpStatus.OK);
+        // 스터디 이름 (최소 3글자 ~ 10자 이내 생성)
+        if(!invalidateStudyName(studyName)){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_NAME_FORMAT), HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studySearchDtoList),
-            HttpStatus.OK);
-    }
+        // 중복검사
+        if(!duplicateStudyName(studyName)){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE), HttpStatus.UNAUTHORIZED);
+        }
 
-    @Override
-    @Transactional
-    public ResponseEntity<CommonResponse> getStudy(Long id) {
-        Study study = getStudyOrElseThrow(id);
-        study.updateViews();
-        // 미션과 커뮤니티쪽 완료되면 추가
+        // 인원수 : 최소 2~15명
+        if(createStudy.getStudyMaxPeople()> 15 || createStudy.getStudyMaxPeople() < 2){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_MEMBER_COUNT), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 스터디 소개 10자 이상 ~ 100자 이내
+        if(!invalidateStudyInfo(createStudy.getStudyInfo().trim())){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_INTRO_LENGTH), HttpStatus.BAD_REQUEST);
+        }
+
+        // 스터디 디비 저장
+
+        // 스터디 멤버 방장 저장
+
+        // 스터디 파일 저장
+        Files files = null;
+        if(createStudy.getFile() != null && !createStudy.getFile().isEmpty()){
+            ResponseEntity<CommonResponse> response = fileService.uploadFiles(createStudy.getFile());
+            List<Long> idxs = (List<Long>) response.getBody().getResults();
+            files = fileService.getFiles(idxs.get(0));
+        } else {
+            // 기본이미지
+            files = fileService.getFiles(114L);
+        }
+
+        //
 
         return null;
     }
 
-    @Override
-    @Transactional
-    public ResponseEntity<CommonResponse> createStudy(StudyCreateRequest studyCreateRequest) {
-        loginCheck();
-
-        // 스터디 개설
-        StudyCreateDto studyCreateDto = studyMapper.toStudyCreateDto(studyCreateRequest);
-        CommonCode commonCode = getCommonCodeOrElseThrow(studyCreateDto.getStudyCategoryType());
-        Study study = create(studyCreateDto, commonCode);
-        studyRepo.save(study);
-
-        // 스터디 멤버에 로그인된 유저 넣기
-        Member member = memberService.getMember(sessionInfo.getMemberIdx());
-        StudyMember studyMember = StudyMember.createStudyMemberLeader(study, member);
-        studyMemberRepo.save(studyMember);
-
-        // 연관관계 설정
-        study.addStudyMember(studyMember);
-
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(study.getId()),
-            HttpStatus.OK);
-    }
-
-    @Override
-    @Transactional
-    public ResponseEntity<CommonResponse> uploadStudyInfoFile(Long id, List<MultipartFile> files)
-        throws IOException {
-        // 파일 업로드
-        Files file = fileService.uploadStudyFile(files);
-
-        // 스터디 업데이트
-        Study study = getStudyOrElseThrow(id);
-        study.updateFile(file);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
-    }
-
-    @Override
-    @Transactional
-    public ResponseEntity<CommonResponse> updateStudy(Long id,
-        StudyUpdateRequest studyUpdateRequest) {
-
-        StudyUpdateDto studyUpdateDto = studyMapper.toStudyUpdateDto(studyUpdateRequest);
-        CommonCode commonCode = getCommonCodeOrElseThrow(studyUpdateDto.getStudyCategoryType());
-        Study study = getStudyOrElseThrow(id);
-        study.update(studyUpdateDto, commonCode);
-
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
-    }
-
-    @Override
-    @Transactional
-    public ResponseEntity<CommonResponse> deleteStudy(Long id) {
-        Study study = getStudyOrElseThrow(id);
-        study.softDelete();
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
-    }
-
-    private void loginCheck() {
-        if (sessionInfo.getMemberIdx() == null) {
-            throw new IllegalArgumentException("로그인 된 상태가 아닙니다.");
+    /**
+     * 스터디 이름 유효성 검사
+     * @param name String
+     * @return Boolean
+     */
+    private Boolean invalidateStudyName(String name){
+        // 숫자,영어,한글 포함 3자~10자 , 특수문자 포함 x
+        String pattern = "[a-zA-Z가-힣0-9]{3,10}$";
+        if(!pattern.matches(name)){
+            return false;
         }
+        return true;
     }
 
-    private Study getStudyOrElseThrow(Long id) {
-        return studyRepo.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+    /**
+     * 스터디 이름 중복검사
+     * @param name
+     * @return
+     */
+    private Boolean duplicateStudyName(String name){
+        if(!studyRepo.existsByStudyName(name)){
+            return false;
+        }
+        return true;
     }
 
-    private CommonCode getCommonCodeOrElseThrow(Long commonIdx) {
-        return commonCodeRepo.findById(commonIdx)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공통 코드 IDX 입니다."));
+    private Boolean invalidateStudyInfo(String studyInfo){
+        // 스터디 소개 최소 10자이상 최대 100자 이내
+
+        if (studyInfo.length() < 10 || studyInfo.length() > 100) {
+            return false;
+        }
+        return true;
     }
 }

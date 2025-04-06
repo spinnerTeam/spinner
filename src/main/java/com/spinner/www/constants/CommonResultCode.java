@@ -17,6 +17,8 @@ public enum CommonResultCode {
      */
     FORBIDDEN(40301, "올바르지 않은 접근입니다."),
 
+    NO_LOGIN(1000, "로그인이 필요합니다."),
+
     /**
      * 데이터 중복
      */
@@ -26,6 +28,11 @@ public enum CommonResultCode {
      * 신고 중복
      */
     DUPLICATE_REPORT(40901, "이미 신고한 게시물입니다."),
+
+    /**
+     * 스터디 인원수 유효성 오류 (2명 이상, 15명 이하)
+     */
+    INVALID_STUDY_MEMBER_COUNT(41008, "스터디는 최소 2명 이상, 최대 15명까지 가능합니다."),
 
     /**
      * 투표 항목 밸리데이션 하나 이상
@@ -78,6 +85,11 @@ public enum CommonResultCode {
     DATA_NOT_FOUND(50001, "데이터를 찾을 수 없음"),
 
     /**
+     * 이메일 세션 조회 실패
+     */
+    EMAIL_SESSION_NOT_FOUND(5003, "세션이 없습니다. 이메일 인증 다시해주세요."),
+    
+    /**
      * 파일 업로드 실패
      */
     FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
@@ -92,6 +104,10 @@ public enum CommonResultCode {
      */
     INVALID_PASSWORD_FORMAT(1004, "비밀번호는 영문,숫자 포함 8자리에서 20자리로 작성해주세요"),
 
+    /**
+     * 스터디명 유효성 체크
+     */
+    INVALID_STUDY_NAME_FORMAT(1005, "스터디명은 3자~10자이며 특수문자는 쓸 수 없습니다."),
 
     /**
      * 런타임 오류 익셉션
@@ -100,7 +116,9 @@ public enum CommonResultCode {
 
     MARKETING_CONSENT_MISSING(40001, "마케팅 수신 동의 미체크"),
 
-    BAD_REQUEST(40003, "올바르지 못한 요청입니다.");
+    BAD_REQUEST(40003, "올바르지 못한 요청입니다."),
+
+    INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다.");
 
 
     /**

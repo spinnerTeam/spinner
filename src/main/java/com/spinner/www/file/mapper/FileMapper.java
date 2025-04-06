@@ -8,6 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface FileMapper {
 
-    @Mapping(target = "codeIdx", source = "fileTypeCodeIdx")
-    Files fileDtoToFile(FileDto fileDto);
+//    @Mapping(target = "codeIdx", source = "fileTypeCodeIdx")
+//    Files fileDtoToFile(FileDto fileDto);
 }

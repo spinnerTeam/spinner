@@ -1,8 +1,12 @@
 package com.spinner.www.common.entity;
 
+import com.spinner.www.file.entity.Files;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "common_code")
@@ -26,4 +30,7 @@ public class CommonCode {
 
     @Comment("표시순서")
     private int codeSort;
+
+    @OneToMany(mappedBy = "commonCode", cascade = CascadeType.ALL)
+    private List<Files> files = new ArrayList<>();
 }

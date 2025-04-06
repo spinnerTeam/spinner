@@ -1,6 +1,7 @@
 package com.spinner.www.file.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.common.entity.CommonCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,9 @@ public class Files extends BaseEntity {
     @Comment("파일 경로")
     private String filePath;
 
+    @ManyToOne
+    @JoinColumn(name = "codeIdx")
     @Comment("파일 종류(공통코드)")
-    private Long codeIdx;
+    private CommonCode commonCode;
+
 }

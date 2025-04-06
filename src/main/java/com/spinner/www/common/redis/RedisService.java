@@ -1,4 +1,4 @@
-package com.spinner.www.member.service;
+package com.spinner.www.common.redis;
 
 import java.util.concurrent.TimeUnit;
 

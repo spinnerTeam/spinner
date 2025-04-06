@@ -1,6 +1,6 @@
 package com.spinner.www.member.entity;
 
-import com.spinner.www.common.entity.Menu;
+import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.member.dto.MemberInterestCreateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,7 +29,7 @@ public class MemberInterest {
 
     @ManyToOne
     @JoinColumn(name = "menuIdx")
-    private Menu menu;
+    private StudyTopic studyTopic;
 
     @Comment("관심분야 선택 여부")
     private boolean memberIsSelected;
@@ -37,7 +37,7 @@ public class MemberInterest {
     public static MemberInterest insertMemberInterest(MemberInterestCreateDto memberInterestCreateDto){
         return MemberInterest.builder()
                 .member(memberInterestCreateDto.getMember())
-                .menu(memberInterestCreateDto.getMenu())
+                .studyTopic(memberInterestCreateDto.getStudyTopic())
                 .memberIsSelected(true)
                 .build();
     }
