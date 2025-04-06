@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM debian:bullseye-slim
 
 # 필요한 패키지 업데이트 및 설치
 RUN apt update && apt install -y openjdk-17-jdk lsof net-tools
