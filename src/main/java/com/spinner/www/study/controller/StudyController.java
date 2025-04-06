@@ -7,9 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,7 +19,9 @@ public class StudyController {
 
     private final StudyService studyService;
 
-    public ResponseEntity<CommonResponse> createStudy(@RequestBody CreateStudy createStudy){
+//    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/create")
+    public ResponseEntity<CommonResponse> createStudy(@ModelAttribute CreateStudy createStudy) throws IOException {
         return studyService.createStudy(createStudy);
     }
 }

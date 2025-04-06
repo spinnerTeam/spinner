@@ -4,6 +4,8 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.io.CreateStudy;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+
 public interface StudyService {
 
     /**
@@ -11,5 +13,5 @@ public interface StudyService {
      * @param createStudy CreateStudy
      * @return ResponseEntity<CommonResponse>
      */
-    ResponseEntity<CommonResponse> createStudy(CreateStudy createStudy);
+    ResponseEntity<CommonResponse> createStudy(CreateStudy createStudy) throws IOException;
 }
