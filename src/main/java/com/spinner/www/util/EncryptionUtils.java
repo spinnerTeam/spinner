@@ -36,7 +36,7 @@ public final class EncryptionUtils {
      * @param password String
      */
     public static void checkPasswordFormat(String password) {
-        String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,20}$";
+        String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]{8,20}$";
         if (!password.matches(PASSWORD_PATTERN)) {
             throw new IllegalArgumentException("비밀번호 형식이 올바르지 않습니다.");
         }
