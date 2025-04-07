@@ -54,9 +54,8 @@ public class StudyServiceImpl implements StudyService {
         if(sessionInfo.getMemberIdx() == null){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         }
-
         String studyName = createStudy.getStudyName().replaceAll("\\s+", "");
-        
+
         // 스터디 유효성 검사
         invalidateStudy(createStudy.getStudyName(), createStudy.getStudyMaxPeople(), createStudy.getStudyInfo(), "create");
 
@@ -67,7 +66,8 @@ public class StudyServiceImpl implements StudyService {
             List<Long> idxs = (List<Long>) response.getBody().getResults();
             files = fileService.getFiles(idxs.get(0));
         } else {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_FILE), HttpStatus.BAD_REQUEST);
+            // 기본이미지
+            files = fileService.getFiles(114L);
         }
 
         // 스터디 디비 저장
