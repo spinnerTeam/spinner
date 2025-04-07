@@ -84,4 +84,21 @@ public class StudyController {
     public ResponseEntity<CommonResponse> updateStudyFile(@PathVariable("studyIdx") Long studyIdx, @RequestParam MultipartFile file) throws IOException {
         return studyService.updateStrudyFile(studyIdx, file);
     }
+
+    /**
+     * 스터디 소프트 삭제
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "스터디 소프트 삭제 API",
+            description = "스터디 소프트삭제 입니다."
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK")
+    })
+    @DeleteMapping("/deleteStudy/{studyIdx}")
+    public ResponseEntity<CommonResponse> deleteStudy(@PathVariable("studyIdx") Long studyIdx){
+        return studyService.deleteStudy(studyIdx);
+    }
 }
