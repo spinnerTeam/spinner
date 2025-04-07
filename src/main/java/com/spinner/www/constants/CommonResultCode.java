@@ -118,7 +118,9 @@ public enum CommonResultCode {
 
     BAD_REQUEST(40003, "올바르지 못한 요청입니다."),
 
-    INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다.");
+    INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다."),
+
+    NOT_FOUND_FILE(40004, "스터디 사진을 첨부해주세요");
 
 
     /**
