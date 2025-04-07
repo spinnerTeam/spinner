@@ -30,9 +30,6 @@ public class SessionInfo implements Serializable {
         this.memberIdx = sessionDto.getMemberIdx();
         this.memberNickName = sessionDto.getMemberNickname();
         this.memberEmail = sessionDto.getMemberEmail();
-
-        System.out.println("member :" + memberEmail);
-
     }
 
     /**

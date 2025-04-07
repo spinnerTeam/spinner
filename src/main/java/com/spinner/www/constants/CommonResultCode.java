@@ -24,6 +24,8 @@ public enum CommonResultCode {
      */
     DUPLICATE(40900, "데이터 중복"),
 
+    DUPLICATE_STUDY_NAME(409001, "스터디명 중복입니다."),
+
     /**
      * 신고 중복
      */

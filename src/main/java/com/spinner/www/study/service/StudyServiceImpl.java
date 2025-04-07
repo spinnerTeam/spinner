@@ -57,7 +57,10 @@ public class StudyServiceImpl implements StudyService {
         String studyName = createStudy.getStudyName().replaceAll("\\s+", "");
 
         // 스터디 유효성 검사
-        invalidateStudy(createStudy.getStudyName(), createStudy.getStudyMaxPeople(), createStudy.getStudyInfo(), "create");
+        ResponseEntity<CommonResponse> result = invalidateStudy(createStudy.getStudyName(), createStudy.getStudyMaxPeople(), createStudy.getStudyInfo(), "create");
+        if(!result.getStatusCode().is2xxSuccessful()){
+            return result;
+        }
 
         // 스터디 파일 저장
         Files files = null;
@@ -116,9 +119,12 @@ public class StudyServiceImpl implements StudyService {
         if(study.isEmpty()){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY), HttpStatus.UNAUTHORIZED);
         }
-        
+
         // 스터디 유효성 검사
-        invalidateStudy(updateStudy.getStudyName(), updateStudy.getStudyMaxPeople(), updateStudy.getStudyInfo() , "update");
+        ResponseEntity<CommonResponse> response = invalidateStudy(updateStudy.getStudyName(), updateStudy.getStudyMaxPeople(), updateStudy.getStudyInfo(), "update");
+        if(!response.getStatusCode().is2xxSuccessful()){
+            return response;
+        }
 
         StudyUpdateDto studyUpdateDto = new StudyUpdateDto(
                 updateStudy.getStudyName(),
@@ -180,7 +186,7 @@ public class StudyServiceImpl implements StudyService {
 
         // 중복검사
         if(duplicateStudyName(studyName)){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE_STUDY_NAME), HttpStatus.UNAUTHORIZED);
         }
 
         // 스터디 소개 10자 이상 ~ 100자 이내
