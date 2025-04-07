@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -205,5 +206,39 @@ public class StudyServiceImpl implements StudyService {
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 수정이 완료되었습니다."), HttpStatus.OK);
+    }
+
+
+
+    /**
+     * 스터디 이미지 수정
+     * @param studyIdx Long
+     * @param file MultipartFile
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> updateStrudyFile(Long studyIdx, MultipartFile file) throws IOException {
+
+        Optional<Study> study = studyRepo.findById(studyIdx);
+        if(study.isEmpty()){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY), HttpStatus.NOT_FOUND);
+        }
+
+        // 기존 이미지 삭제
+        fileService.deleteFile(study.get().getFiles().getFileIdx());
+
+        // 스터디 파일 저장
+        Files files = null;
+        if(file != null && !file.isEmpty()){
+            ResponseEntity<CommonResponse> response = fileService.uploadFiles(file);
+            List<Long> idxs = (List<Long>) response.getBody().getResults();
+            files = fileService.getFiles(idxs.get(0));
+        } else {
+            // 기본이미지
+            files = fileService.getFiles(114L);
+        }
+        study.get().updateStudyFile(files);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터시 이미지 수정이 완료되었습니다."), HttpStatus.OK);
     }
 }

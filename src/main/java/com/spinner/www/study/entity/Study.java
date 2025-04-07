@@ -8,6 +8,9 @@ import com.spinner.www.study.dto.StudyUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 
 @Entity
 @Table(name = "study")
@@ -15,6 +18,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Comment("스터디 관리")
 public class Study extends BaseEntity {
 
@@ -70,5 +74,13 @@ public class Study extends BaseEntity {
         this.studyInfo = studyUpdateDto.getStudyInfo();
         this.studyTopic = studyUpdateDto.getStudyTopic();
         this.studyMaxPeople = studyUpdateDto.getStudyMaxPeople();
+    }
+
+    /**
+     * 스터디 이미지 수정
+     * @param file Files
+     */
+    public void updateStudyFile(Files file){
+        this.files = file;
     }
 }

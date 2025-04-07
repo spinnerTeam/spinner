@@ -122,7 +122,7 @@ public enum CommonResultCode {
 
     INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다."),
 
-    NOT_FOUND_FILE(40004, "스터디 사진을 첨부해주세요"),
+    NOT_FOUND_FILE(40004, "스터디 이미지를 첨부해주세요"),
 
     NOT_FOUND_STUDY(4005, "존재하지 않는 스터디입니다.");
 

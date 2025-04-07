@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -62,5 +63,25 @@ public class StudyController {
     @PutMapping("/update")
     public ResponseEntity<CommonResponse> updateStudy(@RequestBody UpdateStudyIo updateStudy){
         return studyService.updateStudy(updateStudy);
+    }
+
+    /**
+     * 스터디 이미지 수정
+     * @param studyIdx Long
+     * @param file MultipartFile
+     * @return ResponseEntity<CommonResponse>
+     * @throws IOException IOException
+     */
+    @Operation(
+            summary = "스터디 이미지 수정 API",
+            description = "스터디 이미지수정 입니다."
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK"),
+            @Parameter(name = "file", description = "스터디 이미지")
+    })
+    @PutMapping("/updateFile/{studyIdx}")
+    public ResponseEntity<CommonResponse> updateStudyFile(@PathVariable("studyIdx") Long studyIdx, @RequestParam MultipartFile file) throws IOException {
+        return studyService.updateStrudyFile(studyIdx, file);
     }
 }
