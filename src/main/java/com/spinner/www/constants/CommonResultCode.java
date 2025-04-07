@@ -24,6 +24,8 @@ public enum CommonResultCode {
      */
     DUPLICATE(40900, "데이터 중복"),
 
+    DUPLICATE_STUDY_NAME(409001, "스터디명 중복입니다."),
+
     /**
      * 신고 중복
      */
@@ -118,7 +120,11 @@ public enum CommonResultCode {
 
     BAD_REQUEST(40003, "올바르지 못한 요청입니다."),
 
-    INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다.");
+    INVALID_STUDY_INTRO_LENGTH(1006, "스터디 소개는 최소 10자 이상 100자 이내입니다."),
+
+    NOT_FOUND_FILE(40004, "스터디 이미지를 첨부해주세요"),
+
+    NOT_FOUND_STUDY(4005, "존재하지 않는 스터디입니다.");
 
 
     /**
