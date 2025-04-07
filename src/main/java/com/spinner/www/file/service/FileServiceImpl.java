@@ -83,30 +83,15 @@ public class FileServiceImpl implements FileService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) {
-        // 파일 저장 ID 확인 리스트 세팅
+    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
         Map<String, String> fileMap = new HashMap<>();
 
         for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    //(1) 파일 서버 저장
-                    //(1-1) 폴더가 없으면 폴더 생성
-                    String fileUploadPath = fileUploadFolderUpdate(file, FILE_PATH);
-                    Long fileTypeCodeIdx = getContentTypeCodeIdx(file);
-                    //(1-2) 파일 저장
-                    FileDto fileDto = convertFileDto(file, fileUploadPath, fileTypeCodeIdx);
-                    String fileUploadPathName = fileUploadPath + "/" + fileDto.getFileConvertName();
-                    file.transferTo(new File(fileUploadPathName));
-//                    Files fileEntity = fileMapper.fileDtoToFile(fileDto);
-//                    Long fileIdx = saveFile(fileEntity);
-//                    fileMap.put(fileDto.getFileOriginName(), serverInfo.getServerUrlWithPort() + "/common/file/"+fileIdx);
-                } catch (IOException e) {
-                    return null;
-                }
-            }
+            String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
+            Files filesEntity = s3Service.uploadFile(file, key);
+            Long fileIdx = saveFile(filesEntity);
+            fileMap.put(filesEntity.getFileOriginName(), serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
         }
-
         return fileMap;
     }
 
