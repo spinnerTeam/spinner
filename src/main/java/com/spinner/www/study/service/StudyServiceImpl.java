@@ -39,8 +39,8 @@ public class StudyServiceImpl implements StudyService {
     private final StudyRepo studyRepo;
     private final FileService fileService;
     private final MemberService memberService;
-    private final StudyMemberRepo studyMemberRepo;
     private final StudyTopicService studyTopicService;
+    private final StudyMemberService studyMemberService;
 
     /**
      * 스터디 생성
@@ -96,9 +96,10 @@ public class StudyServiceImpl implements StudyService {
                 study,
                 memberService.getMember(sessionInfo.getMemberIdx())
         );
+        
+        // 스터디 멤버 저장
         StudyMember studyMember = StudyMember.insertStudyMember(studyMemgberCreateDto);
-        studyMemberRepo.save(studyMember);
-
+        studyMemberService.saveStudyMember(studyMember);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.CREATED);
     }
 
@@ -240,5 +241,35 @@ public class StudyServiceImpl implements StudyService {
         }
         study.get().updateStudyFile(files);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터시 이미지 수정이 완료되었습니다."), HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 소프트 삭제
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> deleteStudy(Long studyIdx) {
+
+        // 스터디 존재하는지
+        Optional<Study> study = studyRepo.findById(studyIdx);
+        if(study.isEmpty()){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY), HttpStatus.NOT_FOUND);
+        }
+
+        StudyMember studyMember = studyMemberService.getStudyMember(memberService.getMember(sessionInfo.getMemberIdx()) , studyIdx);
+        // 스터디 멤버 맞는지
+        if(studyMember == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        }
+
+        // 스터디 장 맞는지
+        if(studyMember.getStudyMemberRole().equals(StudyMemberRole.LEADER)){
+            // 상태값 삭제로 변경
+            study.get().softDeleteStudy();
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 삭제가 완료되었습니다."), HttpStatus.OK);
     }
 }

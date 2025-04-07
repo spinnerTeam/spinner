@@ -83,4 +83,11 @@ public class Study extends BaseEntity {
     public void updateStudyFile(Files file){
         this.files = file;
     }
+
+    /**
+     * 스터디 소프트 삭제
+     */
+    public void softDeleteStudy(){
+        this.studyIsRemoved = true;
+    }
 }

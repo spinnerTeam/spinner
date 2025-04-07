@@ -34,4 +34,10 @@ public interface StudyService {
      */
     ResponseEntity<CommonResponse> updateStrudyFile(Long studyIdx, MultipartFile file) throws IOException;
 
+    /**
+     * 스터디 삭제
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> deleteStudy(Long studyIdx);
 }
