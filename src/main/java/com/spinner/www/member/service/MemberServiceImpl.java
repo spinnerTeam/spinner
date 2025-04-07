@@ -2,6 +2,7 @@ package com.spinner.www.member.service;
 
 import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.redis.RedisService;
 import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;

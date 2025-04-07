@@ -2,11 +2,11 @@ package com.spinner.www.member.service;
 
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.common.redis.RedisService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.EmailLog;
 import com.spinner.www.member.entity.EmailTemplate;
-import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.EmailAuthRequest;
 import com.spinner.www.util.EmailTemplateCacheStorage;
 import com.spinner.www.util.ResponseVOUtils;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.DuplicateFormatFlagsException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +62,7 @@ public class EmailServiceImpl implements EmailService{
 
             // 이메일 메시지 생성
             MimeMessage message = javaMailSender.createMimeMessage();
-            message.setFrom(new InternetAddress("spinner.mgr@gmail.com", "스피너팀"));
+            message.setFrom(new InternetAddress("spinner.mgr@gmail.com", "스피너팀",  "UTF-8"));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
             message.setSubject(emailTemplate.getEmailTemplateTitle());
             message.setText(body, "UTF-8");
