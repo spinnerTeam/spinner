@@ -4,6 +4,7 @@ import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.study.dto.StudyCreateDto;
+import com.spinner.www.study.dto.StudyUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -44,6 +45,11 @@ public class Study extends BaseEntity {
     @Comment("스터디 최대 인원")
     private Integer studyMaxPeople;
 
+    /**
+     * 스터디 생성
+     * @param studyCreateDto StudyCreateDto
+     * @return Study
+     */
     public static Study insertStudy(StudyCreateDto studyCreateDto){
         return Study.builder()
                 .studyName(studyCreateDto.getStudyName())
@@ -53,5 +59,16 @@ public class Study extends BaseEntity {
                 .studyTopic(studyCreateDto.getStudyTopic())
                 .files(studyCreateDto.getFiles())
                 .build();
+    }
+
+    /**
+     * 스터디 수정
+     * @param studyUpdateDto studyUpdateDto
+     */
+    public void updateStudy(StudyUpdateDto studyUpdateDto){
+        this.studyName = studyUpdateDto.getStudyName();
+        this.studyInfo = studyUpdateDto.getStudyInfo();
+        this.studyTopic = studyUpdateDto.getStudyTopic();
+        this.studyMaxPeople = studyUpdateDto.getStudyMaxPeople();
     }
 }

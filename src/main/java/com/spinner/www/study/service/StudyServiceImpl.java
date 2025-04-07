@@ -1,6 +1,5 @@
 package com.spinner.www.study.service;
 
-import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
@@ -13,10 +12,11 @@ import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.StudyCreateDto;
 import com.spinner.www.study.dto.StudyMemgberCreateDto;
+import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.CreateStudy;
-import com.spinner.www.study.mapper.StudyMapper;
+import com.spinner.www.study.io.UpdateStudyIo;
 import com.spinner.www.study.repository.StudyRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -36,7 +37,6 @@ public class StudyServiceImpl implements StudyService {
     private final SessionInfo sessionInfo;
     private final StudyRepo studyRepo;
     private final FileService fileService;
-    private final StudyMapper studyMapper;
     private final MemberService memberService;
     private final StudyMemberRepo studyMemberRepo;
     private final StudyTopicService studyTopicService;
@@ -56,26 +56,9 @@ public class StudyServiceImpl implements StudyService {
         }
 
         String studyName = createStudy.getStudyName().replaceAll("\\s+", "");
-
-        // 스터디 이름 (최소 3글자 ~ 10자 이내 생성)
-        if(!invalidateStudyName(studyName)){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_NAME_FORMAT), HttpStatus.UNAUTHORIZED);
-        }
-
-        // 중복검사
-        if(duplicateStudyName(studyName)){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE), HttpStatus.UNAUTHORIZED);
-        }
-
-        // 인원수 : 최소 2~15명
-        if(createStudy.getStudyMaxPeople()> 15 || createStudy.getStudyMaxPeople() < 2){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_MEMBER_COUNT), HttpStatus.UNAUTHORIZED);
-        }
-
-        // 스터디 소개 10자 이상 ~ 100자 이내
-        if(!invalidateStudyInfo(createStudy.getStudyInfo().trim())){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_INTRO_LENGTH), HttpStatus.BAD_REQUEST);
-        }
+        
+        // 스터디 유효성 검사
+        invalidateStudy(createStudy.getStudyName(), createStudy.getStudyMaxPeople(), createStudy.getStudyInfo(), "create");
 
         // 스터디 파일 저장
         Files files = null;
@@ -116,6 +99,39 @@ public class StudyServiceImpl implements StudyService {
     }
 
     /**
+     * 스터디 수정
+     * @param updateStudy UpdateStudyIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> updateStudy(UpdateStudyIo updateStudy) {
+        // 로그인 체크 > 추 후 삭제 예정
+        if(sessionInfo.getMemberIdx() == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 스터디 존재 여부
+        Optional<Study> study = studyRepo.findById(updateStudy.getStudyIdx());
+        if(study.isEmpty()){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY), HttpStatus.UNAUTHORIZED);
+        }
+        
+        // 스터디 유효성 검사
+        invalidateStudy(updateStudy.getStudyName(), updateStudy.getStudyMaxPeople(), updateStudy.getStudyInfo() , "update");
+
+        StudyUpdateDto studyUpdateDto = new StudyUpdateDto(
+                updateStudy.getStudyName(),
+                updateStudy.getStudyInfo(),
+                updateStudy.getStudyMaxPeople(),
+                studyTopicService.getStudyTopicByStudyTopicIdx(updateStudy.getStudyTopicIdx()).get()
+        );
+        // 수정내역 저장
+        study.get().updateStudy(studyUpdateDto);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 수정이 완료되었습니다."), HttpStatus.OK);
+    }
+
+    /**
      * 스터디 이름 유효성 검사
      * @param name String
      * @return Boolean
@@ -146,5 +162,42 @@ public class StudyServiceImpl implements StudyService {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 스터디 유호성 검사
+     * @param studyName String
+     * @param studyMaxPeople Integer
+     * @param studyInfo String
+     * @param type String
+     * @return ResponseEntity<CommonResponse>
+     */
+    private ResponseEntity<CommonResponse> invalidateStudy(String studyName, Integer studyMaxPeople, String studyInfo, String type){
+        // 스터디 이름 (최소 3글자 ~ 10자 이내 생성)
+        if(!invalidateStudyName(studyName)){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_NAME_FORMAT), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 중복검사
+        if(duplicateStudyName(studyName)){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 스터디 소개 10자 이상 ~ 100자 이내
+        if(!invalidateStudyInfo(studyInfo.trim())){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_INTRO_LENGTH), HttpStatus.BAD_REQUEST);
+        }
+
+        // 인원수 : 최소 2~15명
+        if(studyMaxPeople> 15 || studyMaxPeople < 2){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.INVALID_STUDY_MEMBER_COUNT), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 기존 인원과 숫자가 맞지 않을 때 (스터디 가입 이후 추가 예정)
+        if(type.equals("update")){
+
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 수정이 완료되었습니다."), HttpStatus.OK);
     }
 }
