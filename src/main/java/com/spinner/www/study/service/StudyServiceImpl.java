@@ -6,8 +6,8 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
+import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
-import com.spinner.www.study.StudyMemberRepo;
 import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.StudyCreateDto;
@@ -16,6 +16,7 @@ import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.CreateStudy;
+import com.spinner.www.study.io.JoinStudyMember;
 import com.spinner.www.study.io.UpdateStudyIo;
 import com.spinner.www.study.repository.StudyRepo;
 import com.spinner.www.util.ResponseVOUtils;
@@ -271,5 +272,54 @@ public class StudyServiceImpl implements StudyService {
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("스터디 삭제가 완료되었습니다."), HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 가입 신청
+     * @param studyIdx Long
+     * @param studyMember JoinStudyMember
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> joinStudyMember(Long studyIdx, JoinStudyMember studyMember) {
+
+        // 스터디 존재하는지
+        Optional<Study> study = studyRepo.findById(studyIdx);
+        if(study.isEmpty()){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        // 가입인사 빈칸이면 리턴
+        if(studyMember.getInfo().equals("") || studyMember.getInfo() == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(50001,"가입소개를 적어주세요."), HttpStatus.BAD_REQUEST);
+        }
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+
+        // 가입신청 중복검사
+        if(isStudyMember(studyIdx,member)){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(50003,"이미 가입된 스터디입니다."), HttpStatus.BAD_REQUEST);
+        }
+
+        // 가입신청
+        StudyMemgberCreateDto studyMemgberCreateDto = new StudyMemgberCreateDto(
+                StudyMemberRole.MEMBER,
+                StudyMemberStatus.WAITING,
+                false,
+                studyMember.getInfo(),
+                study.get(),
+                member
+        );
+        studyMemberService.saveStudyMember(StudyMember.insertStudyMember(studyMemgberCreateDto));
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입신청이 완료되었습니다."), HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 가입 여부
+     * @param studyIdx Long
+     * @param member Member
+     * @return boolean
+     */
+    private boolean isStudyMember(Long studyIdx ,Member member){
+        return studyMemberService.existsByStudyMemberIdxAndMember(studyIdx, member);
     }
 }

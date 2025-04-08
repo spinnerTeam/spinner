@@ -6,10 +6,7 @@ import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.StudyMemgberCreateDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -18,6 +15,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Comment("스터디 멤버 테이블")
 public class StudyMember extends BaseEntity {
 
@@ -41,12 +39,12 @@ public class StudyMember extends BaseEntity {
     private String StudyMemberJoinInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "studyIdx", nullable = false)
+    @JoinColumn(name = "studyMemberStudyIdx", nullable = false)
     @Comment("스터디")
     private Study study;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "memberIdx", nullable = false)
+    @JoinColumn(name = "studyMemberMemberIdx", nullable = false)
     @Comment("스터디 멤버")
     private Member member;
 
@@ -59,5 +57,10 @@ public class StudyMember extends BaseEntity {
                 .study(studyMemgberCreateDto.getStudy())
                 .member(studyMemgberCreateDto.getMember())
                 .build();
+    }
+
+    // 스터디원 상태 변경
+    public void updateJoinStudyMember(StudyMemberStatus studyMemberStatus){
+        this.studyMemberStatus = studyMemberStatus;
     }
 }

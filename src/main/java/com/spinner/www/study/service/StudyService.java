@@ -3,6 +3,7 @@ package com.spinner.www.study.service;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.io.CreateStudy;
+import com.spinner.www.study.io.JoinStudyMember;
 import com.spinner.www.study.io.UpdateStudyIo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,4 +41,13 @@ public interface StudyService {
      * @return ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> deleteStudy(Long studyIdx);
+
+    /**
+     * 스터디 가입 신청
+     * @param studyIdx Long
+     * @param studyMember JoinStudyMember
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> joinStudyMember(Long studyIdx, JoinStudyMember studyMember);
+
 }

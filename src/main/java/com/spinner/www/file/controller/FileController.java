@@ -33,11 +33,6 @@ public class FileController {
     private final S3Service s3Service;
     private final CommonCodeService commonCodeService;
 
-    @GetMapping("/{fileIdx}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("fileIdx") Long id) throws IOException {
-        return fileService.downloadFile(id);
-    }
-
     /**
      * 이미지 업로드 (테스트용도)
      * @param file MultipartFile
@@ -51,6 +46,7 @@ public class FileController {
     @Parameters({
             @Parameter(name = "file", description = "파일"),
     })
+    //    @PreAuthorize("isAuthenticated()")
     @PostMapping("/upload")
     public ResponseEntity<CommonResponse> uploadFile(@RequestPart(name = "file") MultipartFile file) throws IOException {
         return fileService.uploadFiles(file);
@@ -68,6 +64,7 @@ public class FileController {
     @Parameters({
             @Parameter(name = "fileIdx", description = "파일번호"),
     })
+    //    @PreAuthorize("isAuthenticated()")
     @GetMapping("/downFile/{fileIdx}")
     public ResponseEntity<byte[]> downFile(@PathVariable("fileIdx") Long idx){
         Files files = fileService.getFiles(idx);
@@ -90,6 +87,7 @@ public class FileController {
     @Parameters({
             @Parameter(name = "fileIdx", description = "파일번호"),
     })
+    //    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/deleteFile/{fileIdx}")
     public ResponseEntity<CommonResponse> deleteFile(@PathVariable("fileIdx") Long idx){
         return fileService.deleteFile(idx);

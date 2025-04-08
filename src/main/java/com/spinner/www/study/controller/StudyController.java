@@ -60,6 +60,7 @@ public class StudyController {
             @Parameter(name = "studyMaxPeople", description = "최대인원"),
             @Parameter(name = "studyTopicIdx", description = "스터디주제"),
     })
+//    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update")
     public ResponseEntity<CommonResponse> updateStudy(@RequestBody UpdateStudyIo updateStudy){
         return studyService.updateStudy(updateStudy);
@@ -80,6 +81,7 @@ public class StudyController {
             @Parameter(name = "studyIdx", description = "스터디 PK"),
             @Parameter(name = "file", description = "스터디 이미지")
     })
+//    @PreAuthorize("isAuthenticated()")
     @PutMapping("/updateFile/{studyIdx}")
     public ResponseEntity<CommonResponse> updateStudyFile(@PathVariable("studyIdx") Long studyIdx, @RequestParam MultipartFile file) throws IOException {
         return studyService.updateStrudyFile(studyIdx, file);
@@ -97,6 +99,7 @@ public class StudyController {
     @Parameters({
             @Parameter(name = "studyIdx", description = "스터디 PK")
     })
+    //    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/deleteStudy/{studyIdx}")
     public ResponseEntity<CommonResponse> deleteStudy(@PathVariable("studyIdx") Long studyIdx){
         return studyService.deleteStudy(studyIdx);

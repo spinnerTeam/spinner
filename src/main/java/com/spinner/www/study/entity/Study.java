@@ -31,7 +31,7 @@ public class Study extends BaseEntity {
     private String studyName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fileIdx", nullable = false)
+    @JoinColumn(name = "studyFileIdx", nullable = false)
     @Comment("스터디 대표 이미지")
     private Files files;
 
@@ -42,7 +42,7 @@ public class Study extends BaseEntity {
     private boolean studyIsRemoved;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "studyTopicIdx", nullable = false)
+    @JoinColumn(name = "studyStudyTopicIdx", nullable = false)
     @Comment("스터디 주제")
     private StudyTopic studyTopic;
 
