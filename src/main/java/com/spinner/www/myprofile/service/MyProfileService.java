@@ -3,6 +3,9 @@ package com.spinner.www.myprofile.service;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.io.MemberProfileUpdateRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface MyProfileService {
 
@@ -49,7 +52,8 @@ public interface MyProfileService {
     /**
      * 멤버 프로필 업데이트
      * @param memberProfileUpdateRequest MemberProfileUpdateRequest
+     * @param file MultipartFile
      * @return ResponseEntity<CommonResponse>
      */
-    ResponseEntity<CommonResponse> updateMemberProfile(MemberProfileUpdateRequest memberProfileUpdateRequest);
+    ResponseEntity<CommonResponse> updateMemberProfile(MemberProfileUpdateRequest memberProfileUpdateRequest, MultipartFile file) throws IOException;
 }

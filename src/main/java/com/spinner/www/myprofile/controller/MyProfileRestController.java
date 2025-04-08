@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,7 +52,8 @@ public class MyProfileRestController {
      * @return ResponseEntity<CommonResponse>
      */
     @Operation(description = "나의 프로필을 수정합니다. <br/>" +
-            "profileRequest(json) : {" +
+            "file(MultipartFile), <br/>" +
+            "profileRequest(json) : {<br/>" +
             "&nbsp;&nbsp;nickName       : String <br/>" +
             "&nbsp;&nbsp;birth          : String YYYY-MM-DD<br/>" +
             "&nbsp;&nbsp;profileImageUrl: <b>미구현 파일 업로드 처리할 예정</b>" +
@@ -66,10 +70,8 @@ public class MyProfileRestController {
             })
     @PatchMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommonResponse> updateMemberProfile(@RequestPart(value="profileRequest") MemberProfileUpdateRequest profileRequest
-//            ,
-//                                                              @RequestPart(value = "file", required = false) MultipartFile file
-    ) {
-        return myProfileService.updateMemberProfile(profileRequest);
+                                                             ,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        return myProfileService.updateMemberProfile(profileRequest, file);
     }
 
     /**

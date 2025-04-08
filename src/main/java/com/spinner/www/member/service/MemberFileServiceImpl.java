@@ -1,6 +1,7 @@
 package com.spinner.www.member.service;
 
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.MemberFile;
 import com.spinner.www.member.repository.MemberFileRepo;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class MemberFileServiceImpl implements MemberFileService {
 
     private final MemberFileRepo memberFileRepo;
+    private final FileService fileService;
 
     /**
      * MemberFile 객체 생성
@@ -32,5 +34,17 @@ public class MemberFileServiceImpl implements MemberFileService {
     @Override
     public MemberFile getMemberFile(Member member) {
         return memberFileRepo.findByMember(member);
+    }
+
+    /**
+     * 멤버 파일(프로필)을 삭제
+     * @param memberFile MemberFile
+     */
+    @Override
+    public void delete(MemberFile memberFile) {
+        Long memberFileIdx = memberFile.getMemberFileIdx();
+        Long fileIdx = memberFile.getFiles().getFileIdx();
+        memberFileRepo.deleteById(memberFileIdx);
+        fileService.deleteFile(fileIdx);
     }
 }

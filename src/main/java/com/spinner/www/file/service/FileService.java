@@ -24,6 +24,15 @@ public interface FileService {
     ResponseEntity<CommonResponse> uploadFiles(List<MultipartFile> files) throws IOException;
     ResponseEntity<CommonResponse> uploadFiles(MultipartFile files) throws IOException;
 
+
+    /**
+     * 멀티파트 파일을 업로드하면 파일 객체로 돌려줌 기능이 필요해서 분리함
+     * @param file MultipartFile
+     * @return Files
+     * @throws IOException  IOException
+     */
+    Files uploadAndSaveFile(MultipartFile file) throws IOException;
+
     /**
      * 파일 서버 업로드
      * @param files List<MultipartFile>
@@ -36,7 +45,7 @@ public interface FileService {
      * @param file MultipartFile
      * @return Long
      */
-    Long saveFile(Files file);
+   Files saveFile(Files file);
 
     /**
      * 파일 다운로드
