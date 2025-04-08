@@ -2,7 +2,6 @@ package com.spinner.www.file.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.ServerInfo;
-import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.constants.CommonFileCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
@@ -60,6 +59,19 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
+     * 멀티파트 파일을 업로드하면 파일 객체로 돌려줌 기능이 필요해서 분리함
+     * @param file MultipartFile
+     * @return Files
+     * @throws IOException  IOException
+     */
+    @Override
+    public Files uploadAndSaveFile(MultipartFile file) throws IOException {
+        String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
+        Files filesEntity = s3Service.uploadFile(file, key);
+        return saveFile(filesEntity);
+    }
+
+    /**
      * 파일 s3에 업로드 후 디비 저장
      * @param files List<MultipartFile>
      * @return ResponseEntity
@@ -69,10 +81,8 @@ public class FileServiceImpl implements FileService {
     public ResponseEntity<CommonResponse> uploadFiles(List<MultipartFile> files) throws IOException {
         List<Long> fileUploadResults = new ArrayList<>();
         for (MultipartFile file : files){
-            String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
-            Files filesEntity = s3Service.uploadFile(file, key);
-            saveFile(filesEntity);
-            fileUploadResults.add(saveFile(filesEntity));
+            Files filesEntity = uploadAndSaveFile(file);
+            fileUploadResults.add(filesEntity.getFileIdx());
         }
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(fileUploadResults), HttpStatus.OK);
     }
@@ -85,15 +95,16 @@ public class FileServiceImpl implements FileService {
     @Override
     public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
         Map<String, String> fileMap = new HashMap<>();
-
         for (MultipartFile file : files) {
-            String key = convertFileName(Objects.requireNonNull(file.getOriginalFilename()));
-            Files filesEntity = s3Service.uploadFile(file, key);
-            Long fileIdx = saveFile(filesEntity);
-            fileMap.put(filesEntity.getFileOriginName(), serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
+            Files fileEntity = uploadAndSaveFile(file);
+            String originalName = fileEntity.getFileOriginName();
+            Long fileIdx = fileEntity.getFileIdx();
+            fileMap.put(originalName, serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
         }
         return fileMap;
     }
+
+
 
     /**
      * 파일 DB 저장
@@ -101,8 +112,8 @@ public class FileServiceImpl implements FileService {
      * @return Long
      */
     @Override
-    public Long saveFile(Files fileDBString) {
-        return fileRepo.save(fileDBString).getFileIdx();
+    public Files saveFile(Files fileDBString) {
+        return fileRepo.save(fileDBString);
     }
 
     /**
