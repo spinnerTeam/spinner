@@ -20,5 +20,10 @@ public interface MemberFileService {
      */
     MemberFile getMemberFile(Member member);
 
+    /**
+     * 멤버 파일(프로필)을 삭제
+     * @param memberFile MemberFile
+     */
+    void delete(MemberFile memberFile);
 
 }

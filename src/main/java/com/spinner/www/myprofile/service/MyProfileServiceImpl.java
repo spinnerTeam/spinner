@@ -4,6 +4,8 @@ import com.spinner.www.board.service.BoardService;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.ServerInfo;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.file.entity.Files;
+import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.MemberFile;
@@ -19,7 +21,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +35,7 @@ public class MyProfileServiceImpl implements MyProfileService {
     private final SessionInfo sessionInfo;
     private final MemberService memberService;
     private final MemberFileService memberFileService;
+    private final FileService fileService;
     private final MemberInterestService memberInterestService;
     private final ServerInfo serverInfo;
     /**
@@ -113,23 +118,32 @@ public class MyProfileServiceImpl implements MyProfileService {
     /**
      * 멤버 프로필 업데이트
      * @param request MemberProfileUpdateRequest
+     * @param uploadFile MultipartFile
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public ResponseEntity<CommonResponse> updateMemberProfile(MemberProfileUpdateRequest request) {
+    public ResponseEntity<CommonResponse> updateMemberProfile(MemberProfileUpdateRequest request, MultipartFile uploadFile) throws IOException {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         String nickName = request.getNickName();
         String birth = request.getBirth();
         List<MemberInterestRequest> interestRequests = request.getInterests();
         memberService.updateNicknameAndBirth(memberIdx, nickName, birth);
         memberInterestService.upsertMemberInterests(member, interestRequests);
+        System.out.println(uploadFile);
+        if (Objects.isNull(uploadFile)) {
+            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+        }
+
+        MemberFile memberFile = memberFileService.getMemberFile(member);
+        if (!Objects.isNull(memberFile)) {
+            memberFileService.delete(memberFile);
+        }
+
+        Files file = fileService.uploadAndSaveFile(uploadFile);
+
+        memberFileService.create(member, file);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
