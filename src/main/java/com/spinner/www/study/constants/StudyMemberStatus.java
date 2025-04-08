@@ -4,7 +4,9 @@ public enum StudyMemberStatus {
 
     WAITING("승인대기"),
     APPROVED("승인"),
-    BLOCKED("차단");
+    BLOCKED("차단"),
+    FINISHED("종료")
+    ;
 
     private final String description;
     StudyMemberStatus(String description) {
