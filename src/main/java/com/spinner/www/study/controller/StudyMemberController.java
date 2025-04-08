@@ -2,7 +2,7 @@ package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.io.JoinStudyMember;
-import com.spinner.www.study.service.StudyService;
+import com.spinner.www.study.service.StudyFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/studyMember")
 public class StudyMemberController {
 
-    private final StudyService studyService;
+    private final StudyFacadeService studyFacadeService;
 
     /**
      * 스터디 가입 신청 > 로그인 체크
@@ -35,6 +35,6 @@ public class StudyMemberController {
     //    @PreAuthorize("isAuthenticated()")
     @PostMapping("/join/{studyIdx}")
     public ResponseEntity<CommonResponse> joinStudyMember(@PathVariable("studyIdx") Long studyIdx, @RequestBody JoinStudyMember studyMember){
-        return studyService.joinStudyMember(studyIdx, studyMember);
+        return studyFacadeService.joinStudyMember(studyIdx, studyMember);
     }
 }

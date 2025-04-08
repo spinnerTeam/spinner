@@ -2,11 +2,14 @@ package com.spinner.www.study.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.JoinStudyMember;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudyMemberService {
 
@@ -25,6 +28,14 @@ public interface StudyMemberService {
     StudyMember getStudyMember(Member member,Long studyIdx);
 
     /**
+     *  studyMember 객체 조회
+     * @param member Member
+     * @param study Study
+     * @return StudyMember
+     */
+    StudyMember getStudyMember(Member member, Study study);
+
+    /**
      * 스터디 가입여부
      * @param studyMemberIdx Long
      * @param member Member
@@ -32,36 +43,28 @@ public interface StudyMemberService {
      */
     boolean existsByStudyMemberIdxAndMember(Long studyMemberIdx, Member member);
 
-    /**
-     * 나의 스터디 (참여스터디, 가입대기스터디, 종료 스터디)
-     * @param memberIdx Long
-     * @param studyMemberStatus String
-     * @return  ResponseEntity<CommonResponse>
-     */
-    ResponseEntity<CommonResponse> findByStudyMemberStatusAndMember(String studyMemberStatus, Long memberIdx);
+
 
     /**
-     * 스터디 멤버관리(신청인원, 참여인원)
+     * 스터디 가입 여부
      * @param studyIdx Long
-     * @param studyStatus String
-     * @return ResponseEntity<CommonResponse>
+     * @param member Member
+     * @return boolean
      */
-    ResponseEntity<CommonResponse> findByStudyAndStudyStatus(Long studyIdx, String studyStatus);
+    boolean isStudyMember(Long studyIdx , Member member);
 
     /**
-     * 스터디 가입 승인 & 스터디 가입 거절 취소?
-     * @param studyIdx
-     * @param memberIdx
-     * @return
+     * 스터디 멤버 상태별 조회
+     * @param member Member
+     * @param study Study
+     * @param studyMemberStatus StudyMemberStatus
+     * @return Optional<StudyMember>
      */
-    ResponseEntity<CommonResponse> updateStudyMember(Long studyIdx, Long memberIdx);
+    Optional<StudyMember> findByMemberAndStudyAndStudyMemberStatus(Member member, Study study, StudyMemberStatus studyMemberStatus);
 
     /**
-     * 스터디 가입취소
-     * @param studyIdx Long
-     * @return ResponseEntity<CommonResponse>
+     * 스터디 멤버 삭제
+     * @param studyMemberIdx Long
      */
-    ResponseEntity<CommonResponse> cancelStudy(Long studyIdx);
-
-    ResponseEntity<CommonResponse> cancelStudyMember(Long studyIdx, Long memberIdx);
+    void deleteById(Long studyMemberIdx);
 }

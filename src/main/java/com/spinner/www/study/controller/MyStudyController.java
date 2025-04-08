@@ -1,8 +1,7 @@
 package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.study.service.StudyMemberService;
-import com.spinner.www.study.service.StudyService;
+import com.spinner.www.study.service.StudyFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -15,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/myStudy")
 public class MyStudyController {
 
-    private final StudyMemberService studyMemberService;
+    private final StudyFacadeService studyFacadeService;
 
     /**
      * 나의 스터디 (참여스터디, 가입대기스터디, 종료 스터디)
-     * @param memberIdx
-     * @param studyStatus
-     * @return
+     * @param memberIdx Long
+     * @param studyStatus String
+     * @return ResponseEntity<CommonResponse>
      */
     @Operation(
             summary = "나의 스터디 API (MPG_002)"
@@ -36,7 +35,7 @@ public class MyStudyController {
             @PathVariable("memberIdx") Long memberIdx,
             @PathVariable("studyStatus") String studyStatus){
 
-        return studyMemberService.findByStudyMemberStatusAndMember(studyStatus, memberIdx);
+        return studyFacadeService.findByStudyMemberStatusAndMember(studyStatus, memberIdx);
     }
 
     /**
@@ -57,10 +56,10 @@ public class MyStudyController {
             @PathVariable(value = "memberIdx", required = false)  Long memberIdx){
         // 가입거절
         if(memberIdx != null){
-            return studyMemberService.cancelStudyMember(studyIdx, memberIdx);
+            return studyFacadeService.cancelStudyMember(studyIdx, memberIdx);
         }
         // 가입취소
-        return studyMemberService.cancelStudy(studyIdx);
+        return studyFacadeService.cancelStudy(studyIdx);
     }
 
     /**
@@ -79,7 +78,7 @@ public class MyStudyController {
     //    @PreAuthorize("isAuthenticated()")
     @GetMapping("/studies/{studyIdx}/members/{studyStatus}")
     public ResponseEntity<CommonResponse> getPendingStudyMember(@PathVariable("studyIdx") Long studyIdx, @PathVariable("studyStatus") String studyStatus){
-        return studyMemberService.findByStudyAndStudyStatus(studyIdx, studyStatus);
+        return studyFacadeService.findByStudyAndStudyStatus(studyIdx, studyStatus);
     }
 
     /**
@@ -97,6 +96,6 @@ public class MyStudyController {
     })
     @PostMapping("/joined/{studyIdx}/{memberIdx}")
     public ResponseEntity<CommonResponse> joinedStudy(@PathVariable("studyIdx") Long studyIdx, @PathVariable("memberIdx") Long memberIdx){
-        return studyMemberService.updateStudyMember(studyIdx, memberIdx);
+        return studyFacadeService.updateStudyMember(studyIdx, memberIdx);
     }
 }
