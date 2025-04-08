@@ -3,6 +3,7 @@ package com.spinner.www.study.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.study.io.CreateStudy;
 import com.spinner.www.study.io.UpdateStudyIo;
+import com.spinner.www.study.service.StudyFacadeService;
 import com.spinner.www.study.service.StudyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,7 @@ import java.io.IOException;
 @RequestMapping("/study")
 public class StudyController {
 
-    private final StudyService studyService;
+    private final StudyFacadeService studyFacadeService;
 
     /**
      * 스터디 생성
@@ -41,7 +42,7 @@ public class StudyController {
 //    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public ResponseEntity<CommonResponse> createStudy(@ModelAttribute CreateStudy createStudy) throws IOException {
-        return studyService.createStudy(createStudy);
+        return studyFacadeService.createStudy(createStudy);
     }
 
     /**
@@ -63,7 +64,7 @@ public class StudyController {
 //    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update")
     public ResponseEntity<CommonResponse> updateStudy(@RequestBody UpdateStudyIo updateStudy){
-        return studyService.updateStudy(updateStudy);
+        return studyFacadeService.updateStudy(updateStudy);
     }
 
     /**
@@ -84,7 +85,7 @@ public class StudyController {
 //    @PreAuthorize("isAuthenticated()")
     @PutMapping("/updateFile/{studyIdx}")
     public ResponseEntity<CommonResponse> updateStudyFile(@PathVariable("studyIdx") Long studyIdx, @RequestParam MultipartFile file) throws IOException {
-        return studyService.updateStrudyFile(studyIdx, file);
+        return studyFacadeService.updateStrudyFile(studyIdx, file);
     }
 
     /**
@@ -102,6 +103,6 @@ public class StudyController {
     //    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/deleteStudy/{studyIdx}")
     public ResponseEntity<CommonResponse> deleteStudy(@PathVariable("studyIdx") Long studyIdx){
-        return studyService.deleteStudy(studyIdx);
+        return studyFacadeService.deleteStudy(studyIdx);
     }
 }
