@@ -33,7 +33,10 @@ public class BoardRestController {
             "게시글이 생성된 이후, 생성된 idx와 게시글 정보를 반환합니다.<br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
-            "free   : 자유글",
+            "free   : 자유글 <br/>" +
+            "게시글의 img, video 태그 src 속성에 업로드할 이미지와 비디오의 오리지널 파일명을 넣어주셔야 태그에서 사용 가능합니다. <br/>" +
+            "ex) 파일명이 \"Group+7@2x (1).png\"이면 &lt;img src=\"Group+7@2x (1).png\"/&gt;로 처리",
+//            "",
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
