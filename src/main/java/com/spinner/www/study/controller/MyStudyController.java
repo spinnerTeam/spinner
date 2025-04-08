@@ -44,6 +44,13 @@ public class MyStudyController {
      * @param studyIdx Long
      * @return ResponseEntity<CommonResponse>
      */
+    @Operation(
+            summary = "스터디 가입취소 & 스터디 가입 거절 API"
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK"),
+            @Parameter(name = "memberIdx", description = "memberIdx PK (필수값 x)")
+    })
     @DeleteMapping({"/cancel/{studyIdx}", "/cancel/{studyIdx}/{memberIdx}"})
     public ResponseEntity<CommonResponse> cancelStudy(
             @PathVariable("studyIdx") Long studyIdx,
