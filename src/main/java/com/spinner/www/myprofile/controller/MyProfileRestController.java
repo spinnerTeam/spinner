@@ -56,7 +56,6 @@ public class MyProfileRestController {
             "profileRequest(json) : {<br/>" +
             "&nbsp;&nbsp;nickName       : String <br/>" +
             "&nbsp;&nbsp;birth          : String YYYY-MM-DD<br/>" +
-            "&nbsp;&nbsp;profileImageUrl: <b>미구현 파일 업로드 처리할 예정</b>" +
             "&nbsp;&nbsp;interests      : [{<br/>" +
             "&nbsp;&nbsp;&nbsp;&nbsp;idx        : String<br/>" +
             "&nbsp;&nbsp;&nbsp;&nbsp;isSelected : boolean<br/>" +
