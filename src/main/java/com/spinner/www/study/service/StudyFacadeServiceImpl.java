@@ -40,7 +40,6 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
     private final StudyTopicService studyTopicService;
     private final MemberService memberService;
     private final StudyMemberService studyMemberService;
-    private final StudyQueryService studyQueryService;
 
     /**
      * 스터디 생성
@@ -75,7 +74,6 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         }
 
         // 스터디 디비 저장
-
         StudyCreateDto studyCreateDto = new StudyCreateDto(
                 createStudy.getStudyName(),
                 files,
@@ -252,7 +250,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         StudyMemberStatus status = StudyMemberStatus.valueOf(studyMemberStatus);
         // 회원
         Member member = memberService.getMember(memberIdx);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryService.joinedStudy(status, member)), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyService.joinedStudy(status, member)), HttpStatus.OK);
     }
 
     /**
@@ -263,7 +261,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
      */
     @Override
     public ResponseEntity<CommonResponse> findByStudyAndStudyStatus(Long studyIdx, String studyStatus) {
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryService.pendingStudyMember(studyIdx, studyStatus)), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyService.pendingStudyMember(studyIdx, studyStatus)), HttpStatus.OK);
     }
 
     /**

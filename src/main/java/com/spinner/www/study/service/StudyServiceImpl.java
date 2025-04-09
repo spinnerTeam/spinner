@@ -2,13 +2,21 @@ package com.spinner.www.study.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.MyStudyListDto;
+import com.spinner.www.study.dto.PendingStudyMemberDto;
+import com.spinner.www.study.dto.StudyListDto;
 import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.repository.StudyQueryRepo;
 import com.spinner.www.study.repository.StudyRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -17,6 +25,7 @@ import java.util.regex.Pattern;
 public class StudyServiceImpl implements StudyService {
 
     private final StudyRepo studyRepo;
+    private final StudyQueryRepo studyQueryRepo;
 
     /**
      * 스터디 이름 유효성 검사
@@ -108,5 +117,37 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public Optional<Study> getStudy(Long studyIdx) {
         return studyRepo.findById(studyIdx);
+    }
+
+    /**
+     * 나의 스터디 (참여스터디, 가입대기스터디, 종료 스터디)
+     * @param studyMemberStatus StudyMemberStatus
+     * @param member Member
+     * @return List<MyStudyListDto>
+     */
+    @Override
+    public List<MyStudyListDto> joinedStudy(StudyMemberStatus studyMemberStatus, Member member) {
+        return studyQueryRepo.joinedStudy(studyMemberStatus, member);
+    }
+
+    /**
+     * 스터디 멤버관리 (신청인원, 참여인원)
+     * @param studyIdx Long
+     * @param studyStatus String
+     * @return List<PendingStudyMemberDto>
+     */
+    @Override
+    public List<PendingStudyMemberDto> pendingStudyMember(Long studyIdx, String studyStatus) {
+        return studyQueryRepo.pendingStudyMember(studyIdx, studyStatus);
+    }
+
+    /**
+     * 관심분야 별 가입가능 스터디 조회 (랜덤 노출)
+     * @param codeList List<Long>
+     * @return List<StudyListDto>
+     */
+    @Override
+    public List<StudyListDto> findInterestCodeByStudy(List<Long> codeList) {
+        return studyQueryRepo.findInterestCodeByStudy(codeList);
     }
 }
