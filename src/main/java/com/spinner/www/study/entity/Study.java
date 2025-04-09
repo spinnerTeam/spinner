@@ -11,6 +11,7 @@ import org.hibernate.annotations.Comment;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.List;
 
 @Entity
 @Table(name = "study")
@@ -48,6 +49,9 @@ public class Study extends BaseEntity {
 
     @Comment("스터디 최대 인원")
     private Integer studyMaxPeople;
+
+    @OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
+    private List<StudyMember> studyMembers;
 
     /**
      * 스터디 생성
