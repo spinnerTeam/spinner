@@ -86,4 +86,6 @@ public interface StudyService {
      * @return List<StudyListDto>
      */
     List<StudyListDto> findInterestCodeByStudy(List<Long> codeList);
+
+    ResponseEntity<CommonResponse> viewStudy(Long studyIdx);
 }

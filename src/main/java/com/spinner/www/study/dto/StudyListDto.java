@@ -11,18 +11,26 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StudyListDto {
 
+    private Long studyIdx;
     private String filePath;
     private String studyName;
     private String studyInfo;
     private String studyTopicName;
-    private Long countMember;
+    private Integer memberCount;
+    private Integer boardCount;
+
 
     @QueryProjection
-    public StudyListDto(String filePath, String studyName, String studyInfo, String studyTopicName, Long countMember){
+    public StudyListDto(Long studyIdx, String filePath, String studyName, String studyInfo, String studyTopicName){
+        this.studyIdx = studyIdx;
         this.filePath = filePath;
         this.studyName = studyName;
         this.studyInfo = studyInfo;
         this.studyTopicName = studyTopicName;
-        this.countMember = countMember;
+    }
+
+    public void addMemberIdxCountAndBoardIdxCount(Integer memberCount, Integer boardCount){
+        this.memberCount = memberCount;
+        this.boardCount = boardCount;
     }
 }

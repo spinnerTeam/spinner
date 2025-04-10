@@ -1,10 +1,8 @@
 package com.spinner.www.study.controller;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.study.service.StudySearchService;
+import com.spinner.www.study.service.StudyFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/search")
 public class StudySearchController {
 
-    private final StudySearchService studySearchService;
+    private final StudyFacadeService studyFacadeService;
 
     /**
      * 스터디 찾기 (회원 관심사별 랜덤조회)
@@ -28,6 +26,6 @@ public class StudySearchController {
     )
     @GetMapping("/topic")
     public ResponseEntity<CommonResponse> getSearchTopic(){
-        return studySearchService.getSearchTopic();
+        return studyFacadeService.getSearchTopic();
     }
 }

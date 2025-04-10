@@ -87,4 +87,12 @@ public interface StudyFacadeService {
      * @return ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> cancelStudyMember(Long studyIdx, Long memberIdx);
+
+    /**
+     * 스터디 찾기 (회원 관심사별 랜덤조회)
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> getSearchTopic();
+
+
 }

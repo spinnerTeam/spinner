@@ -11,6 +11,7 @@ import com.spinner.www.member.service.MemberService;
 import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.StudyCreateDto;
+import com.spinner.www.study.dto.StudyListDto;
 import com.spinner.www.study.dto.StudyMemgberCreateDto;
 import com.spinner.www.study.dto.StudyUpdateDto;
 import com.spinner.www.study.entity.Study;
@@ -336,5 +337,27 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         StudyMember studyMember = studyMemberService.getStudyMember(member, study.get());
         studyMemberService.deleteById(studyMember.getStudyMemberIdx());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입거절 완료되었습니다."),HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 찾기 (회원 관심사별 랜덤조회)
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSearchTopic() {
+
+        // 관심분야 조회
+        List<Long> longList = studyTopicService.findInterestCodeIdxByMember(sessionInfo.getMemberIdx());
+
+        // 관심분야별 랜덤으로 스터디 노출
+        List<StudyListDto> studyListDtos = studyService.findInterestCodeByStudy(longList);
+        for(StudyListDto dto : studyListDtos){
+            // 스터디원 수
+            Integer memberIdxCount = memberService.getStudyMemberCountByStudyIdx(dto.getStudyIdx());
+            // 게시글 갯수 추가 예정
+            dto.addMemberIdxCountAndBoardIdxCount(memberIdxCount, 0);
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyListDtos), HttpStatus.CREATED);
     }
 }

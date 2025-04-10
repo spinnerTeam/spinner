@@ -21,6 +21,7 @@ import java.io.IOException;
 public class StudyController {
 
     private final StudyFacadeService studyFacadeService;
+    private final StudyService studyService;
 
     /**
      * 스터디 생성
@@ -104,5 +105,10 @@ public class StudyController {
     @DeleteMapping("/deleteStudy/{studyIdx}")
     public ResponseEntity<CommonResponse> deleteStudy(@PathVariable("studyIdx") Long studyIdx){
         return studyFacadeService.deleteStudy(studyIdx);
+    }
+
+    @GetMapping("/view/{studyIdx}")
+    public ResponseEntity<CommonResponse> viewStudy(@PathVariable("studyIdx") Long studyIdx){
+        return studyService.viewStudy(studyIdx);
     }
 }
