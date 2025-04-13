@@ -6,6 +6,7 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.MyStudyListDto;
 import com.spinner.www.study.dto.PendingStudyMemberDto;
+import com.spinner.www.study.dto.StudyDetailDto;
 import com.spinner.www.study.dto.StudyListDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.repository.StudyQueryRepo;
@@ -152,8 +153,8 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public ResponseEntity<CommonResponse> viewStudy(Long studyIdx) {
-//        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryRepo.viewStudyList(studyIdx)), HttpStatus.OK);
-        return null;
+    public StudyDetailDto getStudyDetail(Long studyIdx) {
+        return studyQueryRepo.findStudyDetailByStudyIdx(studyIdx);
+
     }
 }

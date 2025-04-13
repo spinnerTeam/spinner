@@ -27,7 +27,7 @@ public interface StudyMemberRepo extends JpaRepository<StudyMember, Long> {
      * @param member Member
      * @return boolean
      */
-    boolean existsByStudyMemberIdxAndMember(Long studyMemberIdx, Member member);
+    boolean existsByStudyAndMember(Study study, Member member);
 
     /**
      * member와 study로 studyMember 객체 조회

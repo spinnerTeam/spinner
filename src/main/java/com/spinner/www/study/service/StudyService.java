@@ -5,6 +5,7 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
 import com.spinner.www.study.dto.MyStudyListDto;
 import com.spinner.www.study.dto.PendingStudyMemberDto;
+import com.spinner.www.study.dto.StudyDetailDto;
 import com.spinner.www.study.dto.StudyListDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.io.CreateStudy;
@@ -87,5 +88,10 @@ public interface StudyService {
      */
     List<StudyListDto> findInterestCodeByStudy(List<Long> codeList);
 
-    ResponseEntity<CommonResponse> viewStudy(Long studyIdx);
+    /**
+     * 스터디 상세조회
+     * @param studyIdx Long
+     * @return StudyDetailDto
+     */
+    StudyDetailDto getStudyDetail(Long studyIdx);
 }

@@ -107,8 +107,9 @@ public class StudyController {
         return studyFacadeService.deleteStudy(studyIdx);
     }
 
+
     @GetMapping("/view/{studyIdx}")
     public ResponseEntity<CommonResponse> viewStudy(@PathVariable("studyIdx") Long studyIdx){
-        return studyService.viewStudy(studyIdx);
+        return studyFacadeService.getStudyDetail(studyIdx);
     }
 }

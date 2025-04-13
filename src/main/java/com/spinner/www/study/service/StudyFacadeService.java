@@ -94,5 +94,5 @@ public interface StudyFacadeService {
      */
     ResponseEntity<CommonResponse> getSearchTopic();
 
-
+    ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx);
 }
