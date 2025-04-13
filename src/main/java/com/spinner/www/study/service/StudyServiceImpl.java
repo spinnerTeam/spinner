@@ -150,4 +150,10 @@ public class StudyServiceImpl implements StudyService {
     public List<StudyListDto> findInterestCodeByStudy(List<Long> codeList) {
         return studyQueryRepo.findInterestCodeByStudy(codeList);
     }
+
+    @Override
+    public ResponseEntity<CommonResponse> viewStudy(Long studyIdx) {
+//        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryRepo.viewStudyList(studyIdx)), HttpStatus.OK);
+        return null;
+    }
 }

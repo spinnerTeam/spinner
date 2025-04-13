@@ -44,7 +44,7 @@ public class StudyTopicQueryRepo {
 
     /**
      * 멤버 1명의 관심 분야
-     * @param memberIdx
+     * @param memberIdx Long
      * @return List<Long> Long
      */
     public List<Long> findInterestCodeIdxByMember(Long memberIdx){

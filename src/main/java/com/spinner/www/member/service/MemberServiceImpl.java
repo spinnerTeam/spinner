@@ -57,6 +57,7 @@ public class MemberServiceImpl implements MemberService {
     private final MarketingRepo marketingRepo;
     private final StudyTopicService studyTopicService;
     private final MemberInterestService memberInterestService;
+    private final MemberQueryRepo memberQueryRepo;
 
     /**
      * 이메일로 회원조회
@@ -279,5 +280,15 @@ public class MemberServiceImpl implements MemberService {
             birthDate = LocalDate.parse(birth);
         } catch (DateTimeParseException e) {}
         member.updateNicknameAndBirth(nickname, birthDate);
+    }
+
+    /**
+     * 스터디별 스터디원 수 조회
+     * @param studyIdx Long
+     * @return Integer
+     */
+    @Override
+    public Integer getStudyMemberCountByStudyIdx(Long studyIdx) {
+        return memberQueryRepo.getStudyMemberCountByStudyIdx(studyIdx);
     }
 }

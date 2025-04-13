@@ -9,14 +9,8 @@ import com.spinner.www.common.entity.QStudyTopic;
 import com.spinner.www.file.entity.QFiles;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.QMember;
-import com.spinner.www.member.entity.QMemberInterest;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.MyStudyListDto;
-import com.spinner.www.study.dto.PendingStudyMemberDto;
-import com.spinner.www.study.dto.QMyStudyListDto;
-import com.spinner.www.study.dto.QPendingStudyMemberDto;
-import com.spinner.www.study.dto.QStudyListDto;
-import com.spinner.www.study.dto.StudyListDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.QStudy;
 import com.spinner.www.study.entity.QStudyMember;
 import com.spinner.www.study.entity.StudyMember;
@@ -108,11 +102,11 @@ public class StudyQueryRepo {
         }
         return jpaQueryFactory
                 .select(new QStudyListDto(
+                        qStudy.studyIdx,
                         qFiles.filePath,
                         qStudy.studyName,
                         qStudy.studyInfo,
-                        qCommonCode.codeName,
-                        qStudyMember.studyMemberIdx.count()
+                        qCommonCode.codeName
                 ))
                 .from(qStudy)
                 .join(qStudy.studyTopic, qStudyTopic)
@@ -123,5 +117,46 @@ public class StudyQueryRepo {
                 .groupBy(qStudy.studyIdx)
                 .orderBy(orderSpecifier)
                 .fetch();
+    }
+
+    /**
+     * 스터디 상세조회
+     * @param studyIdx Long
+     * @return StudyListDetailDto
+     */
+//    public StudyListDetailDto viewStudyList(Long studyIdx){
+//        QStudy qStudy = QStudy.study;
+//        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
+//        QCommonCode qCommonCode = QCommonCode.commonCode;
+//        QFiles qFiles = QFiles.files;
+//        QStudyMember qStudyMember = QStudyMember.studyMember;
+//
+//        return jpaQueryFactory.select(new QStudyListDetailDto(
+//
+//
+//        ))
+//                .from(qStudy)
+//                .join(qStudy.studyTopic, qStudyTopic)
+//                .join(qStudyTopic.commonCode, qCommonCode)
+//                .join(qStudy.files, qFiles)
+//                .join(qStudy.studyMembers , qStudyMember)
+//                .where(
+//                        qStudy.studyIdx.eq(studyIdx)
+//                )
+//                .groupBy(qStudy.studyIdx)
+//                .fetchOne();
+//    }
+
+    /**
+     * 스터디별 멤버 조회
+     * @param studyIdx Long
+     * @return StudyMember
+     */
+    public StudyMember getStudyByStudyMember(Long studyIdx){
+
+        QStudyMember qStudyMember = QStudyMember.studyMember;
+        QMember qMember = QMember.member;
+
+        return null;
     }
 }

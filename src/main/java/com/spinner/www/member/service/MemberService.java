@@ -78,4 +78,11 @@ public interface MemberService {
      * @param birth String
      */
     void updateNicknameAndBirth(Long memberIdx, String nickname, String birth);
+
+    /**
+     * 스터디별 스터디원 수 조회
+     * @param studyIdx Long
+     * @return Integer
+     */
+    Integer getStudyMemberCountByStudyIdx(Long studyIdx);
 }
