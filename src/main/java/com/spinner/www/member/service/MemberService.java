@@ -2,6 +2,8 @@ package com.spinner.www.member.service;
 
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.constants.MemberStatus;
+import com.spinner.www.member.dto.MemberDto;
 import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberLogin;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface MemberService {
 
@@ -93,4 +96,11 @@ public interface MemberService {
      * @return ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo);
+
+    /**
+     * 멤버  상태별 리스트 조회
+     * @param memberStatus MemberStatus
+     * @return List<MemberDto>
+     */
+    List<MemberDto> findMembersByStatus(MemberStatus memberStatus);
 }

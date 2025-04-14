@@ -7,6 +7,7 @@ import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
+import com.spinner.www.member.constants.MemberStatus;
 import com.spinner.www.member.constants.RoleName;
 import com.spinner.www.member.dto.*;
 import com.spinner.www.member.entity.*;
@@ -319,5 +320,10 @@ public class MemberServiceImpl implements MemberService {
         memberRepo.save(member);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴신청이 완료되었습니다."), HttpStatus.OK);
+    }
+
+    @Override
+    public List<MemberDto> findMembersByStatus(MemberStatus memberStatus) {
+        return memberMapper.memberListToMemberDtoList(memberRepo.findByMemberStatus(memberStatus));
     }
 }
