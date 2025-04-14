@@ -6,6 +6,7 @@ import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
+import com.spinner.www.member.io.WithdrawMemberIo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -85,4 +86,11 @@ public interface MemberService {
      * @return Integer
      */
     Integer getStudyMemberCountByStudyIdx(Long studyIdx);
+
+    /**
+     * 회원 탈퇴 신청
+     * @param withdrawMemberIo WithdrawMemberIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo);
 }
