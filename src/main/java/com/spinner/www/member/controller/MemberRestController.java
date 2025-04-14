@@ -3,10 +3,7 @@ package com.spinner.www.member.controller;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.member.io.EmailAuthRequest;
-import com.spinner.www.member.io.EmailSend;
-import com.spinner.www.member.io.MemberLogin;
-import com.spinner.www.member.io.MemberJoin;
+import com.spinner.www.member.io.*;
 import com.spinner.www.member.service.EmailService;
 import com.spinner.www.member.service.TokenService;
 import com.spinner.www.member.service.MemberService;
@@ -190,5 +187,31 @@ public class MemberRestController {
     @PostMapping("updatePw")
     public ResponseEntity<CommonResponse> updatePw(@RequestParam String password){
         return memberService.updatePw(password);
+    }
+
+    /**
+     * 회원 탈퇴 신청
+     * @param withdrawMemberIo WithdrawMemberIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "회원 탈퇴 API"
+    )
+    @Parameters({
+            @Parameter(
+                    name = "withdrawalReason",
+                    description = """
+            탈퇴 사유 코드:
+            - NO_STUDY: 원하는 스터디가 없어요
+            - TOO_MANY_ERRORS: 오류가 자주 생겨요
+            - WANT_NEW_ACCOUNT: 다른 계정으로 다시 가입하고 싶어요
+            - OTHER: 직접 입력
+        """
+            ),
+            @Parameter(name = "memberWithdrawalLogReason", description = "직접입력")
+    })
+    @PutMapping("/withdraw")
+    public ResponseEntity<CommonResponse> withdrawMember(@RequestBody WithdrawMemberIo withdrawMemberIo){
+        return memberService.withdrawMember(withdrawMemberIo);
     }
 }

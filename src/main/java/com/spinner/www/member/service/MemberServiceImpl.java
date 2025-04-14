@@ -12,6 +12,7 @@ import com.spinner.www.member.dto.*;
 import com.spinner.www.member.entity.*;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
+import com.spinner.www.member.io.WithdrawMemberIo;
 import com.spinner.www.member.mapper.MemberMapper;
 import com.spinner.www.member.repository.*;
 import com.spinner.www.util.EncryptionUtils;
@@ -44,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     private static final int DEFAULT_REFRESH_EXPIRATION_DAYS = 7;
 
     private final MemberRepo memberRepo;
+    private final MemberWithDrawalLogRepo memberWithDrawalLogRepo;
     private EncryptionUtils encryptionUtils;
     private final SessionInfo sessionInfo;
     private final MemberMapper memberMapper;
@@ -58,6 +60,7 @@ public class MemberServiceImpl implements MemberService {
     private final StudyTopicService studyTopicService;
     private final MemberInterestService memberInterestService;
     private final MemberQueryRepo memberQueryRepo;
+
 
     /**
      * 이메일로 회원조회
@@ -259,7 +262,9 @@ public class MemberServiceImpl implements MemberService {
                 afterPassword,
                 member.getMemberName(),
                 member.getMemberNickname(),
-                member.getMemberBirth()
+                member.getMemberBirth(),
+                member.getMemberStatus(),
+                member.getWithdrawalDate()
         );
         memberRepo.save(updateMember);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
@@ -290,5 +295,29 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Integer getStudyMemberCountByStudyIdx(Long studyIdx) {
         return memberQueryRepo.getStudyMemberCountByStudyIdx(studyIdx);
+    }
+
+    /**
+     * 회원 탈퇴 신청
+     * @param withdrawMemberIo WithdrawMemberIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo) {
+        // 세션idx로 멤버 객체 불러오기
+        Member member = getMember(sessionInfo.getMemberIdx());
+        if(member == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
+        // 탈퇴 사유 테이블 insert
+        MemberWithdrawalLog memberWithdrawalLog = MemberWithdrawalLog.insertMemberWithdrawalLog(withdrawMemberIo, member.getMemberIdx());
+        memberWithDrawalLogRepo.save(memberWithdrawalLog);
+
+        // 탈퇴 처리
+        member.updateWithdrawalMember();
+        memberRepo.save(member);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴신청이 완료되었습니다."), HttpStatus.OK);
     }
 }
