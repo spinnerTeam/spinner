@@ -3,6 +3,7 @@ package com.spinner.www.study.service;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.StudyJoinMemberDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.JoinStudyMember;
@@ -41,17 +42,15 @@ public interface StudyMemberService {
      * @param member Member
      * @return boolean
      */
-    boolean existsByStudyMemberIdxAndMember(Long studyMemberIdx, Member member);
-
-
+    boolean existsByStudyAndMember(Study study, Member member);
 
     /**
      * 스터디 가입 여부
-     * @param studyIdx Long
+     * @param study Study
      * @param member Member
      * @return boolean
      */
-    boolean isStudyMember(Long studyIdx , Member member);
+    boolean isStudyMember(Study study , Member member);
 
     /**
      * 스터디 멤버 상태별 조회
@@ -67,4 +66,18 @@ public interface StudyMemberService {
      * @param studyMemberIdx Long
      */
     void deleteById(Long studyMemberIdx);
+
+    /**
+     * 가입된 회원 수
+     * @param studyIdx Long
+     * @return Long
+     */
+    Long countApprovedMembers(Long studyIdx);
+
+    /**
+     * 스터디 가입 멤버 리스트
+     * @param studyIdx Long
+     * @return List<StudyJoinMemberDto>
+     */
+    List<StudyJoinMemberDto> getApprovedStudyMembers(Long studyIdx);
 }

@@ -2,12 +2,15 @@ package com.spinner.www.study.service;
 
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.StudyJoinMemberDto;
 import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.repository.StudyMemberQueryRepo;
 import com.spinner.www.study.repository.StudyMemberRepo;
 import com.spinner.www.study.entity.StudyMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,6 +18,7 @@ import java.util.Optional;
 public class StudyMemberServiceImpl implements StudyMemberService{
 
     private final StudyMemberRepo studyMemberRepo;
+    private final StudyMemberQueryRepo studyMemberQueryRepo;
 
     /**
      * 스터디 멤버 저장
@@ -43,8 +47,8 @@ public class StudyMemberServiceImpl implements StudyMemberService{
      * @return boolean
      */
     @Override
-    public boolean existsByStudyMemberIdxAndMember(Long studyMemberIdx, Member member) {
-        return studyMemberRepo.existsByStudyMemberIdxAndMember(studyMemberIdx, member);
+    public boolean existsByStudyAndMember(Study study, Member member) {
+        return studyMemberRepo.existsByStudyAndMember(study, member);
     }
 
     /**
@@ -60,13 +64,13 @@ public class StudyMemberServiceImpl implements StudyMemberService{
 
     /**
      * 스터디 가입 여부
-     * @param studyIdx Long
+     * @param study Study
      * @param member Member
      * @return boolean
      */
     @Override
-    public boolean isStudyMember(Long studyIdx ,Member member){
-        return existsByStudyMemberIdxAndMember(studyIdx, member);
+    public boolean isStudyMember(Study study ,Member member){
+        return existsByStudyAndMember(study, member);
     }
 
     /**
@@ -88,5 +92,20 @@ public class StudyMemberServiceImpl implements StudyMemberService{
     @Override
     public void deleteById(Long studyMemberIdx) {
         studyMemberRepo.deleteById(studyMemberIdx);
+    }
+
+    /**
+     * 가입된 회원 수
+     * @param studyIdx Long
+     * @return Long
+     */
+    @Override
+    public Long countApprovedMembers(Long studyIdx) {
+        return studyMemberQueryRepo.CountStudyMembers(studyIdx);
+    }
+
+    @Override
+    public List<StudyJoinMemberDto> getApprovedStudyMembers(Long studyIdx) {
+        return studyMemberQueryRepo.findStudyMembersByStudyIdx(studyIdx);
     }
 }

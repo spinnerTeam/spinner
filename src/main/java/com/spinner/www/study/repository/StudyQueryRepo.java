@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.common.entity.QCommonCode;
 import com.spinner.www.common.entity.QStudyTopic;
+import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.file.entity.QFiles;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.QMember;
@@ -15,6 +16,7 @@ import com.spinner.www.study.entity.QStudy;
 import com.spinner.www.study.entity.QStudyMember;
 import com.spinner.www.study.entity.StudyMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -120,43 +122,31 @@ public class StudyQueryRepo {
     }
 
     /**
-     * 스터디 상세조회
-     * @param studyIdx Long
-     * @return StudyListDetailDto
+     * 스터디 상세 조회
+     * @param studyIdx
+     * @return
      */
-//    public StudyListDetailDto viewStudyList(Long studyIdx){
-//        QStudy qStudy = QStudy.study;
-//        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
-//        QCommonCode qCommonCode = QCommonCode.commonCode;
-//        QFiles qFiles = QFiles.files;
-//        QStudyMember qStudyMember = QStudyMember.studyMember;
-//
-//        return jpaQueryFactory.select(new QStudyListDetailDto(
-//
-//
-//        ))
-//                .from(qStudy)
-//                .join(qStudy.studyTopic, qStudyTopic)
-//                .join(qStudyTopic.commonCode, qCommonCode)
-//                .join(qStudy.files, qFiles)
-//                .join(qStudy.studyMembers , qStudyMember)
-//                .where(
-//                        qStudy.studyIdx.eq(studyIdx)
-//                )
-//                .groupBy(qStudy.studyIdx)
-//                .fetchOne();
-//    }
+    public StudyDetailDto findStudyDetailByStudyIdx(Long studyIdx) {
+        QStudy qStudy = QStudy.study;
+        QFiles qFiles = QFiles.files;
+        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
+        QCommonCode qCommonCode = QCommonCode.commonCode;
 
-    /**
-     * 스터디별 멤버 조회
-     * @param studyIdx Long
-     * @return StudyMember
-     */
-    public StudyMember getStudyByStudyMember(Long studyIdx){
-
-        QStudyMember qStudyMember = QStudyMember.studyMember;
-        QMember qMember = QMember.member;
-
-        return null;
+        return jpaQueryFactory.select(new QStudyDetailDto(
+                qStudy.studyName,
+                qStudy.studyInfo,
+                qFiles.filePath,
+                qStudy.createdDate.stringValue(),
+                qCommonCode.codeName
+        ))
+                .from(qStudy)
+                .join(qStudy.files, qFiles)
+                .join(qStudy.studyTopic, qStudyTopic)
+                .join(qStudyTopic.commonCode, qCommonCode)
+                .where(
+                        qStudy.studyIsRemoved.eq(false),
+                        qStudy.studyIdx.eq(studyIdx)
+                        )
+                .fetchOne();
     }
 }

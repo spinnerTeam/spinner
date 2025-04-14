@@ -10,10 +10,7 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.StudyCreateDto;
-import com.spinner.www.study.dto.StudyListDto;
-import com.spinner.www.study.dto.StudyMemgberCreateDto;
-import com.spinner.www.study.dto.StudyUpdateDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.CreateStudy;
@@ -222,7 +219,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
 
         // 가입신청 중복검사
-        if(studyMemberService.isStudyMember(studyIdx,member)){
+        if(studyMemberService.isStudyMember(study.get(),member)){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(50003,"이미 가입된 스터디입니다."), HttpStatus.BAD_REQUEST);
         }
 
@@ -359,5 +356,30 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         }
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyListDtos), HttpStatus.CREATED);
+    }
+
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx) {
+        StudyDetailDto studyDetailDto = studyService.getStudyDetail(studyIdx);
+
+        // 스터디 멤버 리스트
+        List<StudyJoinMemberDto> studyJoinMemberDtos = studyMemberService.getApprovedStudyMembers(studyIdx);
+
+        // 스터디 가입 회원 수
+        Long studyMemberCount = studyMemberService.countApprovedMembers(studyIdx);
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+
+        // 조회 한 유저의 가입 상태
+        Optional<Study> study = studyService.getStudy(studyIdx);
+        boolean studyJoinStatus = studyMemberService.isStudyMember(study.get(), member);
+
+        // 스터디 게시글 갯수 추가 예정
+        studyDetailDto.setMembersAndCounts(studyJoinMemberDtos, studyMemberCount, studyJoinStatus);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyDetailDto), HttpStatus.CREATED);
     }
 }

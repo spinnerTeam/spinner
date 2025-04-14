@@ -107,8 +107,20 @@ public class StudyController {
         return studyFacadeService.deleteStudy(studyIdx);
     }
 
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "스터디 상세 조회 API",
+            description = "스터디 상세조회 입니다. 로그인 한 유저의 가입 여부도 나와서 로그인 후 테스트 진행 가능합니다."
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK")
+    })
     @GetMapping("/view/{studyIdx}")
     public ResponseEntity<CommonResponse> viewStudy(@PathVariable("studyIdx") Long studyIdx){
-        return studyService.viewStudy(studyIdx);
+        return studyFacadeService.getStudyDetail(studyIdx);
     }
 }
