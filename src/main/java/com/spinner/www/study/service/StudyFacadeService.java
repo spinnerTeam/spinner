@@ -94,5 +94,10 @@ public interface StudyFacadeService {
      */
     ResponseEntity<CommonResponse> getSearchTopic();
 
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
     ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx);
 }

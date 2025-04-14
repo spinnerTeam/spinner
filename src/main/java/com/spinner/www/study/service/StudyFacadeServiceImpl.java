@@ -219,7 +219,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
 
         // 가입신청 중복검사
-        if(studyMemberService.isStudyMember(studyIdx,member)){
+        if(studyMemberService.isStudyMember(study.get(),member)){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(50003,"이미 가입된 스터디입니다."), HttpStatus.BAD_REQUEST);
         }
 
@@ -358,6 +358,11 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyListDtos), HttpStatus.CREATED);
     }
 
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
     @Override
     public ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx) {
         StudyDetailDto studyDetailDto = studyService.getStudyDetail(studyIdx);
@@ -367,16 +372,14 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
 
         // 스터디 가입 회원 수
         Long studyMemberCount = studyMemberService.countApprovedMembers(studyIdx);
-
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
 
         // 조회 한 유저의 가입 상태
-        boolean studyJoinStatus = studyMemberService.isStudyMember(studyIdx, member);
-        System.out.println("studyJoinStatus :" + studyJoinStatus);
+        Optional<Study> study = studyService.getStudy(studyIdx);
+        boolean studyJoinStatus = studyMemberService.isStudyMember(study.get(), member);
 
         // 스터디 게시글 갯수 추가 예정
         studyDetailDto.setMembersAndCounts(studyJoinMemberDtos, studyMemberCount, studyJoinStatus);
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyDetailDto), HttpStatus.CREATED);
     }
 }

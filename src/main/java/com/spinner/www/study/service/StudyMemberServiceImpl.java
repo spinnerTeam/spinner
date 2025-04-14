@@ -64,7 +64,7 @@ public class StudyMemberServiceImpl implements StudyMemberService{
 
     /**
      * 스터디 가입 여부
-     * @param studyIdx Long
+     * @param study Study
      * @param member Member
      * @return boolean
      */
