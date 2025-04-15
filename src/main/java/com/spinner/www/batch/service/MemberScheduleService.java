@@ -25,7 +25,7 @@ public class MemberScheduleService {
      */
     @Transactional
     public void deleteWithdrawMember() {
-        List<Member> memberDtos = memberService.findByMemberStatusAndWithdrawalDateBefore(MemberStatus.WITHDRAWN, LocalDate.now().minusDays(7));
+        List<Member> memberDtos = memberService.findByMemberStatusAndWithdrawalDateBefore(MemberStatus.WITHDRAWN, LocalDate.now().minusDays(14));
         for(Member member : memberDtos){
             member.softDeleteWithdrawalMember();
         }
