@@ -1,7 +1,6 @@
 package com.spinner.www.file.service;
 
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.common.service.ServerInfo;
 import com.spinner.www.file.constants.CommonFileCode;
 import com.spinner.www.file.dto.FileDto;
 import com.spinner.www.file.entity.Files;
@@ -10,7 +9,6 @@ import com.spinner.www.file.repository.FileRepo;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -41,8 +39,6 @@ public class FileServiceImpl implements FileService {
     private final FileMapper fileMapper;
     private final S3Service s3Service;
 
-    @Autowired
-    private ServerInfo serverInfo;
 
     @Value("${file.upload.path}")
     private String FILE_PATH;
@@ -89,19 +85,17 @@ public class FileServiceImpl implements FileService {
 
     /**
      * 파일 서버 업로드
-     * @param files MultipartFile
-     * @return ResponseEntity<CommonResponse>
+     * @param uploadFiles List<MultipartFile>
+     * @return List<Files>
      */
     @Override
-    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
-        Map<String, String> fileMap = new HashMap<>();
-        for (MultipartFile file : files) {
-            Files fileEntity = uploadAndSaveFile(file);
-            String originalName = fileEntity.getFileOriginName();
-            Long fileIdx = fileEntity.getFileIdx();
-            fileMap.put(originalName, serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
+    public List<Files> uploadBoardFiles(List<MultipartFile> uploadFiles) throws IOException {
+       List<Files> files = new ArrayList<Files>();
+        for (MultipartFile uploadFile : uploadFiles) {
+            Files fileEntity = uploadAndSaveFile(uploadFile);
+            files.add(fileEntity);
         }
-        return fileMap;
+        return files;
     }
 
 

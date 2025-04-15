@@ -8,10 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface FileService {
 
@@ -35,10 +33,10 @@ public interface FileService {
 
     /**
      * 파일 서버 업로드
-     * @param files List<MultipartFile>
-     * @return ResponseEntity<CommonResponse>
+     * @param uploadFiles List<MultipartFile>
+     * @return List<Files>
      */
-    Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException;
+    public List<Files> uploadBoardFiles(List<MultipartFile> uploadFiles) throws IOException;
 
     /**
      * 파일 DB 저장
