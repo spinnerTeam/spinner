@@ -265,7 +265,7 @@ public class MemberServiceImpl implements MemberService {
                 member.getMemberNickname(),
                 member.getMemberBirth(),
                 member.getMemberStatus(),
-                member.getWithdrawalDate()
+                member.getMemberWithdrawalDate()
         );
         memberRepo.save(updateMember);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
@@ -323,14 +323,15 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 멤버 상태와 날짜로 조회 
-     * @param memberStatus MemberStatus
-     * @param date LocalDate
-     * @return
+     * 특정 상태이면서, 지정된 날짜 이전에 탈퇴 처리된 회원 목록을 조회합니다.
+     *
+     * @param memberStatus 조회할 회원 상태 (예: WITHDRAWN)
+     * @param date 기준 날짜 (해당 날짜 이전에 탈퇴된 회원을 조회)
+     * @return 조건에 일치하는 회원 목록
      */
     @Override
-    public List<Member> findByMemberStatusAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate date) {
-        return memberRepo.findByMemberStatusAndWithdrawalDateIsNotNullAndWithdrawalDateBefore(memberStatus,date);
+    public List<Member> findWithdrawnMembersBefore(MemberStatus memberStatus, LocalDate date) {
+        return memberRepo.findByMemberStatusAndMemberWithdrawalDateIsNotNullAndMemberWithdrawalDateBefore(memberStatus,date);
     }
 
     /**

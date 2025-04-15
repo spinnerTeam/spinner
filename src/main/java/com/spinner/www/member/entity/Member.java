@@ -45,7 +45,7 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
     @Comment("탈퇴 신청일")
-    private LocalDate withdrawalDate;
+    private LocalDate memberWithdrawalDate;
 
     public static Member insertMember(MemberCreateDto memberCreateDto){
         return Member.builder()
@@ -65,7 +65,7 @@ public class Member extends BaseEntity {
     }
 
     public void updateWithdrawalMember(){
-        this.withdrawalDate = LocalDate.now();
+        this.memberWithdrawalDate = LocalDate.now();
         this.memberStatus = MemberStatus.WITHDRAWN;
     }
 

@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "study_member")
 @Builder
@@ -48,6 +50,9 @@ public class StudyMember extends BaseEntity {
     @Comment("스터디 멤버")
     private Member member;
 
+    @Comment("스터디 탈퇴 신청일")
+    private LocalDate studyMemberWithdrawalDate;
+
     public static StudyMember insertStudyMember(StudyMemgberCreateDto studyMemgberCreateDto){
         return StudyMember.builder()
                 .studyMemberRole(studyMemgberCreateDto.getStudyMemberRole())
@@ -62,5 +67,10 @@ public class StudyMember extends BaseEntity {
     // 스터디원 상태 변경
     public void updateJoinStudyMember(StudyMemberStatus studyMemberStatus){
         this.studyMemberStatus = studyMemberStatus;
+    }
+
+    public void withdraw(){
+        this.isStudyMemberRemoved = true;
+        this.studyMemberWithdrawalDate = LocalDate.now();
     }
 }

@@ -97,6 +97,10 @@ public enum CommonResultCode {
     FILE_UPLOAD_FAIL(50002, "파일 업로드에 실패했습니다"),
 
     /**
+     * 스터디원 아님
+     */
+    STUDY_MEMBER_NOT_FOUND(5004, "존재하지 않는 스터디원입니다."),
+    /**
      * 비밀번호 불일치
      */
     PASSWORD_MISMATCH(1003, "비밀번호가 일치하지 않습니다."),

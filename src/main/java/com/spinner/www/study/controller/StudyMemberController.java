@@ -40,7 +40,7 @@ public class StudyMemberController {
 
 
     @Operation(
-            summary = "스터디 멤버 삭제 API"
+            summary = "스터디 탈퇴시키기 API"
     )
     @Parameters({
             @Parameter(name = "studyIdx", description = "스터디 PK"),

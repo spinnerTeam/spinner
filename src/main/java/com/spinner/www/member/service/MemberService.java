@@ -99,11 +99,15 @@ public interface MemberService {
     ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo);
 
     /**
-     * 멤버 상태 + 날짜 별 조회
-     * @param memberStatus MemberStatus
-     * @return List<MemberDto>
+     * 회원 상태 + 날짜 별 조회
+     * @param memberStatus 멤버상태값 예: ACTIVE
+     * @return 조건에 맞는 회원 리스트
      */
-    List<Member> findByMemberStatusAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
+    List<Member> findWithdrawnMembersBefore(MemberStatus memberStatus, LocalDate localDate);
 
+    /**
+     * 회원 리스트 저장
+     * @param members 저장할 회원리스트
+     */
     void saveAll(List<Member> members);
 }
