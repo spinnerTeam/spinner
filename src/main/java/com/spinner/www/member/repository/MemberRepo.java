@@ -1,8 +1,12 @@
 package com.spinner.www.member.repository;
 
+import com.spinner.www.member.constants.MemberStatus;
 import com.spinner.www.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface MemberRepo extends JpaRepository<Member, Long> {
@@ -20,4 +24,11 @@ public interface MemberRepo extends JpaRepository<Member, Long> {
      * @return User
      */
     Member findByMemberEmail(String memberEmail);
+
+    /**
+     * 멤버 상태 별 조회
+     * @param memberStatus MemberStatus
+     * @return List<Member>
+     */
+    List<Member> findByMemberStatusAndWithdrawalDateIsNotNullAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
 }

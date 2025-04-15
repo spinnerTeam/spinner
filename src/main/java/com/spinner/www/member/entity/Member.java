@@ -10,6 +10,7 @@ import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "member")
@@ -66,5 +67,10 @@ public class Member extends BaseEntity {
     public void updateWithdrawalMember(){
         this.withdrawalDate = LocalDate.now();
         this.memberStatus = MemberStatus.WITHDRAWN;
+    }
+
+    public void softDeleteWithdrawalMember(){
+        this.memberEmail =  "withdrawn_" + UUID.randomUUID();
+        this.memberPassword = null;
     }
 }
