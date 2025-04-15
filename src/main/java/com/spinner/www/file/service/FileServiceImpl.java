@@ -90,7 +90,8 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public List<Files> uploadBoardFiles(List<MultipartFile> uploadFiles) throws IOException {
-       List<Files> files = new ArrayList<Files>();
+        if(Objects.isNull(uploadFiles) || uploadFiles.isEmpty()) return null;
+        List<Files> files = new ArrayList<>();
         for (MultipartFile uploadFile : uploadFiles) {
             Files fileEntity = uploadAndSaveFile(uploadFile);
             files.add(fileEntity);
