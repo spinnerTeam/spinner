@@ -20,5 +20,6 @@ public class MemberScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteWithdrawMember(){
         memberScheduleService.deleteWithdrawMember();
+        memberScheduleService.deleteWithdrawStudyMember();
     }
 }

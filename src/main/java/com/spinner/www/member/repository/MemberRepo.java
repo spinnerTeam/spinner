@@ -30,5 +30,5 @@ public interface MemberRepo extends JpaRepository<Member, Long> {
      * @param memberStatus MemberStatus
      * @return List<Member>
      */
-    List<Member> findByMemberStatusAndWithdrawalDateIsNotNullAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
+    List<Member> findByMemberStatusAndMemberWithdrawalDateIsNotNullAndMemberWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
 }

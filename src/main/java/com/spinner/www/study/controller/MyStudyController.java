@@ -98,4 +98,20 @@ public class MyStudyController {
     public ResponseEntity<CommonResponse> joinedStudy(@PathVariable("studyIdx") Long studyIdx, @PathVariable("memberIdx") Long memberIdx){
         return studyFacadeService.updateStudyMember(studyIdx, memberIdx);
     }
+
+    /**
+     * mst_009_스터디 멤버 조회
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(
+            summary = "스터디 멤버 조회 API (mst_009_스터디 멤버)"
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK")
+    })
+    @GetMapping("/{studyIdx}/studyMembers")
+    public ResponseEntity<CommonResponse> getStudyMembers(@PathVariable("studyIdx") Long studyIdx){
+        return studyFacadeService.findStudyMembersByStudyIdx(studyIdx);
+    }
 }

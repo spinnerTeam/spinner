@@ -41,6 +41,7 @@ public class StudyMemberQueryRepo {
         QStudyMember qStudyMember = QStudyMember.studyMember;
 
         return jpaQueryFactory.select(new QStudyJoinMemberDto(
+                qStudyMember.studyMemberIdx,
                 qMember.memberNickname,
                 qStudyMember.StudyMemberJoinInfo
         ))
@@ -50,6 +51,8 @@ public class StudyMemberQueryRepo {
                         qStudyMember.study.studyIdx.eq(studyIdx),
                         qStudyMember.isStudyMemberRemoved.eq(false),
                         qStudyMember.studyMemberStatus.eq(StudyMemberStatus.APPROVED)
-                        ).fetch();
+                        ).
+                orderBy(qStudyMember.createdDate.desc()).
+                fetch();
     }
 }
