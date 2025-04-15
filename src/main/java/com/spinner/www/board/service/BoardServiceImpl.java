@@ -1,24 +1,24 @@
 package com.spinner.www.board.service;
 
 import com.spinner.www.board.constants.CommonBoardCode;
+import com.spinner.www.board.io.*;
 import com.spinner.www.common.entity.CommonCode;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.CommonCodeService;
+import com.spinner.www.common.service.ServerInfo;
 import com.spinner.www.constants.CommonResultCode;
+import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.board.entity.Board;
-import com.spinner.www.board.io.BoardCreateRequest;
-import com.spinner.www.board.io.BoardListResponse;
-import com.spinner.www.board.io.BoardResponse;
-import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.reply.io.ReplyResponse;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,6 +42,9 @@ public class BoardServiceImpl implements BoardService {
     private final FileService fileService;
     private final CommonCodeService commonCodeService;
 
+    @Autowired
+    private ServerInfo serverInfo;
+
     /**
      * 게시글 생성
      *
@@ -51,21 +52,16 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files) {
+    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Long codeIdx = CommonBoardCode.getCode(boardType);
         String updateSrcContent;
 
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
+        List<Files> files;
         try {
-
-            Map<String, String> fileMap = uploadBoardFiles(files);
+            files = fileService.uploadBoardFiles(uploadFiles);
+            Map<String, String> fileMap = convertFilesNameAndUrl(files);
             updateSrcContent = updateMediaSrc(fileMap, boardRequest.getContent());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -78,18 +74,11 @@ public class BoardServiceImpl implements BoardService {
                 .member(member)
                 .boardTitle(boardRequest.getTitle())
                 .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
+                .files(files)
                 .build();
 
         boardRepo.save(board);
-        BoardResponse response = BoardResponse.builder()
-                .nickname(member.getMemberNickname())
-                .idx(board.getBoardIdx())
-                .title(board.getBoardTitle())
-                .content(org.springframework.web.util.HtmlUtils.htmlUnescape(board.getBoardContent()))
-                .hitCount(board.getHitCount())
-                .createdDate(board.getCreatedDate())
-                .modifiedDate(board.getModifiedDate())
-                .build();
+        BoardResponse response = buildBoardResponse(board);
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
     }
@@ -237,14 +226,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size) {
-
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
                 size,
@@ -361,34 +343,54 @@ public class BoardServiceImpl implements BoardService {
      */
     public BoardResponse buildBoardResponse(Board board) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        List<ReplyResponse> replyResponses = new ArrayList<>();
+        Long likeCount = 0L;
+        List<BoardFileResponse> files = new ArrayList<>();
+        boolean isLiked = false;
+        boolean isBookmarked = false;
 
-        List<ReplyResponse> replyResponses = board.getReplies().stream()
-                .filter(reply -> reply.getReplyIsRemoved() == 0 || !reply.getChildReplies().isEmpty())
-                .map(reply -> ReplyResponse.builder()
-                        .idx(reply.getReplyIdx())
-                        .nickname(reply.getMember().getMemberNickname())
-                        .content(reply.getReplyIsRemoved() == 0 ? reply.getReplyContent() : "삭제된 댓글입니다.")
-                        .likeCount(reply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
-                        .isLiked(reply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
-                        .childReplies(reply.getChildReplies().stream()
-                                .filter(childReply -> childReply.getReplyIsRemoved() == 0)
-                                .map(childReply -> ReplyResponse.builder()
-                                        .idx(childReply.getReplyIdx())
-                                        .nickname(childReply.getMember().getMemberNickname())
-                                        .content(childReply.getReplyContent())
-                                        .likeCount(childReply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
-                                        .isLiked(childReply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
-                                        .build())
-                                .collect(Collectors.toList()))
-                        .build())
-                .collect(Collectors.toList());
+        if(!Objects.isNull(board.getReplies()))
+            replyResponses = board.getReplies().stream()
+                    .filter(reply -> reply.getReplyIsRemoved() == 0 || !reply.getChildReplies().isEmpty())
+                    .map(reply -> ReplyResponse.builder()
+                            .idx(reply.getReplyIdx())
+                            .nickname(reply.getMember().getMemberNickname())
+                            .content(reply.getReplyIsRemoved() == 0 ? reply.getReplyContent() : "삭제된 댓글입니다.")
+                            .likeCount(reply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
+                            .isLiked(reply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
+                            .childReplies(reply.getChildReplies().stream()
+                                    .filter(childReply -> childReply.getReplyIsRemoved() == 0)
+                                    .map(childReply -> ReplyResponse.builder()
+                                            .idx(childReply.getReplyIdx())
+                                            .nickname(childReply.getMember().getMemberNickname())
+                                            .content(childReply.getReplyContent())
+                                            .likeCount(childReply.getLikes().stream().filter(like -> like.getLikeIsLiked() == 1).count())
+                                            .isLiked(childReply.getLikes().stream().anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1))
+                                            .build())
+                                    .collect(Collectors.toList()))
+                            .build())
+                    .collect(Collectors.toList());
 
-        Long likeCount = board.getLikes().stream()
-                .filter(like -> like.getLikeIsLiked() == 1).count();
+        if(!Objects.isNull(board.getReplies()))
+            likeCount = board.getLikes().stream()
+                    .filter(like -> like.getLikeIsLiked() == 1).count();
 
-        boolean isLiked = board.getLikes().stream()
-                .anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1);
-        boolean isBookmarked = board.getBookmarks().stream()
+        if(!Objects.isNull(board.getFiles()))
+            files = board.getFiles().stream()
+                                            .map(file -> BoardFileResponse.builder()
+                                                    .idx(file.getFileIdx())
+                                                    .fileName(file.getFileOriginName())
+                                                    .fileType(file.getCommonCode().getCodeName())
+                                                    .fileUrl(serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +file.getFileIdx())
+                                                    .build()).collect(Collectors.toList());
+
+        if(!Objects.isNull(board.getLikes()))
+            isLiked = board.getLikes().stream()
+                    .anyMatch(like -> like.getMember().getMemberIdx().equals(memberIdx) && like.getLikeIsLiked() == 1);
+
+
+        if(!Objects.isNull(board.getBookmarks()))
+            isBookmarked = board.getBookmarks().stream()
                 .anyMatch(bookmark -> bookmark.getMember().getMemberIdx().equals(memberIdx) && bookmark.getIsBookmarked() == 1);
 
         return BoardResponse.builder()
@@ -402,6 +404,7 @@ public class BoardServiceImpl implements BoardService {
                 .liked(isLiked)
                 .hitCount(board.getHitCount())
                 .bookmarked(isBookmarked)
+                .files(files)
                 .build();
     }
 
@@ -412,9 +415,14 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse>
      */
     @Override
-    public Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException {
-        if(files == null) return null;
-        return fileService.uploadBoardFiles(files);
+    public Map<String, String> convertFilesNameAndUrl(List<Files> files) throws IOException {
+        Map<String, String> fileMap = new HashMap<>();
+        for (Files file : files) {
+            String originalName = file.getFileOriginName();
+            Long fileIdx = file.getFileIdx();
+            fileMap.put(originalName, serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
+        }
+        return fileMap;
     }
 
     public String updateMediaSrc(Map<String, String> fileUrlMap, String htmlText) {

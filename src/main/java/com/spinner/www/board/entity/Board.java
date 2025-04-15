@@ -2,6 +2,7 @@ package com.spinner.www.board.entity;
 import com.spinner.www.bookmark.entity.Bookmark;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.common.entity.CommonCode;
+import com.spinner.www.file.entity.Files;
 import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
@@ -73,6 +74,17 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board"
             ,fetch = FetchType.LAZY)
     private List<Bookmark> bookmarks = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(name="boardFile",
+        joinColumns = @JoinColumn(name="boardIdx"),
+        inverseJoinColumns = @JoinColumn(name="fileIdx"))
+    private List<Files> files = new ArrayList<Files>();
+
+    public void removeFile(Files file) {
+        if(!files.contains(file)) return;
+        files.remove(file);
+    }
 
     public void update(String boardTitle, String boardContent) {
         this.boardTitle = boardTitle;

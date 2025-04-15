@@ -25,8 +25,9 @@ public class BoardResponse extends BaseResponse {
     private Long hitCount;
     @JsonProperty("isBookmarked")
     private boolean bookmarked;
+    private List<BoardFileResponse> files;
 
-    public BoardResponse(Long idx, String boardName, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, boolean isBookmarked, Long hitCount, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
+    public BoardResponse(Long idx, String boardName, String nickname, String title, String content, List<ReplyResponse> replies, Long likeCount, boolean isLiked, Long hitCount, boolean isBookmarked, List<BoardFileResponse> files, String createdAt, LocalDateTime createdDate, String modifiedAt, LocalDateTime modifiedDate) {
         super(createdAt, createdDate, modifiedAt, modifiedDate);
         this.idx = idx;
         this.boardName = boardName;
@@ -38,5 +39,6 @@ public class BoardResponse extends BaseResponse {
         this.liked = isLiked;
         this.hitCount = hitCount;
         this.bookmarked = isBookmarked;
+        this.files = files;
     }
 }

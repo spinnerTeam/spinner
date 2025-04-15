@@ -4,6 +4,7 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
+import com.spinner.www.file.entity.Files;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -109,5 +110,5 @@ public interface BoardService {
      * @param files List<MultipartFile>
      * @return ResponseEntity<CommonResponse>
      */
-    Map<String, String> uploadBoardFiles(List<MultipartFile> files) throws IOException;
+    Map<String, String> convertFilesNameAndUrl(List<Files> files) throws IOException;
 }

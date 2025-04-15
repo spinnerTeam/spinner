@@ -1,4 +1,4 @@
-package com.spinner.www.file.io;
+package com.spinner.www.board.io;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
