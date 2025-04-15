@@ -402,4 +402,9 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(req), HttpStatus.CREATED);
     }
+
+    @Override
+    public ResponseEntity<CommonResponse> deleteStudyMember(Long studyIdx, Long studyMemberIdx) {
+        return null;
+    }
 }

@@ -37,4 +37,18 @@ public class StudyMemberController {
     public ResponseEntity<CommonResponse> joinStudyMember(@PathVariable("studyIdx") Long studyIdx, @RequestBody JoinStudyMember studyMember){
         return studyFacadeService.joinStudyMember(studyIdx, studyMember);
     }
+
+
+    @Operation(
+            summary = "스터디 멤버 삭제 API"
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK"),
+            @Parameter(name = "studyMemberIdx", description = "스터디 멤버 PK")
+    })
+    //    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/studies/{studyIdx}/members/{studyMemberIdx}")
+    public ResponseEntity<CommonResponse> removeStudyMember(@PathVariable("studyIdx") Long studyIdx, @PathVariable("studyMemberIdx") Long studyMemberIdx){
+        return studyFacadeService.deleteStudyMember(studyIdx, studyMemberIdx);
+    }
 }

@@ -107,4 +107,12 @@ public interface StudyFacadeService {
      * @return
      */
     ResponseEntity<CommonResponse> findStudyMembersByStudyIdx(Long studyIdx);
+
+    /**
+     * 스터디 탈퇴시키기
+     * @param studyIdx
+     * @param studyMemberIdx
+     * @return
+     */
+    ResponseEntity<CommonResponse> deleteStudyMember(Long studyIdx, Long studyMemberIdx);
 }
