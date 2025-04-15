@@ -2,6 +2,7 @@ package com.spinner.www.config;
 
 import com.spinner.www.member.dto.SessionInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +15,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberAuditorAware implements AuditorAware<Long> {
 
-    private final SessionInfo sessionInfo;
+
+    private final ObjectProvider<SessionInfo> sessionInfoProvider;
 
     @Override
     public Optional<Long> getCurrentAuditor() {
-
-        return Optional.ofNullable(sessionInfo.getMemberIdx()).or(() -> Optional.of(-1L));
+        try {
+            SessionInfo sessionInfo = sessionInfoProvider.getIfAvailable();
+            // session 없으면 null return
+            return Optional.ofNullable(sessionInfo != null ? sessionInfo.getMemberIdx() : null);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

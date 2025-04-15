@@ -322,8 +322,23 @@ public class MemberServiceImpl implements MemberService {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴신청이 완료되었습니다."), HttpStatus.OK);
     }
 
+    /**
+     * 멤버 상태와 날짜로 조회 
+     * @param memberStatus MemberStatus
+     * @param date LocalDate
+     * @return
+     */
     @Override
-    public List<MemberDto> findMembersByStatus(MemberStatus memberStatus) {
-        return memberMapper.memberListToMemberDtoList(memberRepo.findByMemberStatus(memberStatus));
+    public List<Member> findByMemberStatusAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate date) {
+        return memberRepo.findByMemberStatusAndWithdrawalDateIsNotNullAndWithdrawalDateBefore(memberStatus,date);
+    }
+
+    /**
+     * 멤버 전체 저장
+     * @param members List<Member>
+     */
+    @Override
+    public void saveAll(List<Member> members) {
+        memberRepo.saveAll(members);
     }
 }

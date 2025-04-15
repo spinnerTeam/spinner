@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface MemberService {
@@ -98,9 +99,11 @@ public interface MemberService {
     ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo);
 
     /**
-     * 멤버  상태별 리스트 조회
+     * 멤버 상태 + 날짜 별 조회
      * @param memberStatus MemberStatus
      * @return List<MemberDto>
      */
-    List<MemberDto> findMembersByStatus(MemberStatus memberStatus);
+    List<Member> findByMemberStatusAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
+
+    void saveAll(List<Member> members);
 }

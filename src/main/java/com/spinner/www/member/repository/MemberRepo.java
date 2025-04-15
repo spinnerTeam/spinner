@@ -5,6 +5,7 @@ import com.spinner.www.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -29,5 +30,5 @@ public interface MemberRepo extends JpaRepository<Member, Long> {
      * @param memberStatus MemberStatus
      * @return List<Member>
      */
-    List<Member> findByMemberStatus(MemberStatus memberStatus);
+    List<Member> findByMemberStatusAndWithdrawalDateIsNotNullAndWithdrawalDateBefore(MemberStatus memberStatus, LocalDate localDate);
 }

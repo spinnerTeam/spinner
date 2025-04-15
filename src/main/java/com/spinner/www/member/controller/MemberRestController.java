@@ -1,5 +1,6 @@
 package com.spinner.www.member.controller;
 
+import com.spinner.www.batch.service.MemberScheduleService;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.Member;
@@ -31,6 +32,7 @@ public class MemberRestController {
     private final MemberService memberService;
     private final EmailService emailService;
     private final TokenService tokenService;
+    private final MemberScheduleService memberScheduleService;
 
     /**
      * 회원가입
