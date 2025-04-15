@@ -344,7 +344,7 @@ public class BoardServiceImpl implements BoardService {
     public BoardResponse buildBoardResponse(Board board) {
         Long memberIdx = sessionInfo.getMemberIdx();
         List<ReplyResponse> replyResponses = new ArrayList<>();
-        Long likeCount = 0L;
+        long likeCount = 0L;
         List<BoardFileResponse> files = new ArrayList<>();
         boolean isLiked = false;
         boolean isBookmarked = false;
@@ -416,6 +416,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Map<String, String> convertFilesNameAndUrl(List<Files> files) throws IOException {
+        if(Objects.isNull(files) || files.isEmpty()) return null;
         Map<String, String> fileMap = new HashMap<>();
         for (Files file : files) {
             String originalName = file.getFileOriginName();
