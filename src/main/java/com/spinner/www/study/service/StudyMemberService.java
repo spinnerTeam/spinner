@@ -38,7 +38,7 @@ public interface StudyMemberService {
 
     /**
      * 스터디 가입여부
-     * @param studyMemberIdx Long
+     * @param study Study
      * @param member Member
      * @return boolean
      */

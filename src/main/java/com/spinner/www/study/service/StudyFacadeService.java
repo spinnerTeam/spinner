@@ -100,4 +100,11 @@ public interface StudyFacadeService {
      * @return ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx);
+
+    /**
+     * studyIdx로 스터디 조회
+     * @param studyIdx
+     * @return
+     */
+    ResponseEntity<CommonResponse> findStudyMembersByStudyIdx(Long studyIdx);
 }

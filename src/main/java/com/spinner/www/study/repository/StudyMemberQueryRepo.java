@@ -41,6 +41,7 @@ public class StudyMemberQueryRepo {
         QStudyMember qStudyMember = QStudyMember.studyMember;
 
         return jpaQueryFactory.select(new QStudyJoinMemberDto(
+                qStudyMember.studyMemberIdx,
                 qMember.memberNickname,
                 qStudyMember.StudyMemberJoinInfo
         ))

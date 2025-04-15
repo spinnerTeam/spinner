@@ -382,4 +382,24 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         studyDetailDto.setMembersAndCounts(studyJoinMemberDtos, studyMemberCount, studyJoinStatus);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyDetailDto), HttpStatus.CREATED);
     }
+    /**
+     * studyIdx로 스터디 조회
+     * @param studyIdx
+     * @return
+     */
+    @Override
+    public ResponseEntity<CommonResponse> findStudyMembersByStudyIdx(Long studyIdx) {
+
+        List<StudyJoinMemberDto> req = studyMemberService.getApprovedStudyMembers(studyIdx);
+
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+        StudyMember studyMember = studyMemberService.getStudyMember(member, studyIdx);
+
+        if(studyMember != null){
+            // 리스트에서 나는 삭제
+            req.removeIf(dto -> dto.getStudyMemberIdx().equals(studyMember.getStudyMemberIdx()));
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(req), HttpStatus.CREATED);
+    }
 }
