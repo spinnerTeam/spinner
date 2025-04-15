@@ -51,6 +51,8 @@ public class StudyMemberQueryRepo {
                         qStudyMember.study.studyIdx.eq(studyIdx),
                         qStudyMember.isStudyMemberRemoved.eq(false),
                         qStudyMember.studyMemberStatus.eq(StudyMemberStatus.APPROVED)
-                        ).fetch();
+                        ).
+                orderBy(qStudyMember.createdDate.desc()).
+                fetch();
     }
 }
