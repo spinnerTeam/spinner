@@ -2,6 +2,10 @@ package com.spinner.www.common.service;
 
 import com.spinner.www.common.dto.StudyTopicNameListDto;
 import com.spinner.www.common.entity.StudyTopic;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.MyStudyListDto;
+import com.spinner.www.study.dto.PendingStudyMemberDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,4 +36,12 @@ public interface StudyTopicService {
      * @return List<StudyTopicNameListDto>
      */
     List<StudyTopicNameListDto> getStudyTopicName();
+
+    /**
+     * 멤버 1명의 관심 분야
+     * @param memberIdx
+     * @return List<Long> Long
+     */
+
+    public List<Long> findInterestCodeIdxByMember(Long memberIdx);
 }

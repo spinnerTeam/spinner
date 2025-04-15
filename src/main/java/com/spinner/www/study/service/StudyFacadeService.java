@@ -87,4 +87,32 @@ public interface StudyFacadeService {
      * @return ResponseEntity<CommonResponse>
      */
     ResponseEntity<CommonResponse> cancelStudyMember(Long studyIdx, Long memberIdx);
+
+    /**
+     * 스터디 찾기 (회원 관심사별 랜덤조회)
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> getSearchTopic();
+
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx);
+
+    /**
+     * studyIdx로 스터디 조회
+     * @param studyIdx
+     * @return
+     */
+    ResponseEntity<CommonResponse> findStudyMembersByStudyIdx(Long studyIdx);
+
+    /**
+     * 스터디 탈퇴시키기
+     * @param studyIdx Long
+     * @param studyMemberIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> deleteStudyMember(Long studyIdx, Long studyMemberIdx);
 }

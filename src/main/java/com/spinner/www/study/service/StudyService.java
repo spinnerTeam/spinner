@@ -2,6 +2,11 @@ package com.spinner.www.study.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.MyStudyListDto;
+import com.spinner.www.study.dto.PendingStudyMemberDto;
+import com.spinner.www.study.dto.StudyDetailDto;
+import com.spinner.www.study.dto.StudyListDto;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.io.CreateStudy;
 import com.spinner.www.study.io.JoinStudyMember;
@@ -10,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public interface StudyService {
@@ -58,4 +64,34 @@ public interface StudyService {
      * @return Optional<Study>
      */
     Optional<Study> getStudy(Long studyIdx);
+
+    /**
+     * 나의 스터디 (참여스터디, 가입대기스터디, 종료 스터디)
+     * @param studyMemberStatus StudyMemberStatus
+     * @param member Member
+     * @return List<MyStudyListDto>
+     */
+    List<MyStudyListDto> joinedStudy(StudyMemberStatus studyMemberStatus, Member member);
+
+    /**
+     * 스터디 멤버관리 (신청인원, 참여인원)
+     * @param studyIdx Long
+     * @param studyStatus String
+     * @return List<PendingStudyMemberDto>
+     */
+    List<PendingStudyMemberDto> pendingStudyMember(Long studyIdx, String studyStatus);
+
+    /**
+     * 관심분야 별 가입가능 스터디 조회 (랜덤 노출)
+     * @param codeList List<Long>
+     * @return List<StudyListDto>
+     */
+    List<StudyListDto> findInterestCodeByStudy(List<Long> codeList);
+
+    /**
+     * 스터디 상세조회
+     * @param studyIdx Long
+     * @return StudyDetailDto
+     */
+    StudyDetailDto getStudyDetail(Long studyIdx);
 }

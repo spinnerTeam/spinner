@@ -1,6 +1,8 @@
 package com.spinner.www.member.entity;
 
 import com.spinner.www.common.entity.BaseEntity;
+import com.spinner.www.member.constants.MemberStatus;
+import com.spinner.www.member.constants.WithdrawalReason;
 import com.spinner.www.member.dto.MemberCreateDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +10,7 @@ import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "member")
@@ -38,6 +41,11 @@ public class Member extends BaseEntity {
     private String memberNickname;
     @Comment("생년월일")
     private LocalDate memberBirth;
+    @Comment("회원상태")
+    @Enumerated(EnumType.STRING)
+    private MemberStatus memberStatus;
+    @Comment("탈퇴 신청일")
+    private LocalDate memberWithdrawalDate;
 
     public static Member insertMember(MemberCreateDto memberCreateDto){
         return Member.builder()
@@ -47,11 +55,22 @@ public class Member extends BaseEntity {
                 .memberName(memberCreateDto.getName())
                 .memberNickname(memberCreateDto.getNickName())
                 .memberBirth(LocalDate.parse(memberCreateDto.getBirth()))
+                .memberStatus(MemberStatus.ACTIVE)
                 .build();
     }
 
     public void updateNicknameAndBirth(String newNickname, LocalDate newBirth) {
         if(!Objects.isNull(newNickname)) this.memberNickname = newNickname;
         if(!Objects.isNull(newBirth))this.memberBirth = newBirth;
+    }
+
+    public void updateWithdrawalMember(){
+        this.memberWithdrawalDate = LocalDate.now();
+        this.memberStatus = MemberStatus.WITHDRAWN;
+    }
+
+    public void softDeleteWithdrawalMember(){
+        this.memberEmail =  "withdrawn_" + UUID.randomUUID();
+        this.memberPassword = null;
     }
 }

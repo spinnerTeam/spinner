@@ -2,7 +2,13 @@ package com.spinner.www.common.service;
 
 import com.spinner.www.common.dto.StudyTopicNameListDto;
 import com.spinner.www.common.entity.StudyTopic;
+import com.spinner.www.common.repository.StudyTopicQueryRepo;
 import com.spinner.www.common.repository.StudyTopicRepo;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.constants.StudyMemberStatus;
+import com.spinner.www.study.dto.MyStudyListDto;
+import com.spinner.www.study.dto.PendingStudyMemberDto;
+import com.spinner.www.study.repository.StudyQueryRepo;
 import com.spinner.www.util.StudyTopicCacheStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,15 +23,16 @@ public class StudyTopicServiceImpl implements StudyTopicService {
 
     private final StudyTopicRepo studyTopicRepo;
     private final StudyTopicCacheStorage studyTopicCacheStorage;
+    private final StudyTopicQueryRepo studyTopicQueryRepo;
 
     /**
-     * menuIdx로 Menu 조회
-     * @param menuIdx Long
-     * @return Menu
+     * studyTopicIdx 로 StudyTopic 조회
+     * @param studyTopicIdx Long
+     * @return Optional<StudyTopic>
      */
     @Override
-    public Optional<StudyTopic> getStudyTopicByStudyTopicIdx(Long menuIdx) {
-        return studyTopicRepo.findByStudyTopicIdx(menuIdx);
+    public Optional<StudyTopic> getStudyTopicByStudyTopicIdx(Long studyTopicIdx) {
+        return studyTopicRepo.findByStudyTopicIdx(studyTopicIdx);
     }
 
     /**
@@ -63,5 +70,15 @@ public class StudyTopicServiceImpl implements StudyTopicService {
             studyTopicNameListDto.add(dto);
         }
         return studyTopicNameListDto;
+    }
+
+    /**
+     * 멤버 1명의 관심 분야
+     * @param memberIdx
+     * @return List<Long> Long
+     */
+    @Override
+    public List<Long> findInterestCodeIdxByMember(Long memberIdx) {
+        return studyTopicQueryRepo.findInterestCodeIdxByMember(memberIdx);
     }
 }

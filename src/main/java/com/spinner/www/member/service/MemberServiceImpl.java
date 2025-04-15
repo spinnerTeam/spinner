@@ -7,11 +7,13 @@ import com.spinner.www.common.service.StudyTopicService;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.file.entity.Files;
 import com.spinner.www.file.service.FileService;
+import com.spinner.www.member.constants.MemberStatus;
 import com.spinner.www.member.constants.RoleName;
 import com.spinner.www.member.dto.*;
 import com.spinner.www.member.entity.*;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
+import com.spinner.www.member.io.WithdrawMemberIo;
 import com.spinner.www.member.mapper.MemberMapper;
 import com.spinner.www.member.repository.*;
 import com.spinner.www.util.EncryptionUtils;
@@ -44,6 +46,7 @@ public class MemberServiceImpl implements MemberService {
     private static final int DEFAULT_REFRESH_EXPIRATION_DAYS = 7;
 
     private final MemberRepo memberRepo;
+    private final MemberWithDrawalLogRepo memberWithDrawalLogRepo;
     private EncryptionUtils encryptionUtils;
     private final SessionInfo sessionInfo;
     private final MemberMapper memberMapper;
@@ -57,6 +60,8 @@ public class MemberServiceImpl implements MemberService {
     private final MarketingRepo marketingRepo;
     private final StudyTopicService studyTopicService;
     private final MemberInterestService memberInterestService;
+    private final MemberQueryRepo memberQueryRepo;
+
 
     /**
      * 이메일로 회원조회
@@ -258,7 +263,9 @@ public class MemberServiceImpl implements MemberService {
                 afterPassword,
                 member.getMemberName(),
                 member.getMemberNickname(),
-                member.getMemberBirth()
+                member.getMemberBirth(),
+                member.getMemberStatus(),
+                member.getMemberWithdrawalDate()
         );
         memberRepo.save(updateMember);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
@@ -279,5 +286,60 @@ public class MemberServiceImpl implements MemberService {
             birthDate = LocalDate.parse(birth);
         } catch (DateTimeParseException e) {}
         member.updateNicknameAndBirth(nickname, birthDate);
+    }
+
+    /**
+     * 스터디별 스터디원 수 조회
+     * @param studyIdx Long
+     * @return Integer
+     */
+    @Override
+    public Integer getStudyMemberCountByStudyIdx(Long studyIdx) {
+        return memberQueryRepo.getStudyMemberCountByStudyIdx(studyIdx);
+    }
+
+    /**
+     * 회원 탈퇴 신청
+     * @param withdrawMemberIo WithdrawMemberIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo) {
+        // 세션idx로 멤버 객체 불러오기
+        Member member = getMember(sessionInfo.getMemberIdx());
+        if(member == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
+        // 탈퇴 사유 테이블 insert
+        MemberWithdrawalLog memberWithdrawalLog = MemberWithdrawalLog.insertMemberWithdrawalLog(withdrawMemberIo, member.getMemberIdx());
+        memberWithDrawalLogRepo.save(memberWithdrawalLog);
+
+        // 탈퇴 처리
+        member.updateWithdrawalMember();
+        memberRepo.save(member);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴신청이 완료되었습니다."), HttpStatus.OK);
+    }
+
+    /**
+     * 특정 상태이면서, 지정된 날짜 이전에 탈퇴 처리된 회원 목록을 조회합니다.
+     *
+     * @param memberStatus 조회할 회원 상태 (예: WITHDRAWN)
+     * @param date 기준 날짜 (해당 날짜 이전에 탈퇴된 회원을 조회)
+     * @return 조건에 일치하는 회원 목록
+     */
+    @Override
+    public List<Member> findWithdrawnMembersBefore(MemberStatus memberStatus, LocalDate date) {
+        return memberRepo.findByMemberStatusAndMemberWithdrawalDateIsNotNullAndMemberWithdrawalDateBefore(memberStatus,date);
+    }
+
+    /**
+     * 멤버 전체 저장
+     * @param members List<Member>
+     */
+    @Override
+    public void saveAll(List<Member> members) {
+        memberRepo.saveAll(members);
     }
 }

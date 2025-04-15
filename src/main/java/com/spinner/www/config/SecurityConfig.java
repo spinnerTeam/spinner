@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     /** 추 후 url 추가 예정 */
-    private static  final String[] PERMIT_URL_ARRAY = {};
+    private static  final String[] PERMIT_URL_ARRAY = {"/member/login"};
 
     private final SessionInfo sessionInfo;
     private final CustomerLogoutHandler customerLogoutHandler;
@@ -55,7 +55,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
+//                 추 후 url 차단 예정
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+//                        .anyRequest().authenticated()
+//                )
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )

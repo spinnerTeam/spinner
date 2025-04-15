@@ -24,11 +24,11 @@ public class MemberInterest {
     private Long memberInterestIdx;
 
     @ManyToOne
-    @JoinColumn(name = "memberIdx")
+    @JoinColumn(name = "memberInterestMemberIdx")
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "menuIdx")
+    @JoinColumn(name = "memberInterestStudyTopicIdx")
     private StudyTopic studyTopic;
 
     @Comment("관심분야 선택 여부")

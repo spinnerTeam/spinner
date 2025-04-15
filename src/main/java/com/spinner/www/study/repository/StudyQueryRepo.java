@@ -1,17 +1,22 @@
 package com.spinner.www.study.repository;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.spinner.www.common.entity.QCommonCode;
+import com.spinner.www.common.entity.QStudyTopic;
+import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.file.entity.QFiles;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.entity.QMember;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.MyStudyListDto;
-import com.spinner.www.study.dto.PendingStudyMemberDto;
-import com.spinner.www.study.dto.QMyStudyListDto;
-import com.spinner.www.study.dto.QPendingStudyMemberDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.QStudy;
 import com.spinner.www.study.entity.QStudyMember;
 import com.spinner.www.study.entity.StudyMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -68,5 +73,80 @@ public class StudyQueryRepo {
                         qStudyMember.studyMemberStatus.stringValue().eq(studyStatus)
                 ).fetch();
 
+    }
+
+    /**
+     * 관심분야 별 가입가능 스터디 조회 (랜덤 노출)
+     * @param codeList List<Long>
+     * @return List<StudyListDto>
+     */
+    public List<StudyListDto> findInterestCodeByStudy(List<Long> codeList){
+        QStudy qStudy = QStudy.study;
+        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
+        QCommonCode qCommonCode = QCommonCode.commonCode;
+        QStudyMember qStudyMember = QStudyMember.studyMember;
+        QFiles qFiles = QFiles.files;
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        // 공통조건
+        booleanBuilder.and(qStudyMember.isStudyMemberRemoved.eq(false));
+        booleanBuilder.and(qStudyMember.studyMemberStatus.eq(StudyMemberStatus.APPROVED));
+        booleanBuilder.and(qStudyMember.isStudyMemberRemoved.eq(false));
+
+        // 정렬 조건
+        OrderSpecifier<?> orderSpecifier = qStudy.createdAt.desc();
+
+        // 조건 분기
+        if(codeList != null && !codeList.isEmpty()){
+            booleanBuilder.and(qStudy.studyTopic.studyTopicIdx.in(codeList));
+            orderSpecifier = Expressions.numberTemplate(Double.class, "rand()").asc();
+        }
+        return jpaQueryFactory
+                .select(new QStudyListDto(
+                        qStudy.studyIdx,
+                        qFiles.filePath,
+                        qStudy.studyName,
+                        qStudy.studyInfo,
+                        qCommonCode.codeName
+                ))
+                .from(qStudy)
+                .join(qStudy.studyTopic, qStudyTopic)
+                .join(qStudyTopic.commonCode, qCommonCode)
+                .join(qStudy.studyMembers , qStudyMember)
+                .join(qStudy.files, qFiles)
+                .where(booleanBuilder)
+                .groupBy(qStudy.studyIdx)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
+
+    /**
+     * 스터디 상세 조회
+     * @param studyIdx
+     * @return
+     */
+    public StudyDetailDto findStudyDetailByStudyIdx(Long studyIdx) {
+        QStudy qStudy = QStudy.study;
+        QFiles qFiles = QFiles.files;
+        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
+        QCommonCode qCommonCode = QCommonCode.commonCode;
+
+        return jpaQueryFactory.select(new QStudyDetailDto(
+                qStudy.studyName,
+                qStudy.studyInfo,
+                qFiles.filePath,
+                qStudy.createdDate.stringValue(),
+                qCommonCode.codeName
+        ))
+                .from(qStudy)
+                .join(qStudy.files, qFiles)
+                .join(qStudy.studyTopic, qStudyTopic)
+                .join(qStudyTopic.commonCode, qCommonCode)
+                .where(
+                        qStudy.studyIsRemoved.eq(false),
+                        qStudy.studyIdx.eq(studyIdx)
+                        )
+                .fetchOne();
     }
 }

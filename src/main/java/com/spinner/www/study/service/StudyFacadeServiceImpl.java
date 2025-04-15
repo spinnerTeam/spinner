@@ -10,9 +10,7 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.study.constants.StudyMemberRole;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.StudyCreateDto;
-import com.spinner.www.study.dto.StudyMemgberCreateDto;
-import com.spinner.www.study.dto.StudyUpdateDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.entity.StudyMember;
 import com.spinner.www.study.io.CreateStudy;
@@ -40,7 +38,6 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
     private final StudyTopicService studyTopicService;
     private final MemberService memberService;
     private final StudyMemberService studyMemberService;
-    private final StudyQueryService studyQueryService;
 
     /**
      * 스터디 생성
@@ -75,7 +72,6 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         }
 
         // 스터디 디비 저장
-
         StudyCreateDto studyCreateDto = new StudyCreateDto(
                 createStudy.getStudyName(),
                 files,
@@ -223,7 +219,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         Member member = memberService.getMember(sessionInfo.getMemberIdx());
 
         // 가입신청 중복검사
-        if(studyMemberService.isStudyMember(studyIdx,member)){
+        if(studyMemberService.existsByStudyAndMember(study.get(),member)){
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(50003,"이미 가입된 스터디입니다."), HttpStatus.BAD_REQUEST);
         }
 
@@ -252,7 +248,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         StudyMemberStatus status = StudyMemberStatus.valueOf(studyMemberStatus);
         // 회원
         Member member = memberService.getMember(memberIdx);
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryService.joinedStudy(status, member)), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyService.joinedStudy(status, member)), HttpStatus.OK);
     }
 
     /**
@@ -263,7 +259,7 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
      */
     @Override
     public ResponseEntity<CommonResponse> findByStudyAndStudyStatus(Long studyIdx, String studyStatus) {
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyQueryService.pendingStudyMember(studyIdx, studyStatus)), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyService.pendingStudyMember(studyIdx, studyStatus)), HttpStatus.OK);
     }
 
     /**
@@ -338,5 +334,107 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
         StudyMember studyMember = studyMemberService.getStudyMember(member, study.get());
         studyMemberService.deleteById(studyMember.getStudyMemberIdx());
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("가입거절 완료되었습니다."),HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 찾기 (회원 관심사별 랜덤조회)
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSearchTopic() {
+
+        // 관심분야 조회
+        List<Long> longList = studyTopicService.findInterestCodeIdxByMember(sessionInfo.getMemberIdx());
+
+        // 관심분야별 랜덤으로 스터디 노출
+        List<StudyListDto> studyListDtos = studyService.findInterestCodeByStudy(longList);
+        for(StudyListDto dto : studyListDtos){
+            // 스터디원 수
+            Integer memberIdxCount = memberService.getStudyMemberCountByStudyIdx(dto.getStudyIdx());
+            // 게시글 갯수 추가 예정
+            dto.addMemberIdxCountAndBoardIdxCount(memberIdxCount, 0);
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyListDtos), HttpStatus.CREATED);
+    }
+
+    /**
+     * 상세보기
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getStudyDetail(Long studyIdx) {
+        StudyDetailDto studyDetailDto = studyService.getStudyDetail(studyIdx);
+
+        // 스터디 멤버 리스트
+        List<StudyJoinMemberDto> studyJoinMemberDtos = studyMemberService.getApprovedStudyMembers(studyIdx);
+
+        // 스터디 가입 회원 수
+        Long studyMemberCount = studyMemberService.countApprovedMembers(studyIdx);
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+
+        // 조회 한 유저의 가입 상태
+        Optional<Study> study = studyService.getStudy(studyIdx);
+        boolean studyJoinStatus = studyMemberService.existsByStudyAndMember(study.get(), member);
+
+        // 스터디 게시글 갯수 추가 예정
+        studyDetailDto.setMembersAndCounts(studyJoinMemberDtos, studyMemberCount, studyJoinStatus);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(studyDetailDto), HttpStatus.CREATED);
+    }
+    /**
+     * studyIdx로 스터디 조회
+     * @param studyIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    public ResponseEntity<CommonResponse> findStudyMembersByStudyIdx(Long studyIdx) {
+
+        List<StudyJoinMemberDto> req = studyMemberService.getApprovedStudyMembers(studyIdx);
+
+        Member member = memberService.getMember(sessionInfo.getMemberIdx());
+        StudyMember studyMember = studyMemberService.getStudyMember(member, studyIdx);
+
+        if(studyMember != null){
+            // 리스트에서 나는 삭제
+            req.removeIf(dto -> dto.getStudyMemberIdx().equals(studyMember.getStudyMemberIdx()));
+        }
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(req), HttpStatus.OK);
+    }
+
+    /**
+     * 스터디 탈퇴시키기
+     * @param studyIdx Long
+     * @param studyMemberIdx Long
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> deleteStudyMember(Long studyIdx, Long studyMemberIdx) {
+
+        // 존재하는 스터디인지
+        Optional<Study> study = studyService.getStudy(studyIdx);
+        if(study.isEmpty()){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY), HttpStatus.NOT_FOUND);
+        }
+
+        // 요청자가 스터디 방장인지
+        boolean isStudyLeader = studyMemberService.isStudyLeader(study.get(), memberService.getMember(sessionInfo.getMemberIdx()));
+        if(!isStudyLeader){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST), HttpStatus.FORBIDDEN);
+        }
+
+        // 탈퇴시키려는 회원이 해당 스터디원인지
+        StudyMember studyMember = studyMemberService.getStudyMember(studyMemberIdx, study.get());
+        if(studyMember == null){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.STUDY_MEMBER_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        // 소프트 딜리트
+        studyMember.withdraw();
+        studyMemberService.saveStudyMember(studyMember);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴가 완료되었습니다."), HttpStatus.OK);
     }
 }

@@ -2,14 +2,19 @@ package com.spinner.www.member.service;
 
 
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.constants.MemberStatus;
+import com.spinner.www.member.dto.MemberDto;
 import com.spinner.www.member.dto.MemberSessionDto;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.io.MemberLogin;
 import com.spinner.www.member.io.MemberJoin;
+import com.spinner.www.member.io.WithdrawMemberIo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface MemberService {
 
@@ -78,4 +83,31 @@ public interface MemberService {
      * @param birth String
      */
     void updateNicknameAndBirth(Long memberIdx, String nickname, String birth);
+
+    /**
+     * 스터디별 스터디원 수 조회
+     * @param studyIdx Long
+     * @return Integer
+     */
+    Integer getStudyMemberCountByStudyIdx(Long studyIdx);
+
+    /**
+     * 회원 탈퇴 신청
+     * @param withdrawMemberIo WithdrawMemberIo
+     * @return ResponseEntity<CommonResponse>
+     */
+    ResponseEntity<CommonResponse> withdrawMember(WithdrawMemberIo withdrawMemberIo);
+
+    /**
+     * 회원 상태 + 날짜 별 조회
+     * @param memberStatus 멤버상태값 예: ACTIVE
+     * @return 조건에 맞는 회원 리스트
+     */
+    List<Member> findWithdrawnMembersBefore(MemberStatus memberStatus, LocalDate localDate);
+
+    /**
+     * 회원 리스트 저장
+     * @param members 저장할 회원리스트
+     */
+    void saveAll(List<Member> members);
 }
