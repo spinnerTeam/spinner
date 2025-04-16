@@ -1,5 +1,6 @@
 package com.spinner.www.study.entity;
 
+import com.spinner.www.board.entity.Board;
 import com.spinner.www.common.entity.BaseEntity;
 import com.spinner.www.common.entity.StudyTopic;
 import com.spinner.www.file.entity.Files;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.Comment;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,6 +54,9 @@ public class Study extends BaseEntity {
 
     @OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
     private List<StudyMember> studyMembers;
+
+    @OneToMany(mappedBy="study")
+    private List<Board> boards = new ArrayList<>();
 
     /**
      * 스터디 생성

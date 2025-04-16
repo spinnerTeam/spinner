@@ -6,6 +6,7 @@ import com.spinner.www.file.entity.Files;
 import com.spinner.www.like.entity.Like;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
+import com.spinner.www.study.entity.Study;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -79,7 +80,13 @@ public class Board extends BaseEntity {
     @JoinTable(name="boardFile",
         joinColumns = @JoinColumn(name="boardIdx"),
         inverseJoinColumns = @JoinColumn(name="fileIdx"))
-    private List<Files> files = new ArrayList<Files>();
+    private List<Files> files = new ArrayList<>();
+
+    @ManyToOne
+    @JoinTable(name="boardStudy",
+            joinColumns = @JoinColumn(name="boardIdx"),
+            inverseJoinColumns = @JoinColumn(name="studyIdx"))
+    private Study study;
 
     public void removeFile(Files file) {
         if(!files.contains(file)) return;
