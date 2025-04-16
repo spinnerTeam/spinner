@@ -68,7 +68,7 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         String updateSrcContent;
 
         Member member = memberService.getMember(memberIdx);
@@ -155,7 +155,7 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx, Long studyIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Board board = findByBoardIdx(codeIdx, boardIdx);
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if (board == null)
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
@@ -199,7 +199,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
         if (Objects.isNull(memberIdx))
@@ -209,11 +209,11 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
-                idx,
-                size,
-                keyword,
-                memberIdx,
-                study);
+                                                                            idx,
+                                                                            size,
+                                                                            keyword,
+                                                                            memberIdx,
+                                                                            study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -243,7 +243,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -252,8 +252,9 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
-                size,
-                memberIdx, study);
+                                                                                    size,
+                                                                                    memberIdx,
+                                                                                    study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -283,7 +284,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -292,9 +293,9 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfLikedBoard(idx,
-                size,
-                memberIdx,
-                study);
+                                                                                size,
+                                                                                memberIdx,
+                                                                                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -323,12 +324,12 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
-                size,
-                memberIdx,
-                study);
+                                                                                size,
+                                                                                memberIdx,
+                                                                                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -358,7 +359,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -371,9 +372,10 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfHotBoard(codeIdx,
-                idx,
-                size,
-                memberIdx);
+                                                                                idx,
+                                                                                size,
+                                                                                memberIdx,
+                                                                                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
