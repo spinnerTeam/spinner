@@ -438,4 +438,42 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("탈퇴가 완료되었습니다."), HttpStatus.OK);
     }
+
+    /**
+     * 스터디 방장이 다른 스터디 멤버에게 방장 권한을 위임합니다.
+     *
+     * @param studyIdx 권한을 위임할 스터디의 고유 ID
+     * @param studyMemberIdx 방장 권한을 넘길 대상 스터디 멤버 ID
+     * @return 권한 위임 성공 여부를 담은 응답 객체
+     */
+    @Override
+    public ResponseEntity<CommonResponse> transferLeader(Long studyIdx, Long studyMemberIdx) {
+
+        // 스터디 존재 여부
+        // 존재하는 스터디인지
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        // 스터디 방장인지
+        boolean isStudyLeader = studyMemberService.isStudyLeader(study, memberService.getMember(sessionInfo.getMemberIdx()));
+        if(!isStudyLeader){
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.BAD_REQUEST), HttpStatus.FORBIDDEN);
+        }
+
+        // 스터디 가입 되어있는지
+        StudyMember transferLeader = studyMemberService.getStudyMember(studyMemberIdx, study);
+        if (transferLeader == null || transferLeader.getStudyMemberStatus() == StudyMemberStatus.WITHDRAWN) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.STUDY_MEMBER_NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+
+        StudyMember transferMember = studyMemberService.getStudyMember(memberService.getMember(sessionInfo.getMemberIdx()), study);
+
+        // 변경
+        transferLeader.transferLeader();
+        transferMember.transferMember();
+
+        studyMemberService.saveStudyMember(transferLeader);
+        studyMemberService.saveStudyMember(transferMember);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("방장 위임이 완료되었습니다."), HttpStatus.OK);
+    }
 }

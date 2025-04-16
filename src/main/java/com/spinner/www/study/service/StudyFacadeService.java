@@ -117,9 +117,19 @@ public interface StudyFacadeService {
     ResponseEntity<CommonResponse> deleteStudyMember(Long studyIdx, Long studyMemberIdx);
 
     /**
-     * 스터디 탈퇴
-     * @param studyIdx 스터디 조
-     * @return
+     * 사용자가 해당 스터디에서 탈퇴를 요청합니다.
+     *
+     * @param studyIdx 탈퇴할 스터디의 고유 ID
+     * @return 탈퇴 성공 여부를 담은 응답 객체
      */
     ResponseEntity<CommonResponse> withdrawStudy(Long studyIdx);
+
+    /**
+     * 스터디 방장이 다른 스터디 멤버에게 방장 권한을 위임합니다.
+     *
+     * @param studyIdx 권한을 위임할 스터디의 고유 ID
+     * @param studyMemberIdx 방장 권한을 넘길 대상 스터디 멤버 ID
+     * @return 권한 위임 성공 여부를 담은 응답 객체
+     */
+    ResponseEntity<CommonResponse> transferLeader(Long studyIdx, Long studyMemberIdx);
 }
