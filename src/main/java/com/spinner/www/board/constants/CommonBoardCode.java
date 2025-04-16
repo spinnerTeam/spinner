@@ -12,7 +12,12 @@ public enum CommonBoardCode {
     /**
      * 자유 게시판
      */
-    FREE(8L, "free");
+    FREE(8L, "free"),
+
+    /**
+     * 자유 게시판
+     */
+    NOTICE(13L, "notice");
 
     private final Long code;
     private final String letter;

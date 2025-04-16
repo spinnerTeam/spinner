@@ -16,6 +16,8 @@ import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.reply.io.ReplyResponse;
+import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.service.StudyService;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberService memberService;
     private final FileService fileService;
     private final CommonCodeService commonCodeService;
+    private final StudyService studyService;
 
     @Autowired
     private ServerInfo serverInfo;
@@ -53,8 +56,19 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles) {
+        return insert(boardType, boardRequest, uploadFiles, null);
+    }
+    /**
+     * 게시글 생성
+     *
+     * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
         Long codeIdx = CommonBoardCode.getCode(boardType);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
         String updateSrcContent;
 
         Member member = memberService.getMember(memberIdx);
@@ -75,6 +89,7 @@ public class BoardServiceImpl implements BoardService {
                 .boardTitle(boardRequest.getTitle())
                 .boardContent(org.springframework.web.util.HtmlUtils.htmlEscape(updateSrcContent))
                 .files(files)
+                .study(study)
                 .build();
 
         boardRepo.save(board);
@@ -129,6 +144,33 @@ public class BoardServiceImpl implements BoardService {
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
+    /**
+     * 스터디 게시글 조회
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx, Long studyIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        Board board = findByBoardIdx(codeIdx, boardIdx);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
+
+        if (board == null)
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        if(Objects.isNull(study))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        if(!board.getStudy().equals(study))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        board.increaseHitCount();
+        BoardResponse response = buildBoardResponse(board);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+    }
+
 
     /**
      * 게시글 목록 조회
@@ -141,7 +183,23 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword) {
+        return getSliceOfBoard(boardType, idx, size, keyword, null);
+    }
+
+    /**
+     * 게시글 목록 조회
+     *
+     * @param boardType     String 게시판 타입
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param keyword String 조회할 키워드
+     * @param studyIdx Long 조회할 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
 
         // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
         if (Objects.isNull(memberIdx))
@@ -151,10 +209,11 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBoard(codeIdx,
-                                                                            idx,
-                                                                            size,
-                                                                            keyword,
-                                                                            memberIdx);
+                idx,
+                size,
+                keyword,
+                memberIdx,
+                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -171,8 +230,20 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
+        return getSliceOfBookmarkedBoard(idx, size, null);
+    }
 
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수,
+     * @param studyIdx Long 조회할 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -182,7 +253,7 @@ public class BoardServiceImpl implements BoardService {
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
                 size,
-                memberIdx);
+                memberIdx, study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -199,7 +270,20 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size) {
+        return getSliceOfLikedBoard(idx, size, null);
+    }
+
+    /**
+     * 내가 좋아요를 누른 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param studyIdx Long 조회할 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -208,15 +292,15 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfLikedBoard(idx,
-                                                                                size,
-                                                                                memberIdx);
+                size,
+                memberIdx,
+                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
-
 
     /**
      * 내가 작성한 게시글 목록 조회
@@ -226,11 +310,25 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size) {
+        return getSliceOfMemberBoard(idx, size, null);
+    }
+
+    /**
+     * 내가 작성한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param studyIdx Long 조회할 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
                 size,
-                memberIdx);
+                memberIdx,
+                study);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
@@ -246,7 +344,21 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size) {
+        return getSliceOfHotBoard(boardType, idx, size, null);
+    }
+
+    /**
+     * 인기글 게시글 목록 조회
+     * @param boardType String 게시판 타입
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param studyIdx Long 조회할 스터디 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudy(studyIdx).orElse(null) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
@@ -259,9 +371,9 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfHotBoard(codeIdx,
-                                                                                idx,
-                                                                                size,
-                                                                                memberIdx);
+                idx,
+                size,
+                memberIdx);
 
         if(!list.isEmpty())
             list.forEach(result -> result.setContent(org.springframework.web.util.HtmlUtils.htmlUnescape(result.getContent())));
