@@ -1,5 +1,6 @@
 package com.spinner.www.common.handler;
 
+import com.spinner.www.common.exception.StudyNotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
@@ -55,5 +56,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(CommonResultCode.ERROR.code(),
                 ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // 스터디 NOT_FOUND Exception 처리
+    @ExceptionHandler(StudyNotFoundException.class)
+    public ResponseEntity<CommonResponse> handleStudyNotFoundException(StudyNotFoundException ex) {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY),
+                HttpStatus.NOT_FOUND
+        );
     }
 }

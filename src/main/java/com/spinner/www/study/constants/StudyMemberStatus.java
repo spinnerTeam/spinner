@@ -4,6 +4,7 @@ public enum StudyMemberStatus {
 
     WAITING("승인대기"),
     APPROVED("승인"),
+    WITHDRAWN("탈퇴"),
     BLOCKED("차단"),
     FINISHED("종료")
     ;
