@@ -52,6 +52,13 @@ public class StudyMemberController {
         return studyFacadeService.deleteStudyMember(studyIdx, studyMemberIdx);
     }
 
+    @Operation(
+            summary = "스터디 탈퇴 API"
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK")
+    })
+    //    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/studies/{studyIdx}/members")
     public ResponseEntity<CommonResponse> withdrawStudy(@PathVariable("studyIdx") Long studyIdx){
         return studyFacadeService.withdrawStudy(studyIdx);
