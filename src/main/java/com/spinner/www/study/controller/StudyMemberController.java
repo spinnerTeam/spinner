@@ -48,7 +48,12 @@ public class StudyMemberController {
     })
     //    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/studies/{studyIdx}/members/{studyMemberIdx}")
-    public ResponseEntity<CommonResponse> removeStudyMember(@PathVariable("studyIdx") Long studyIdx, @PathVariable("studyMemberIdx") Long studyMemberIdx){
+    public ResponseEntity<CommonResponse> withdrawStudyMember(@PathVariable("studyIdx") Long studyIdx, @PathVariable("studyMemberIdx") Long studyMemberIdx){
         return studyFacadeService.deleteStudyMember(studyIdx, studyMemberIdx);
+    }
+
+    @DeleteMapping("/studies/{studyIdx}/members")
+    public ResponseEntity<CommonResponse> withdrawStudy(@PathVariable("studyIdx") Long studyIdx){
+        return studyFacadeService.withdrawStudy(studyIdx);
     }
 }

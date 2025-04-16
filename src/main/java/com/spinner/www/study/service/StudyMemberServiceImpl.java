@@ -34,12 +34,12 @@ public class StudyMemberServiceImpl implements StudyMemberService{
     /**
      * memberIdx 별 스터디 멤버 조회
      * @param member Member
-     * @param studyIdx Long
+     * @param studyMemberIdx Long
      * @return StudyMember
      */
     @Override
-    public StudyMember getStudyMember(Member member ,Long studyIdx) {
-        return studyMemberRepo.findByMemberAndStudyMemberIdx(member ,studyIdx);
+    public StudyMember getStudyMember(Member member ,Long studyMemberIdx) {
+        return studyMemberRepo.findByMemberAndStudyMemberIdx(member ,studyMemberIdx);
     }
 
     /**

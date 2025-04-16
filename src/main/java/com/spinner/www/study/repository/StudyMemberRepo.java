@@ -70,9 +70,11 @@ public interface StudyMemberRepo extends JpaRepository<StudyMember, Long> {
      */
     StudyMember findByStudyMemberIdxAndStudy(Long studyMemberIdx, Study study);
 
-//    List<StudyMember> findByStudyMemberRemovedIsAndStudyMemberWithdrawalDateIsNotNullAndStudyMemberWithdrawalDateBefore(boolean isRemoved, LocalDate localDate);
-
+    /**
+     * 스터디 탈퇴일이 지난 데이터 삭제
+     * @param date 스터디 탈퇴일
+     */
     @Modifying
-    @Query("DELETE FROM StudyMember sm WHERE sm.isStudyMemberRemoved = true AND sm.studyMemberWithdrawalDate < :date")
+    @Query("DELETE FROM StudyMember sm WHERE sm.isStudyMemberRemoved = true AND sm.studyMemberStatus = 'WITHDRAWN' AND sm.studyMemberWithdrawalDate < :date")
     void deleteWithdrawnMembersBefore(@Param("date") LocalDate date);
 }

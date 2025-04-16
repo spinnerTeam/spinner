@@ -72,5 +72,6 @@ public class StudyMember extends BaseEntity {
     public void withdraw(){
         this.isStudyMemberRemoved = true;
         this.studyMemberWithdrawalDate = LocalDate.now();
+        this.studyMemberStatus = StudyMemberStatus.WITHDRAWN;
     }
 }
