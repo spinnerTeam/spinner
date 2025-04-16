@@ -114,4 +114,29 @@ public class MyStudyController {
     public ResponseEntity<CommonResponse> getStudyMembers(@PathVariable("studyIdx") Long studyIdx){
         return studyFacadeService.findStudyMembersByStudyIdx(studyIdx);
     }
+
+    /**
+     * [스터디 방장 위임 API]
+     *
+     * 스터디의 기존 방장이 특정 스터디 멤버에게 방장 권한을 위임합니다.
+     *
+     * <주의>
+     * - 호출자는 반드시 현재 스터디의 방장이어야 합니다.
+     * - 위임 대상은 해당 스터디에 참여 중인 멤버여야 합니다.
+     *
+     * @param studyIdx         방장을 위임할 스터디의 ID
+     * @param studyMemberIdx   방장 권한을 넘겨받을 스터디 멤버 ID
+     * @return                 권한 위임 성공 여부
+     */
+    @Operation(
+            summary = "스터디 방장 권한 위임 API"
+    )
+    @Parameters({
+            @Parameter(name = "studyIdx", description = "스터디 PK"),
+            @Parameter(name = "studyMemberIdx", description = "위임받을 멤버 PK")
+    })
+    @PutMapping("/studies/{studyIdx}/transfer-leader/{studyMemberIdx}")
+    public ResponseEntity<CommonResponse> transferLeader(@PathVariable("studyIdx") Long studyIdx, @PathVariable("studyMemberIdx") Long studyMemberIdx){
+        return studyFacadeService.transferLeader(studyIdx, studyMemberIdx);
+    }
 }

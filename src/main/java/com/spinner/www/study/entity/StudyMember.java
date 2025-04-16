@@ -69,8 +69,20 @@ public class StudyMember extends BaseEntity {
         this.studyMemberStatus = studyMemberStatus;
     }
 
+    // 스터디 탈퇴
     public void withdraw(){
         this.isStudyMemberRemoved = true;
         this.studyMemberWithdrawalDate = LocalDate.now();
+        this.studyMemberStatus = StudyMemberStatus.WITHDRAWN;
+    }
+
+    // 스터디 방장 지정
+    public void transferLeader(){
+        this.studyMemberRole = StudyMemberRole.LEADER;
+    }
+
+    // 일반 스터디원으로 변경
+    public void transferMember(){
+        this.studyMemberRole = StudyMemberRole.MEMBER;
     }
 }

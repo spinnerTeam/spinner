@@ -59,11 +59,11 @@ public interface StudyService {
     void saveStudy(Study study);
 
     /**
-     * Optional Study 조회
+     * Study 조회
      * @param studyIdx Long
-     * @return Optional<Study>
+     * @return 스터디가 존재하면 Study 리턴
      */
-    Optional<Study> getStudy(Long studyIdx);
+    Study getStudyOrThrow(Long studyIdx);
 
     /**
      * 나의 스터디 (참여스터디, 가입대기스터디, 종료 스터디)

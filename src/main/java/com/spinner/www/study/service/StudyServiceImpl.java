@@ -1,5 +1,6 @@
 package com.spinner.www.study.service;
 
+import com.spinner.www.common.exception.StudyNotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.Member;
@@ -111,13 +112,13 @@ public class StudyServiceImpl implements StudyService {
     }
 
     /**
-     * Optional Study 조회
+     * Study 조회
      * @param studyIdx Long
-     * @return Optional<Study>
+     * @return 스터디 객체
      */
     @Override
-    public Optional<Study> getStudy(Long studyIdx) {
-        return studyRepo.findById(studyIdx);
+    public Study getStudyOrThrow(Long studyIdx) {
+        return studyRepo.findById(studyIdx).orElseThrow(() -> new StudyNotFoundException("존재하지 않는 스터디입니다."));
     }
 
     /**
@@ -155,6 +156,5 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public StudyDetailDto getStudyDetail(Long studyIdx) {
         return studyQueryRepo.findStudyDetailByStudyIdx(studyIdx);
-
     }
 }
