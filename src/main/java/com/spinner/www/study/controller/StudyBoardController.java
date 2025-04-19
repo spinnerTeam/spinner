@@ -1,31 +1,30 @@
-package com.spinner.www.board.controller;
+package com.spinner.www.study.controller;
 
-import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.board.service.BoardService;
+import com.spinner.www.common.io.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Slf4j
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/board")
-public class BoardRestController {
+@RequiredArgsConstructor
+@RequestMapping("/studyBoard")
+public class StudyBoardController {
 
     private final BoardService boardService;
 
     /**
-     * 게시글 생성
+     * 스터디 게시글 생성
      * @param boardType String
+     * @param studyIdx Long 조회할 스터디 idx
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
@@ -43,43 +42,48 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
             })
-    @PostMapping("/{boardType}")
-    public ResponseEntity<CommonResponse> insert(
+    @PostMapping("/{boardType}/{studyIdx}")
+    public ResponseEntity<CommonResponse> insertStudy(
             @PathVariable("boardType") String boardType,
+            @PathVariable("studyIdx") Long studyIdx,
             @RequestPart(value="boardRequest") BoardCreateRequest boardRequest, // JSON 데이터
-            @RequestPart(value = "multiFile", required = false) List<MultipartFile> files) { // 파일 데이터
-        return boardService.insert(boardType, boardRequest, files);
+            @RequestPart(value = "multiFile", required = false) List<MultipartFile> files // 파일 데이터
+    ) {
+        return boardService.insert(boardType, boardRequest, files, studyIdx);
     }
 
     /**
-     * 게시글 조회
+     * 스터디 게시글 조회
      * @param boardType String
      * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 조회할 스터디 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Operation(description = "게시글을 조회합니다. <br/>" +
             "idx(pk)에 해당하는 게시글 정보를 반환합니다. <br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
-            "free   : 자유글 <br/>" +
-            "notice : 공지사항 <br/>" ,
+            "free   : 자유글",
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @GetMapping("/{boardType}/{boardIdx}")
+    @GetMapping("/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> findByBoardInfo(@PathVariable("boardType") String boardType,
-                                                          @PathVariable("boardIdx") Long boardIdx) {
-        return boardService.findByBoardInfo(boardType, boardIdx);
+                                                          @PathVariable("boardIdx") Long boardIdx,
+                                                          @PathVariable("studyIdx") Long studyIdx) {
+        return boardService.findByBoardInfo(boardType, boardIdx, studyIdx);
     }
 
+
     /**
-     * 게시글 목록 조회
+     * 스터디 게시글 목록 조회
      * @param boardType String
      * @param idx Long 조회 시작 idx
      * @param size int 조회할 목록 갯수
      * @param keyword String 조회할 키워드
+     * @param studyIdx Long 조회할 스터디 idx
      * @return searchParamRequest<CommonResponse> 게시글 목록
      */
     @Operation(description = "게시글 목록을 조회합니다. <br/>" +
@@ -87,22 +91,22 @@ public class BoardRestController {
             "keyword에 값이 있을 시 keyword에 해당하는 제목과 작성자를 출력합니다.<br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
-            "free   : 자유글 <br/>" +
-            "notice : 공지사항 <br/>" ,
+            "free   : 자유글",
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
             })
-    @GetMapping("/{boardType}")
+    @GetMapping("/{boardType}/{studyIdx}")
     public ResponseEntity<CommonResponse> findByAll(@PathVariable("boardType") String boardType,
+                                                    @PathVariable("studyIdx") Long studyIdx,
                                                     @RequestParam(value = "idx", required = false) Long idx,
                                                     @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                                                     @RequestParam(value = "keyword", required = false) String keyword) {
-        return boardService.getSliceOfBoard(boardType, idx, size, keyword);
+        return boardService.getSliceOfBoard(boardType, idx, size, keyword, studyIdx);
     }
 
     /**
-     * 게시글 수정
+     * (스터디)게시글 수정
      * @param boardType String
      * @param boardIdx Long 게시글 idx
      * @param boardRequest BoardUpdateRequestIO 게시글 요청 데이터
@@ -112,8 +116,7 @@ public class BoardRestController {
             "해당 idx의 제목과 내용을 수정합니다<br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
-            "free   : 자유글 <br/>" +
-            "notice : 공지사항 <br/>" ,
+            "free   : 자유글",
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
@@ -121,7 +124,7 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "40301", description = "올바르지 않은 접근입니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @PatchMapping("/{boardType}/{boardIdx}")
+    @PatchMapping("/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType,
                                                  @PathVariable("boardIdx") Long boardIdx,
                                                  @RequestBody BoardUpdateRequest boardRequest) {
@@ -138,8 +141,7 @@ public class BoardRestController {
             "해당 idx의 게시글을 삭제합니다. <br/><br/>" +
             "<strong>[boardType]</strong> <br/>" +
             "verify : 공부인증글 <br/>" +
-            "free   : 자유글 <br/>" +
-            "notice : 공지사항 <br/>" ,
+            "free   : 자유글",
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
@@ -147,7 +149,7 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "40301", description = "올바르지 않은 접근입니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @DeleteMapping("/{boardType}/{boardIdx}")
+    @DeleteMapping("/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType,
                                                  @PathVariable("boardIdx") Long boardIdx) {
         return boardService.delete(boardType, boardIdx);

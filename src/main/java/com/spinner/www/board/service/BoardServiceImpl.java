@@ -67,6 +67,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         String updateSrcContent;
@@ -199,6 +201,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
@@ -243,6 +247,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -284,6 +290,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -324,6 +332,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
@@ -359,6 +369,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
@@ -430,7 +442,7 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
+        if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
