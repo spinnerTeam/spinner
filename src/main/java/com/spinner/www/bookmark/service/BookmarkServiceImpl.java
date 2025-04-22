@@ -45,7 +45,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Board board = boardService.findByBoardIdx(boardIdx);
+        Board board = boardService.getBoardOrThrow(boardIdx);
 
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
@@ -76,7 +76,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Board board = boardService.findByBoardIdx(boardIdx);
+        Board board = boardService.getBoardOrThrow(boardIdx);
         Bookmark bookmark = Bookmark.builder()
                 .member(member)
                 .board(board)

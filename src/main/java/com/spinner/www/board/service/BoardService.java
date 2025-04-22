@@ -5,6 +5,8 @@ import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
 import com.spinner.www.file.entity.Files;
+import com.spinner.www.member.entity.Member;
+import com.spinner.www.study.entity.Study;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,33 +20,44 @@ public interface BoardService {
      * 게시글 생성
      * @param boardType String 게시판 타입
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
+     * @param files List<MultipartFile> 멀티파일 리스트
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files);
 
     /**
-     * 게시글 생성
+     * 스터디 게시글 생성
      * @param boardType String 게시판 타입
-     * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
      * @param studyIdx Long
+     * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
+     * @param files List<MultipartFile> 멀티파일 리스트
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> files, Long studyIdx);
+    ResponseEntity<CommonResponse> insert(String boardType, Long studyIdx, BoardCreateRequest boardRequest, List<MultipartFile> files);
 
     /**
-     * 게시글 uuid로 삭제되지 않은 게시글
+     * 게시글 조회
      * @param boardIdx Long 게시글 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    Board findByBoardIdx(Long boardIdx);
+    Board getBoardOrThrow(Long boardIdx);
 
     /**
-     * 게시글 uuid로 삭제되지 않은 게시글
-     * @param codeIdx Long 게시판 타입
+     * 게시글 조회
      * @param boardIdx Long 게시글 idx
+     * @param codeIdx Long 게시판 타입 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    Board findByBoardIdx(Long codeIdx, Long boardIdx);
+    Board getBoardOrThrow(Long boardIdx, Long codeIdx);
+
+    /**
+     * 스터디 게시글 조회
+     * @param boardIdx Long 게시글 idx
+     * @param codeIdx Long 게시판 타입 idx
+     * @param study Study 스터디 객체
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    Board getBoardOrThrow(Long boardIdx, Long codeIdx, Study study);
 
     /**
      * 게시글 조회
@@ -61,7 +74,7 @@ public interface BoardService {
      * @param studyIdx Long 스터디 idx
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
-    ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx, Long studyIdx);
+    ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long studyIdx, Long boardIdx);
 
     /**
      * 게시글 목록 조회
@@ -158,6 +171,16 @@ public interface BoardService {
      * 게시글 수정
      * @param boardType String 게시판 타입
      * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 스터디 idx
+     * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    ResponseEntity<CommonResponse> update(String boardType, Long boardIdx, Long studyIdx, BoardUpdateRequest boardRequest);
+
+    /**
+     * 게시글 수정
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
      * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
@@ -172,9 +195,35 @@ public interface BoardService {
     ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx);
 
     /**
+     * 게시글 삭제
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 스터디 idx
+     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
+     */
+    ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx, Long studyIdx);
+
+    /**
      * 파일 서버 업로드
      * @param files List<MultipartFile>
      * @return ResponseEntity<CommonResponse>
      */
     Map<String, String> convertFilesNameAndUrl(List<Files> files) throws IOException;
+
+    /**
+     * 내가 작성한 게시글인지 확인
+     * @param boardIdx 게시글 idx
+     * @param member 멤버 객체
+     * @return boolean
+     */
+    boolean isCreatedByMember(Long boardIdx, Member member);
+
+    /**
+     * 내가 작성한 스터디 게시글인지 확인
+     * @param boardIdx 게시글 idx
+     * @param member 멤버 객체
+     * @param study 스터디 객체
+     * @return boolean
+     */
+    boolean isCreatedByMember(Long boardIdx, Member member, Study study);
 }

@@ -3,6 +3,7 @@ package com.spinner.www.board.service;
 import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.board.io.*;
 import com.spinner.www.common.entity.CommonCode;
+import com.spinner.www.common.exception.BoardNotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.common.service.ServerInfo;
@@ -17,6 +18,7 @@ import com.spinner.www.board.repository.BoardQueryRepo;
 import com.spinner.www.board.repository.BoardRepo;
 import com.spinner.www.reply.io.ReplyResponse;
 import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.service.StudyMemberService;
 import com.spinner.www.study.service.StudyService;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -44,34 +45,51 @@ public class BoardServiceImpl implements BoardService {
     private final FileService fileService;
     private final CommonCodeService commonCodeService;
     private final StudyService studyService;
+    private final StudyMemberService studyMemberService;
 
     @Autowired
     private ServerInfo serverInfo;
 
     /**
      * 게시글 생성
-     *
+     * @param boardType String 게시판 타입
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
+     * @param uploadFiles List<MultipartFile> 멀티파일 리스트
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
     public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles) {
-        return insert(boardType, boardRequest, uploadFiles, null);
+        return insert(boardType, null, boardRequest, uploadFiles);
     }
     /**
-     * 게시글 생성
-     *
+     * 스터디 게시글 생성
+     * @param boardType String 게시판 타입
+     * @param studyIdx Long
      * @param boardRequest BoardCreateRequestIO 게시글 요청 데이터
+     * @param uploadFiles List<MultipartFile> 멀티파일 리스트
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insert(String boardType, BoardCreateRequest boardRequest, List<MultipartFile> uploadFiles, Long studyIdx) {
+    public ResponseEntity<CommonResponse> insert(String boardType, Long studyIdx, BoardCreateRequest boardRequest,List<MultipartFile> uploadFiles) {
         Long memberIdx = sessionInfo.getMemberIdx();
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
+        Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
+
         String updateSrcContent;
 
         Member member = memberService.getMember(memberIdx);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            System.out.println("isStudyMember: "+isStudyMember);
+            System.out.println(study.getStudyIdx() +"  "+ member.getMemberIdx());
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
+
         List<Files> files;
         try {
             files = fileService.uploadBoardFiles(uploadFiles);
@@ -104,23 +122,40 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public Board findByBoardIdx(Long boardIdx) {
+    public Board getBoardOrThrow(Long boardIdx) {
         int isNotRemove = 0;
-        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElse(null);
+        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElseThrow(BoardNotFoundException::new);
     }
 
     /**
      * 게시글 uuid로 삭제되지 않은 게시글 조회
-     *
-     * @param codeIdx  Long 게시판 타입
      * @param boardIdx Long 게시글 idx
+     * @param codeIdx  Long 게시판 타입
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public Board findByBoardIdx(Long codeIdx, Long boardIdx) {
-        int isNotRemove = 0;
-        CommonCode commoncode = commonCodeService.getCommonCode(codeIdx);
-        return boardRepo.findByCommonCodeAndBoardIdxAndBoardIsRemoved(commoncode, boardIdx, isNotRemove).orElse(null);
+    public Board getBoardOrThrow(Long boardIdx, Long codeIdx) {
+        Board board = getBoardOrThrow(boardIdx);
+        if(!Objects.equals(board.getCommonCode().getCodeIdx(),codeIdx)) {
+            throw new BoardNotFoundException();
+        }
+        return board;
+    }
+
+    /**
+     * 스터디 게시글 조회
+     * @param boardIdx Long 게시글 idx
+     * @param codeIdx Long 게시판 타입
+     * @param study Study 스터디 객체
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    public Board getBoardOrThrow(Long boardIdx, Long codeIdx, Study study) {
+        Board board = getBoardOrThrow(boardIdx, codeIdx);
+        if(!Objects.equals(board.getStudy(), study)) {
+            throw new BoardNotFoundException();
+        }
+        return board;
     }
 
     /**
@@ -134,10 +169,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Board board = findByBoardIdx(codeIdx, boardIdx);
-
-        if (board == null)
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        Board board = getBoardOrThrow(boardIdx, codeIdx);
 
         board.increaseHitCount();
         BoardResponse response = buildBoardResponse(board);
@@ -152,19 +184,18 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long boardIdx, Long studyIdx) {
+    public ResponseEntity<CommonResponse> findByBoardInfo(String boardType, Long studyIdx, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
-        Board board = findByBoardIdx(codeIdx, boardIdx);
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
+        Study study = studyService.getStudyOrThrow(studyIdx);
 
-        if (board == null)
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        Board board = getBoardOrThrow(boardIdx, codeIdx, study);
 
-        if(Objects.isNull(study))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        if(!board.getStudy().equals(study))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        Long memberIdx = sessionInfo.getMemberIdx();
+        Member member = memberService.getMember(memberIdx);
+        boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+        if(!isStudyMember) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
 
         board.increaseHitCount();
         BoardResponse response = buildBoardResponse(board);
@@ -199,11 +230,18 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        Study study = studyService.getStudyOrThrow(studyIdx);
 
-        // HACK 로그인 상태가 아닐 시 -1을 멤버 아이디로 줌
-        if (Objects.isNull(memberIdx))
-            memberIdx = -1L;
+        if(!Objects.isNull(study)) {
+            Member member = memberService.getMember(memberIdx);
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
+
         Long codeIdx = CommonBoardCode.getCode(boardType);
         if(Objects.isNull(codeIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
@@ -243,13 +281,22 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
-        if (Objects.isNull(memberIdx))
+
+        if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfBookmarkedBoard(idx,
                                                                                     size,
@@ -284,13 +331,22 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
-        if (Objects.isNull(memberIdx))
+        if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
+
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfLikedBoard(idx,
                                                                                 size,
@@ -324,7 +380,17 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
+        if(Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        if(!Objects.isNull(study)) {
+            Member member = memberService.getMember(memberIdx);
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfMemberBoard(idx,
                                                                                 size,
@@ -359,17 +425,21 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
-        if (Objects.isNull(memberIdx))
+        if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
 
         Long codeIdx = CommonBoardCode.getCode(boardType);
         if(Objects.isNull(codeIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new BoardNotFoundException();
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfHotBoard(codeIdx,
                                                                                 idx,
@@ -382,7 +452,6 @@ public class BoardServiceImpl implements BoardService {
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(list), HttpStatus.OK);
     }
-
 
     /**
      * 게시글 수정
@@ -402,20 +471,56 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        if (!Objects.equals(board.getMember(), member))
+        boolean isAuth = this.isCreatedByMember(boardIdx, member);
+        if(!isAuth) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
+        Board board = this.getBoardOrThrow(boardIdx, codeIdx);
+
 
         board.update(boardRequest.getTitle(), org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()));
         BoardResponse response = buildBoardResponse(board);
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
+    }
 
+    /**
+     * 게시글 수정
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 스터디 idx
+     * @param boardRequest BoardUpdateRequestIO 게시글 수정 데이터
+     * @return ResponseEntity<CommonResponse> 게시글 상세 정보
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> update(String boardType, Long boardIdx, Long studyIdx, BoardUpdateRequest boardRequest) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        boolean isAuth = this.isCreatedByMember(boardIdx, member, study);
+        if(!isAuth) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        }
+
+        boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+        if(!isStudyMember) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
+
+        Board board = this.getBoardOrThrow(boardIdx, codeIdx, study);
+
+
+        board.update(boardRequest.getTitle(), org.springframework.web.util.HtmlUtils.htmlEscape(boardRequest.getContent()));
+        BoardResponse response = buildBoardResponse(board);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**
@@ -430,22 +535,51 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
+        if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
+        boolean isAuth = this.isCreatedByMember(boardIdx, member);
+        if(!isAuth) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
 
-        Board board = this.findByBoardIdx(codeIdx, boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        if (!Objects.equals(board.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+        Board board = this.getBoardOrThrow(boardIdx, codeIdx);
 
         board.delete();
 
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 게시글 삭제
+     * @param boardType String 게시판 타입
+     * @param boardIdx Long 게시글 idx
+     * @param studyIdx Long 스터디 idx
+     * @return ResponseEntity<CommonResponse> 삭제 응답 결과
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx, Long studyIdx) {
+        Long codeIdx = CommonBoardCode.getCode(boardType);
+        Long memberIdx = sessionInfo.getMemberIdx();
+        Member member = memberService.getMember(memberIdx);
+
+        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        boolean isAuth = this.isCreatedByMember(boardIdx, member, study);
+        if(!isAuth) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+        if(!isStudyMember) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        }
+
+        Board board = this.getBoardOrThrow(boardIdx, codeIdx, study);
+
+        board.delete();
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(), HttpStatus.OK);
     }
 
@@ -538,6 +672,31 @@ public class BoardServiceImpl implements BoardService {
             fileMap.put(originalName, serverInfo.getServerUrlWithPort() + serverInfo.getFilePath() +fileIdx);
         }
         return fileMap;
+    }
+
+    /**
+     * 내가 작성한 게시글인지 확인
+     * @param boardIdx 게시글 idx
+     * @param member 멤버 객체
+     * @return boolean
+     */
+    @Override
+    public boolean isCreatedByMember(Long boardIdx, Member member) {
+        Board board = this.getBoardOrThrow(boardIdx);
+        return board.getMember().getMemberIdx().equals(member.getMemberIdx());
+    }
+
+    /**
+     * 내가 작성한 스터디 게시글인지 확인
+     * @param boardIdx 게시글 idx
+     * @param member 멤버 객체
+     * @param study 스터디 객체
+     * @return boolean
+     */
+    @Override
+    public boolean isCreatedByMember(Long boardIdx, Member member, Study study) {
+        Board board = this.getBoardOrThrow(boardIdx);
+        return board.getMember().getMemberIdx().equals(member.getMemberIdx()) && board.getStudy().getStudyIdx().equals(study.getStudyIdx());
     }
 
     public String updateMediaSrc(Map<String, String> fileUrlMap, String htmlText) {
