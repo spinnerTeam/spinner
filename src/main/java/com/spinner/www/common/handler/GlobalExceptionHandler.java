@@ -1,5 +1,7 @@
 package com.spinner.www.common.handler;
 
+import com.spinner.www.common.exception.BoardNotFoundException;
+import com.spinner.www.common.exception.ReplyNotFoundException;
 import com.spinner.www.common.exception.StudyNotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
@@ -63,6 +65,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<CommonResponse> handleStudyNotFoundException(StudyNotFoundException ex) {
         return new ResponseEntity<>(
                 ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_STUDY),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // 게시글 NOT_FOUND Exception 처리
+    @ExceptionHandler(BoardNotFoundException.class)
+    public ResponseEntity<CommonResponse> handleBoardNotFoundException() {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_BOARD),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // 댓글 NOT_FOUND Exception 처리
+    @ExceptionHandler(ReplyNotFoundException.class)
+    public ResponseEntity<CommonResponse> handleReplyNotFoundException() {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_BOARD),
                 HttpStatus.NOT_FOUND
         );
     }

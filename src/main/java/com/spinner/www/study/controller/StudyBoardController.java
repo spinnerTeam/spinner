@@ -49,7 +49,7 @@ public class StudyBoardController {
             @RequestPart(value="boardRequest") BoardCreateRequest boardRequest, // JSON 데이터
             @RequestPart(value = "multiFile", required = false) List<MultipartFile> files // 파일 데이터
     ) {
-        return boardService.insert(boardType, boardRequest, files, studyIdx);
+        return boardService.insert(boardType, studyIdx, boardRequest, files);
     }
 
     /**
@@ -73,7 +73,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> findByBoardInfo(@PathVariable("boardType") String boardType,
                                                           @PathVariable("boardIdx") Long boardIdx,
                                                           @PathVariable("studyIdx") Long studyIdx) {
-        return boardService.findByBoardInfo(boardType, boardIdx, studyIdx);
+        return boardService.findByBoardInfo(boardType, studyIdx, boardIdx);
     }
 
 
@@ -127,8 +127,9 @@ public class StudyBoardController {
     @PatchMapping("/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType,
                                                  @PathVariable("boardIdx") Long boardIdx,
+                                                 @PathVariable("studyIdx") Long studyIdx,
                                                  @RequestBody BoardUpdateRequest boardRequest) {
-        return boardService.update(boardType, boardIdx, boardRequest);
+        return boardService.update(boardType, boardIdx, studyIdx, boardRequest);
     }
 
     /**
@@ -151,7 +152,8 @@ public class StudyBoardController {
             })
     @DeleteMapping("/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType,
+                                                 @PathVariable("studyIdx") Long studyIdx,
                                                  @PathVariable("boardIdx") Long boardIdx) {
-        return boardService.delete(boardType, boardIdx);
+        return boardService.delete(boardType, boardIdx, studyIdx);
     }
 }

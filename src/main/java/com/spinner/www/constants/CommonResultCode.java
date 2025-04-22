@@ -128,7 +128,18 @@ public enum CommonResultCode {
 
     NOT_FOUND_FILE(40004, "스터디 이미지를 첨부해주세요"),
 
-    NOT_FOUND_STUDY(4005, "존재하지 않는 스터디입니다.");
+    NOT_FOUND_STUDY(4005, "존재하지 않는 스터디입니다."),
+
+    /**
+     * 요청한 게시글이 존재하지 않을 경우
+     */
+    NOT_FOUND_BOARD(40006, "존재하지 않는 게시글입니다."),
+
+    /**
+     * 요청한 댓글이 존재하지 않을 경우
+     */
+    NOT_FOUND_REPLY(40007, "존재하지 않는 댓글입니다.");
+
 
 
     /**

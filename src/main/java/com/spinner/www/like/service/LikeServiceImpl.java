@@ -48,7 +48,7 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Board board = boardService.findByBoardIdx(boardIdx);
+        Board board = boardService.getBoardOrThrow(boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
@@ -78,11 +78,11 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Reply reply= replyService.findByReplyIdx(replyIdx);
+        Reply reply= replyService.getReplyOrThrow(replyIdx);
         if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
-        Board board = boardService.findByBoardIdx(reply.getBoard().getBoardIdx());
+        Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
@@ -112,10 +112,9 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Board board = boardService.findByBoardIdx(boardIdx);
+        Board board = boardService.getBoardOrThrow(boardIdx);
         if (Objects.isNull(board))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
 
         Like like = Like.builder()
                 .member(member)
@@ -145,7 +144,7 @@ public class LikeServiceImpl implements LikeService {
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
-        Reply reply = replyService.findByReplyIdx(replyIdx);
+        Reply reply = replyService.getReplyOrThrow(replyIdx);
         if (Objects.isNull(reply))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
