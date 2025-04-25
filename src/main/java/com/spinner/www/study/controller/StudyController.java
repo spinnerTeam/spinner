@@ -123,4 +123,9 @@ public class StudyController {
     public ResponseEntity<CommonResponse> viewStudy(@PathVariable("studyIdx") Long studyIdx){
         return studyFacadeService.getStudyDetail(studyIdx);
     }
+
+    @PostMapping("/initElasticsearch")
+    public ResponseEntity<CommonResponse> initElasticsearch(){
+        return studyFacadeService.initElasticsearch();
+    }
 }

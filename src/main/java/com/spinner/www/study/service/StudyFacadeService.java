@@ -132,4 +132,10 @@ public interface StudyFacadeService {
      * @return 권한 위임 성공 여부를 담은 응답 객체
      */
     ResponseEntity<CommonResponse> transferLeader(Long studyIdx, Long studyMemberIdx);
+
+    /**
+     * 엘라스틱 서치에 전체 데이터 수동으로 업로드됩니다.
+     * @return 엘라스틱서치에 업로드 후 성공 여부를 담은 응답객체
+     */
+    ResponseEntity<CommonResponse> initElasticsearch();
 }

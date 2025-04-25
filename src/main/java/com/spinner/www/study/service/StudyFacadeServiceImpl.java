@@ -476,4 +476,13 @@ public class StudyFacadeServiceImpl implements StudyFacadeService{
 
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("방장 위임이 완료되었습니다."), HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<CommonResponse> initElasticsearch() {
+
+        //
+        studyService.initElasticsearch();
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse("엘라스틱 서치 업로드 완료"), HttpStatus.OK);
+    }
 }

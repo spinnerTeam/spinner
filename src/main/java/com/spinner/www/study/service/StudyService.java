@@ -3,10 +3,7 @@ package com.spinner.www.study.service;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.MyStudyListDto;
-import com.spinner.www.study.dto.PendingStudyMemberDto;
-import com.spinner.www.study.dto.StudyDetailDto;
-import com.spinner.www.study.dto.StudyListDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.io.CreateStudy;
 import com.spinner.www.study.io.JoinStudyMember;
@@ -94,4 +91,6 @@ public interface StudyService {
      * @return StudyDetailDto
      */
     StudyDetailDto getStudyDetail(Long studyIdx);
+
+    List<StudyDocument> initElasticsearch();
 }

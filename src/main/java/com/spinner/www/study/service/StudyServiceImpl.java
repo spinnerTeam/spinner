@@ -5,10 +5,7 @@ import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.study.constants.StudyMemberStatus;
-import com.spinner.www.study.dto.MyStudyListDto;
-import com.spinner.www.study.dto.PendingStudyMemberDto;
-import com.spinner.www.study.dto.StudyDetailDto;
-import com.spinner.www.study.dto.StudyListDto;
+import com.spinner.www.study.dto.*;
 import com.spinner.www.study.entity.Study;
 import com.spinner.www.study.repository.StudyQueryRepo;
 import com.spinner.www.study.repository.StudyRepo;
@@ -156,5 +153,10 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public StudyDetailDto getStudyDetail(Long studyIdx) {
         return studyQueryRepo.findStudyDetailByStudyIdx(studyIdx);
+    }
+
+    @Override
+    public List<StudyDocument> initElasticsearch() {
+        return studyQueryRepo.findStudyListWithApproveMemberCount();
     }
 }

@@ -2,6 +2,7 @@ package com.spinner.www.study.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spinner.www.common.entity.QCommonCode;
@@ -148,5 +149,31 @@ public class StudyQueryRepo {
                         qStudy.studyIdx.eq(studyIdx)
                         )
                 .fetchOne();
+    }
+
+    public List<StudyDocument> findStudyListWithApproveMemberCount(){
+        QStudy qStudy = QStudy.study;
+        QStudyTopic qStudyTopic = QStudyTopic.studyTopic;
+        QCommonCode qCommonCode = QCommonCode.commonCode;
+        QStudyMember qStudyMember = QStudyMember.studyMember;
+
+        return jpaQueryFactory.select(
+                        Projections.constructor(
+                                StudyDocument.class,
+                                qStudy.studyIdx,
+                                qStudy.studyName,
+                                qStudy.studyInfo,
+                                qCommonCode.codeName,
+                                qStudyMember.count().intValue()
+                        )).from(qStudy)
+                .join(qStudy.studyTopic, qStudyTopic)
+                .join(qStudyTopic.commonCode, qCommonCode)
+                .join(qStudy.studyMembers, qStudyMember)
+                .where(
+                        qStudyMember.isStudyMemberRemoved.eq(false),
+                        qStudyMember.studyMemberStatus.eq(StudyMemberStatus.APPROVED)
+                        )
+                .groupBy(qStudy.studyIdx)
+                .fetch();
     }
 }
