@@ -71,8 +71,6 @@ public class ReplyServiceImpl implements ReplyService {
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
-            System.out.println("isStudyMember: "+isStudyMember);
-            System.out.println(study.getStudyIdx() +"  "+ member.getMemberIdx());
             if(!isStudyMember) {
                 return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
             }
