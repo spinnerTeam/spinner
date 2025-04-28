@@ -14,6 +14,9 @@ import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
 import com.spinner.www.reply.entity.Reply;
 import com.spinner.www.reply.service.ReplyService;
+import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.service.StudyMemberService;
+import com.spinner.www.study.service.StudyService;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,8 @@ public class LikeServiceImpl implements LikeService {
     private final ReplyService replyService;
     private final BoardService boardService;
     private final LikeMapper likeMapper;
+    private final StudyService studyService;
+    private final StudyMemberService studyMemberService;
     /**
      * 좋아요 생성 또는 업데이트
      * @param boardIdx Long
@@ -58,6 +63,90 @@ public class LikeServiceImpl implements LikeService {
 
         if(Objects.isNull(like)) {
             return this.insertBoard(boardIdx);
+        }
+
+        return this.update(like);
+    }
+
+    /**
+     * 좋아요 생성
+     * @param studyIdx Long
+     * @param boardIdx Long
+     * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
+     */
+    @Override
+    public ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
+
+        Board board = boardService.getBoardOrThrow(boardIdx);
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        List<Like> likes = this.findByBoard(board);
+
+        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+
+        if(Objects.isNull(like)) {
+            return this.insertBoard(boardIdx);
+        }
+
+        return this.update(like);
+    }
+
+    /**
+     * 좋아요 생성 또는 업데이트
+     * @param studyIdx Long
+     * @param replyIdx Long
+     * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
+     */
+    @Override
+    public ResponseEntity<CommonResponse> upsertReply(Long studyIdx, Long replyIdx) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Reply reply= replyService.getReplyOrThrow(replyIdx);
+        if (Objects.isNull(reply))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
+
+        Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        List<Like> likes = this.findByReply(reply);
+
+        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+
+        if(Objects.isNull(like)) {
+            return this.insertReply(replyIdx);
         }
 
         return this.update(like);

@@ -19,10 +19,27 @@ public interface LikeService {
 
     /**
      * 좋아요 생성
+     * @param studyIdx Long
+     * @param boardIdx Long
+     * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
+     */
+    ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx);
+
+    /**
+     * 좋아요 생성
      * @param replyIdx Long
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
     ResponseEntity<CommonResponse> upsertReply(Long replyIdx);
+
+    /**
+     * 좋아요 생성
+     * @param studyIdx Long
+     * @param replyIdx Long
+     * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
+     */
+    ResponseEntity<CommonResponse> upsertReply(Long studyIdx, Long replyIdx);
+
 
     /**
      * 좋아요 생성
