@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @SuperBuilder
@@ -35,7 +36,7 @@ public class ReplyResponse extends BaseResponse {
         this.idx = idx;
         this.content = content;
         this.nickname = nickname;
-        this.likeCount = likeCount;
+        this.likeCount = Objects.isNull(likeCount) ? 0 : likeCount;
         this.isLiked = isLiked;
     }
 }
