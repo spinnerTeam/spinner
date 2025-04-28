@@ -68,7 +68,7 @@ public class ReplyRestController {
     public ResponseEntity<CommonResponse> insert(@PathVariable("boardType") String boardType,
                                                  @PathVariable("studyIdx") Long studyIdx,
                                                  @RequestBody ReplyCreateRequest replyRequest) {
-        return replyService.insert(boardType, replyRequest);
+        return replyService.insert(boardType, studyIdx, replyRequest);
     }
 
     /**
@@ -91,7 +91,9 @@ public class ReplyRestController {
                     @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다.")
             })
     @PatchMapping("/{boardType}/{replyIdx}")
-    public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType, @PathVariable("replyIdx") Long replyIdx, @RequestBody ReplyUpdateRequest replyRequest) {
+    public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType,
+                                                 @PathVariable("replyIdx") Long replyIdx,
+                                                 @RequestBody ReplyUpdateRequest replyRequest) {
         return replyService.update(boardType, replyIdx, replyRequest);
     }
 
