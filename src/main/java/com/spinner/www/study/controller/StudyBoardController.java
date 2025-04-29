@@ -2,13 +2,13 @@ package com.spinner.www.study.controller;
 
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
-import com.spinner.www.board.service.BoardService;
 import com.spinner.www.bookmark.service.BookmarkService;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.like.service.LikeService;
 import com.spinner.www.reply.io.ReplyCreateRequest;
 import com.spinner.www.reply.io.ReplyUpdateRequest;
 import com.spinner.www.reply.service.ReplyService;
+import com.spinner.www.study.service.StudyBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,10 +24,7 @@ import java.util.List;
 @RequestMapping("/studyBoard")
 public class StudyBoardController {
 
-    private final BoardService boardService;
-    private final ReplyService replyService;
-    private final LikeService likeService;
-    private final BookmarkService bookmarkService;
+    private final StudyBoardService studyBoardService;
 
     /**
      * 스터디 게시글 생성
@@ -57,7 +54,7 @@ public class StudyBoardController {
             @RequestPart(value="boardRequest") BoardCreateRequest boardRequest, // JSON 데이터
             @RequestPart(value = "multiFile", required = false) List<MultipartFile> files // 파일 데이터
     ) {
-        return boardService.insert(boardType, studyIdx, boardRequest, files);
+        return studyBoardService.insert(boardType, studyIdx, boardRequest, files);
     }
 
     /**
@@ -82,7 +79,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> findByBoardInfo(@PathVariable("boardType") String boardType,
                                                           @PathVariable("boardIdx") Long boardIdx,
                                                           @PathVariable("studyIdx") Long studyIdx) {
-        return boardService.findByBoardInfo(boardType, studyIdx, boardIdx);
+        return studyBoardService.findByBoardInfo(boardType, studyIdx, boardIdx);
     }
 
 
@@ -112,7 +109,7 @@ public class StudyBoardController {
                                                     @RequestParam(value = "idx", required = false) Long idx,
                                                     @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                                                     @RequestParam(value = "keyword", required = false) String keyword) {
-        return boardService.getSliceOfBoard(boardType, idx, size, keyword, studyIdx);
+        return studyBoardService.getSliceOfBoard(boardType, idx, size, keyword, studyIdx);
     }
 
     /**
@@ -140,7 +137,7 @@ public class StudyBoardController {
                                                  @PathVariable("boardIdx") Long boardIdx,
                                                  @PathVariable("studyIdx") Long studyIdx,
                                                  @RequestBody BoardUpdateRequest boardRequest) {
-        return boardService.update(boardType, boardIdx, studyIdx, boardRequest);
+        return studyBoardService.update(boardType, boardIdx, studyIdx, boardRequest);
     }
 
     /**
@@ -166,7 +163,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType,
                                                  @PathVariable("studyIdx") Long studyIdx,
                                                  @PathVariable("boardIdx") Long boardIdx) {
-        return boardService.delete(boardType, boardIdx, studyIdx);
+        return studyBoardService.delete(boardType, boardIdx, studyIdx);
     }
 
     /**
@@ -192,7 +189,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> insertReply(@PathVariable("boardType") String boardType,
                                                  @PathVariable("studyIdx") Long studyIdx,
                                                  @RequestBody ReplyCreateRequest replyRequest) {
-        return replyService.insert(boardType, studyIdx, replyRequest);
+        return studyBoardService.insertReply(boardType, studyIdx, replyRequest);
     }
 
 
@@ -222,7 +219,7 @@ public class StudyBoardController {
                                                  @PathVariable("replyIdx") Long replyIdx,
                                                  @PathVariable("studyIdx") Long  studyIdx,
                                                  @RequestBody ReplyUpdateRequest replyRequest) {
-        return replyService.update(boardType, replyIdx, studyIdx, replyRequest);
+        return studyBoardService.updateReply(boardType, replyIdx, studyIdx, replyRequest);
     }
 
 
@@ -250,7 +247,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> deleteReply(@PathVariable("boardType") String boardType,
                                                  @PathVariable("replyIdx") Long replyIdx,
                                                  @PathVariable("studyIdx") Long  studyIdx) {
-        return replyService.delete(boardType, replyIdx, studyIdx);
+        return studyBoardService.deleteReply(boardType, replyIdx, studyIdx);
     }
 
 
@@ -279,7 +276,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> setLikeBoard(@PathVariable("boardType") String boardType,
                                                        @PathVariable("studyIdx") Long studyIdx,
                                                        @PathVariable("boardIdx") Long boardIdx) {
-        return likeService.upsertBoard(studyIdx, boardIdx);
+        return studyBoardService.upsertLikeBoard(studyIdx, boardIdx);
     }
 
     /**
@@ -306,7 +303,7 @@ public class StudyBoardController {
     public ResponseEntity<CommonResponse> setLikeReply(@PathVariable("boardType") String boardType,
                                                        @PathVariable("studyIdx") Long studyIdx,
                                                        @PathVariable("replyIdx") Long replyIdx) {
-        return likeService.upsertReply(studyIdx, replyIdx);
+        return studyBoardService.upsertLikeReply(studyIdx, replyIdx);
     }
 
     /**
@@ -331,6 +328,6 @@ public class StudyBoardController {
     @PostMapping("/bookmark/board/{boardType}/{studyIdx}/{boardIdx}")
     public ResponseEntity<CommonResponse> setBookmark(@PathVariable("studyIdx") Long studyIdx,
                                                       @PathVariable("boardIdx") Long boardIdx) {
-        return bookmarkService.upsertBoard(studyIdx, boardIdx);
+        return studyBoardService.upsertBookmarkBoard(studyIdx, boardIdx);
     }
 }
