@@ -230,7 +230,7 @@ public class BoardServiceImpl implements BoardService {
         Long memberIdx = sessionInfo.getMemberIdx();
         if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-        Study study = studyService.getStudyOrThrow(studyIdx);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if(!Objects.isNull(study)) {
             Member member = memberService.getMember(memberIdx);
@@ -284,10 +284,7 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
-        Study study = studyService.getStudyOrThrow(studyIdx);
-
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
@@ -333,10 +330,7 @@ public class BoardServiceImpl implements BoardService {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
-        Study study = studyService.getStudyOrThrow(studyIdx);
-
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
@@ -380,7 +374,8 @@ public class BoardServiceImpl implements BoardService {
         Long memberIdx = sessionInfo.getMemberIdx();
         if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-        Study study = studyService.getStudyOrThrow(studyIdx);
+
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if(!Objects.isNull(study)) {
             Member member = memberService.getMember(memberIdx);
@@ -426,7 +421,7 @@ public class BoardServiceImpl implements BoardService {
         if(Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         Member member = memberService.getMember(memberIdx);
-        Study study = studyService.getStudyOrThrow(studyIdx);
+        Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
