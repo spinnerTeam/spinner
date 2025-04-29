@@ -35,7 +35,7 @@ public class BookmarkRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @PostMapping("/board/{boardIdx}")
+    @PostMapping("/board/{boardType}/{boardIdx}")
     public ResponseEntity<CommonResponse> setBookmark(@PathVariable("boardIdx") Long boardIdx) {
         return bookmarkService.upsertBoard(boardIdx);
     }

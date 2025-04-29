@@ -18,6 +18,14 @@ public interface BookmarkService {
 
     /**
      * 북마크 생성
+     * @param studyIdx Long
+     * @param boardIdx Long
+     * @return ResponseEntity<CommonResponse> 북마크 상세 정보
+     */
+    ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx);
+
+    /**
+     * 북마크 생성
      * @param boardIdx Long
      * @return ResponseEntity<CommonResponse> 북마크 상세 정보
      */
