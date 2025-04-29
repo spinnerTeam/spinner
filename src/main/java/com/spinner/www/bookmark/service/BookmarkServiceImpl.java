@@ -11,6 +11,9 @@ import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
+import com.spinner.www.study.entity.Study;
+import com.spinner.www.study.service.StudyMemberService;
+import com.spinner.www.study.service.StudyService;
 import com.spinner.www.util.ResponseVOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final MemberService memberService;
     private final BoardService boardService;
     private final BookmarkMapper bookmarkMapper;
+    private final StudyService studyService;
+    private final StudyMemberService studyMemberService;
 
     /**
      * 북마크 생성 또는 업데이트
@@ -44,6 +49,47 @@ public class BookmarkServiceImpl implements BookmarkService {
         Member member = memberService.getMember(memberIdx);
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Board board = boardService.getBoardOrThrow(boardIdx);
+
+        if (Objects.isNull(board))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+
+        List<Bookmark> bookmarks = this.findByBoard(board);
+
+        Bookmark bookmark = bookmarks.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+
+        if(Objects.isNull(bookmark)) {
+            return this.insertBoard(boardIdx);
+        }
+
+        return this.update(bookmark);
+    }
+
+    /**
+     * 북마크 생성
+     * @param studyIdx Long
+     * @param boardIdx Long
+     * @return ResponseEntity<CommonResponse> 북마크 상세 정보
+     */
+    @Override
+    public ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx) {
+        Long memberIdx = sessionInfo.getMemberIdx();
+        if (Objects.isNull(memberIdx))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Member member = memberService.getMember(memberIdx);
+        if (Objects.isNull(member))
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
+        Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
+
+        if(!Objects.isNull(study)) {
+            boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
+            if(!isStudyMember) {
+                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            }
+        }
 
         Board board = boardService.getBoardOrThrow(boardIdx);
 
