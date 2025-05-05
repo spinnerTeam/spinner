@@ -23,18 +23,23 @@ public class Report extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTypeIdx")
-    @Comment("reportTypeIdx")
+    @Comment("신고 종류")
     private ReportType reportType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boardIdx")
-    @Comment("boardIdx")
-    private Board board;
+    @JoinColumn(name = "reporterMemberIdx")
+    @Comment("신고자")
+    private Member reporterMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "memberIdx")
-    @Comment("memberIdx")
-    private Member member;
+    @JoinColumn(name = "reportedBoardIdx")
+    @Comment("신고 대상 사용자")
+    private Board reportedBoard;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reportedMemberIdx")
+    @Comment("신고 대상 게시글")
+    private Member reportedMember;
 
     @Comment("신고 삭제 여부")
     private String reportIsRemoved;
@@ -44,11 +49,20 @@ public class Report extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static Report create(ReportType reportType, Board board, Member member) {
+    public static Report create(ReportType reportType, Member reporterMember, Member reportedMember) {
         return  Report.builder()
                 .reportType(reportType)
-                .board(board)
-                .member(member)
+                .reporterMember(reporterMember)
+                .reportedMember(reportedMember)
+                .reportIsRemoved("N")
+                .build();
+    }
+
+    public static Report create(ReportType reportType, Member reporterMember, Board reportedBoard) {
+        return  Report.builder()
+                .reportType(reportType)
+                .reporterMember(reporterMember)
+                .reportedBoard(reportedBoard)
                 .reportIsRemoved("N")
                 .build();
     }

@@ -7,5 +7,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ReportCreateDto {
     private Long reportTypeIdx;
-    private Long boardIdx;
+    private Long reportedBoardIdx;
+    private Long reportedMemberIdx;
 }

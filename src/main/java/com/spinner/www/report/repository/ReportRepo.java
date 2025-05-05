@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface ReportRepo extends JpaRepository<Report, Long> {
-    Optional<Report> findByBoardAndMember(Board board, Member member);
+    Optional<Report> findByReportedBoardAndReporterMember(Board board, Member member);
 }
