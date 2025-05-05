@@ -1,9 +1,6 @@
 package com.spinner.www.common.handler;
 
-import com.spinner.www.common.exception.BoardNotFoundException;
-import com.spinner.www.common.exception.MemberNotFoundException;
-import com.spinner.www.common.exception.ReplyNotFoundException;
-import com.spinner.www.common.exception.StudyNotFoundException;
+import com.spinner.www.common.exception.*;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
@@ -93,6 +90,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_MEMBER),
                 HttpStatus.NOT_FOUND
+        );
+    }
+
+    // 멤버 NOT_FOUND Exception 처리
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<CommonResponse> UnauthorizedException() {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED),
+                HttpStatus.UNAUTHORIZED
         );
     }
 }
