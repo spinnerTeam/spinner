@@ -1,12 +1,12 @@
 package com.spinner.www.common.handler;
 
 import com.spinner.www.common.exception.BoardNotFoundException;
+import com.spinner.www.common.exception.MemberNotFoundException;
 import com.spinner.www.common.exception.ReplyNotFoundException;
 import com.spinner.www.common.exception.StudyNotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.util.ResponseVOUtils;
-import javax.naming.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +83,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<CommonResponse> handleReplyNotFoundException() {
         return new ResponseEntity<>(
                 ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_BOARD),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // 멤버 NOT_FOUND Exception 처리
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<CommonResponse> handleMemberNotFoundException() {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_MEMBER),
                 HttpStatus.NOT_FOUND
         );
     }

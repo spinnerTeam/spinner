@@ -138,7 +138,12 @@ public enum CommonResultCode {
     /**
      * 요청한 댓글이 존재하지 않을 경우
      */
-    NOT_FOUND_REPLY(40007, "존재하지 않는 댓글입니다.");
+    NOT_FOUND_REPLY(40007, "존재하지 않는 댓글입니다."),
+
+    /**
+     * 요청한 사용자가 존재하지 않을 경우
+     */
+    NOT_FOUND_MEMBER(40008, "존재하지 않는 사용자입니다.");
 
 
 
