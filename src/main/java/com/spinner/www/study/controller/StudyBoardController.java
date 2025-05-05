@@ -2,12 +2,9 @@ package com.spinner.www.study.controller;
 
 import com.spinner.www.board.io.BoardCreateRequest;
 import com.spinner.www.board.io.BoardUpdateRequest;
-import com.spinner.www.bookmark.service.BookmarkService;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.like.service.LikeService;
 import com.spinner.www.reply.io.ReplyCreateRequest;
 import com.spinner.www.reply.io.ReplyUpdateRequest;
-import com.spinner.www.reply.service.ReplyService;
 import com.spinner.www.study.service.StudyBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -38,7 +38,7 @@ public class ReportTypeServiceImpl implements ReportTypeService {
         ReportType reportType = ReportType.create(reportTypeDto);
         reportTypeRepo.save(reportType);
 
-        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(reportType.getId()), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(reportType.getReportTypeIdx()), HttpStatus.OK);
     }
 
     /**
@@ -113,7 +113,7 @@ public class ReportTypeServiceImpl implements ReportTypeService {
     @Override
     public ReportTypeResponse reportTypeDtoToReportTypeResponse(ReportTypeDto reportTypeDto) {
         return ReportTypeResponse.builder()
-                .id(reportTypeDto.getId())
+                .reportTypeIdx(reportTypeDto.getId())
                 .reportTypeContent(reportTypeDto.getReportTypeContent())
                 .createdAt(reportTypeDto.getCreatedAt())
                 .createdDate(reportTypeDto.getCreatedDate())

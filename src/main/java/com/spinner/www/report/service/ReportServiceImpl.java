@@ -1,17 +1,20 @@
 package com.spinner.www.report.service;
 
+import com.spinner.www.board.service.BoardService;
+import com.spinner.www.common.exception.MemberNotFoundException;
+import com.spinner.www.common.exception.UnauthorizedException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
-import com.spinner.www.member.repository.MemberRepo;
 import com.spinner.www.board.entity.Board;
-import com.spinner.www.board.repository.BoardRepo;
+import com.spinner.www.member.service.MemberService;
 import com.spinner.www.report.dto.ReportCreateDto;
 import com.spinner.www.report.dto.ReportGetDto;
 import com.spinner.www.report.entity.Report;
 import com.spinner.www.report.entity.ReportType;
-import com.spinner.www.report.io.ReportCreateRequest;
+import com.spinner.www.report.io.ReportBoardCreateRequest;
+import com.spinner.www.report.io.ReportMemberCreateRequest;
 import com.spinner.www.report.io.ReportResponse;
 import com.spinner.www.report.mapper.ReportMapper;
 import com.spinner.www.report.repository.ReportRepo;
@@ -25,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.spinner.www.report.entity.Report.create;
 
@@ -37,29 +42,58 @@ public class ReportServiceImpl implements ReportService {
     private final SessionInfo sessionInfo;
     private final ReportMapper reportMapper;
     private final ReportTypeRepo reportTypeRepo;
-    private final BoardRepo boardRepo;
-    private final MemberRepo memberRepo;
+    private final BoardService boardService;
+    private final MemberService memberService;
 
     /**
      * 신고 추가
-     * @param reportCreateRequest ReportCreateRequest
+     * @param reportBoardCreateRequest ReportBoardCreateRequest
      * @return ResponseEntity<CommonResponse>
      */
     @Override
     @Transactional
-    public ResponseEntity<CommonResponse> insertReport(ReportCreateRequest reportCreateRequest) {
+    public ResponseEntity<CommonResponse> insertReport(ReportBoardCreateRequest reportBoardCreateRequest) {
+        Long memberIdx = Optional.ofNullable(sessionInfo.getMemberIdx())
+                                 .orElseThrow(UnauthorizedException::new);
+        Member reporterMember = memberService.getMember(memberIdx);
 
-        ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportCreateRequest);
+        ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportBoardCreateRequest);
         ReportType reportType = reportTypeRepo.findById(reportInsertDto.getReportTypeIdx())
                 .orElseThrow(() -> new RuntimeException("ReportType를 찾을 수 없습니다."));
-        Board reportBoard = boardRepo.findById(reportInsertDto.getBoardIdx())
-                .orElseThrow(() -> new RuntimeException("reportBoard not found"));
-        Member reportMember = memberRepo.findById(sessionInfo.getMemberIdx())
-                .orElseThrow(() -> new RuntimeException("reportMember not found"));
-        Report report = create(reportType, reportBoard, reportMember);
+        Board reportedBoard = boardService.getBoardOrThrow(reportInsertDto.getReportedBoardIdx());
+        Report report = create(reportType, reporterMember, reportedBoard);
 
         // 신고 데이터 중 포스트와 멤버가 동일한 데이터가 있을 경우 중복 처리
-        if (reportRepo.findByBoardAndMember(report.getBoard(), report.getMember()).isPresent()) {
+        if (reportRepo.findByReportedBoardAndReporterMember(report.getReportedBoard(), report.getReporterMember()).isPresent()) {
+            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE_REPORT), HttpStatus.OK);
+        }
+
+        reportRepo.save(report);
+
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(report.getId()), HttpStatus.OK);
+    }
+
+    /**
+     * 신고 추가
+     * @param reportMemberCreateRequest ReportMemberCreateRequest
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<CommonResponse> insertReport(ReportMemberCreateRequest reportMemberCreateRequest) {
+        Long memberIdx = Optional.ofNullable(sessionInfo.getMemberIdx())
+                                 .orElseThrow(UnauthorizedException::new);
+        Member reporterMember = memberService.getMember(memberIdx);
+
+        ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportMemberCreateRequest);
+        ReportType reportType = reportTypeRepo.findById(reportInsertDto.getReportTypeIdx())
+                .orElseThrow(() -> new RuntimeException("ReportType를 찾을 수 없습니다."));
+        Member reportedMember = memberService.getMember(reportInsertDto.getReportedMemberIdx());
+        if(Objects.isNull(reportedMember)) throw new MemberNotFoundException();
+        Report report = create(reportType, reporterMember, reportedMember);
+
+        // 신고 데이터 중 포스트와 멤버가 동일한 데이터가 있을 경우 중복 처리
+        if (reportRepo.findByReportedBoardAndReporterMember(report.getReportedBoard(), report.getReporterMember()).isPresent()) {
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DUPLICATE_REPORT), HttpStatus.OK);
         }
 
@@ -103,15 +137,28 @@ public class ReportServiceImpl implements ReportService {
     }
 
     /**
-     * ReportCreateRequest -> ReportDto 변환
-     * @param reportCreateRequest ReportCreateRequest
+     * ReportBoardCreateRequest -> ReportDto 변환
+     * @param reportBoardCreateRequest ReportBoardCreateRequest
      * @return ReportDto
      */
     @Override
-    public ReportCreateDto reportCreatRequestToReportToDto(ReportCreateRequest reportCreateRequest) {
+    public ReportCreateDto reportCreatRequestToReportToDto(ReportBoardCreateRequest reportBoardCreateRequest) {
         return ReportCreateDto.builder()
-                .reportTypeIdx(reportCreateRequest.getReportTypeIdx())
-                .boardIdx(reportCreateRequest.getBoardIdx())
+                .reportTypeIdx(reportBoardCreateRequest.getReportTypeIdx())
+                .reportedBoardIdx(reportBoardCreateRequest.getBoardIdx())
+                .build();
+    }
+
+    /**
+     * ReportBoardCreateRequest -> ReportDto 변환
+     * @param reportMemberCreateRequest ReportMemberCreateRequest
+     * @return ReportDto
+     */
+    @Override
+    public ReportCreateDto reportCreatRequestToReportToDto(ReportMemberCreateRequest reportMemberCreateRequest) {
+        return ReportCreateDto.builder()
+                .reportTypeIdx(reportMemberCreateRequest.getReportTypeIdx())
+                .reportedMemberIdx(reportMemberCreateRequest.getMemberIdx())
                 .build();
     }
 

@@ -24,7 +24,7 @@ public class ReportType extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reportTypeIdx")
     @Comment("신고_타입 PK")
-    private Long id;
+    private Long reportTypeIdx;
 
     @Comment("신고_타입 내용")
     private String reportTypeContent;

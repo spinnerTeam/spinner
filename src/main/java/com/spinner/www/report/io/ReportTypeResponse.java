@@ -7,6 +7,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class ReportTypeResponse extends BaseResponse {
-    private Long id;
+    private Long reportTypeIdx;
     private String reportTypeContent;
 }
