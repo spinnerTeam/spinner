@@ -1,4 +1,4 @@
-package com.spinner.www.myprofile.service;
+package com.spinner.www.profile.service;
 
 import com.spinner.www.board.service.BoardService;
 import com.spinner.www.common.io.CommonResponse;
@@ -30,7 +30,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class MyProfileServiceImpl implements MyProfileService {
+public class ProfileServiceImpl implements ProfileService {
     private final BoardService boardService;
     private final SessionInfo sessionInfo;
     private final MemberService memberService;

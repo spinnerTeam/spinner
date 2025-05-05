@@ -1,8 +1,8 @@
-package com.spinner.www.myprofile.controller;
+package com.spinner.www.profile.controller;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.io.MemberProfileUpdateRequest;
-import com.spinner.www.myprofile.service.MyProfileService;
+import com.spinner.www.profile.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,12 +18,13 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/myprofile")
-public class MyProfileRestController {
-    private final MyProfileService myProfileService;
+@RequestMapping("/profiles")
+public class ProfilesRestController {
+    private final ProfileService profileService;
 
     /**
      * 나의 프로필 조회
+     *
      * @return ResponseEntity<CommonResponse>
      */
     @Operation(description = "나의 프로필을 조회합니다. <br/>" +
@@ -42,13 +43,14 @@ public class MyProfileRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @GetMapping("")
+    @GetMapping("/me")
     public ResponseEntity<CommonResponse> getMemberProfile() {
-        return myProfileService.getMemberProfile();
+        return profileService.getMemberProfile();
     }
 
     /**
      * 나의 프로필 업데이트
+     *
      * @return ResponseEntity<CommonResponse>
      */
     @Operation(description = "나의 프로필을 수정합니다. <br/>" +
@@ -67,15 +69,16 @@ public class MyProfileRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @PatchMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CommonResponse> updateMemberProfile(@RequestPart(value="profileRequest") MemberProfileUpdateRequest profileRequest
-                                                             ,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        return myProfileService.updateMemberProfile(profileRequest, file);
+    @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> updateMemberProfile(@RequestPart(value = "profileRequest") MemberProfileUpdateRequest profileRequest
+            , @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        return profileService.updateMemberProfile(profileRequest, file);
     }
 
     /**
      * 내가 작성한 게시글 목록 조회
-     * @param idx Long
+     *
+     * @param idx  Long
      * @param size int
      * @return ResponseEntity<CommonResponse>
      */
@@ -89,15 +92,16 @@ public class MyProfileRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @GetMapping("/member/board")
+    @GetMapping("/me/board")
     public ResponseEntity<CommonResponse> findAllMemberBoards(@RequestParam(value = "idx", required = false) Long idx,
-                                                                  @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return myProfileService.getSliceOfMemberBoard(idx, size);
+                                                              @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return profileService.getSliceOfMemberBoard(idx, size);
     }
 
     /**
      * 내가 좋아요를 누른 게시글 목록 조회
-     * @param idx Long
+     *
+     * @param idx  Long
      * @param size int
      * @return ResponseEntity<CommonResponse>
      */
@@ -111,15 +115,16 @@ public class MyProfileRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @GetMapping("/like/board")
+    @GetMapping("/me/likedBoard")
     public ResponseEntity<CommonResponse> findAllLikedBoards(@RequestParam(value = "idx", required = false) Long idx,
-                                                                  @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return myProfileService.getSliceOfLikedBoard(idx, size);
+                                                             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return profileService.getSliceOfLikedBoard(idx, size);
     }
 
     /**
      * 북마크한 게시글 목록 조회
-     * @param idx Long
+     *
+     * @param idx  Long
      * @param size int
      * @return ResponseEntity<CommonResponse>
      */
@@ -133,10 +138,10 @@ public class MyProfileRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
-    @GetMapping("/bookmark/board")
+    @GetMapping("/me/bookmarkedBoard")
     public ResponseEntity<CommonResponse> findAllBookmarkedBoards(@RequestParam(value = "idx", required = false) Long idx,
                                                                   @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return myProfileService.getSliceOfBookmarkedBoard(idx, size);
+        return profileService.getSliceOfBookmarkedBoard(idx, size);
     }
 
 }

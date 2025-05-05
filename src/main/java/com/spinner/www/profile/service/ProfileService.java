@@ -1,4 +1,4 @@
-package com.spinner.www.myprofile.service;
+package com.spinner.www.profile.service;
 
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.member.io.MemberProfileUpdateRequest;
@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public interface MyProfileService {
+public interface ProfileService {
 
     /**
      * 내가 작성한 게시글 목록 조회
