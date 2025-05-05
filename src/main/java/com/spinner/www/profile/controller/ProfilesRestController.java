@@ -76,6 +76,32 @@ public class ProfilesRestController {
     }
 
     /**
+     * 다른 사용자 프로필 조회
+     * @param memberIdx Long 조회할 사용자의 idx
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(description = "다른 사용자의 프로필을 조회합니다. <br/>" +
+            "nickName       : String <br/>" +
+            "birth          : String YYYY-MM-DD<br/>" +
+            "profileImageUrl: String<br/>" +
+            "interests      : [{<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;idx        : String<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;name       : String<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;isSelected : boolean<br/>" +
+            "}..]"
+            ,
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
+                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+            })
+    @GetMapping("/{memberIdx}")
+    public ResponseEntity<CommonResponse> getMemberProfile(@PathVariable(value = "memberIdx") Long memberIdx) {
+        return profileService.getMemberProfile(memberIdx);
+    }
+
+    /**
      * 내가 작성한 게시글 목록 조회
      *
      * @param idx  Long
@@ -96,6 +122,30 @@ public class ProfilesRestController {
     public ResponseEntity<CommonResponse> findAllMemberBoards(@RequestParam(value = "idx", required = false) Long idx,
                                                               @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return profileService.getSliceOfMemberBoard(idx, size);
+    }
+
+    /**
+     * 다른 사람이 작성한 게시글 목록 조회
+     * @param memberIdx Long 조회할 사용자의 idx
+     * @param idx  Long
+     * @param size int
+     * @return ResponseEntity<CommonResponse>
+     */
+    @Operation(description = "내가 작성한 게시글 목록을 조회합니다. <br/>" +
+            "<strong>[boardType]</strong> <br/>" +
+            "verify : 공부인증글 <br/>" +
+            "free   : 자유글",
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "20000", description = "요청 성공"),
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
+                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+            })
+    @GetMapping("/{memberIdx}/board")
+    public ResponseEntity<CommonResponse> findAllMemberBoards(@PathVariable(value = "memberIdx") Long memberIdx,
+                                                              @RequestParam(value = "idx", required = false) Long idx,
+                                                              @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return profileService.getSliceOfMemberBoard(idx, size, memberIdx);
     }
 
     /**

@@ -46,7 +46,20 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size) {
-        return boardService.getSliceOfMemberBoard(idx,size);
+        return boardService.getSliceOfMemberBoard(idx, size);
+    }
+
+    /**
+     * 멤버가 작성한 게시글 목록 조회
+     *
+     * @param idx       Long 조회 시작 idx
+     * @param size      int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long memberIdx) {
+        return boardService.getSliceOfMemberBoard(idx, size, memberIdx);
     }
 
     /**
@@ -57,7 +70,7 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size) {
-        return boardService.getSliceOfLikedBoard(idx,size);
+        return boardService.getSliceOfLikedBoard(idx, size);
     }
 
     /**
@@ -68,7 +81,7 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
-        return boardService.getSliceOfBookmarkedBoard(idx,size);
+        return boardService.getSliceOfBookmarkedBoard(idx, size);
     }
 
     /**
@@ -79,7 +92,16 @@ public class ProfileServiceImpl implements ProfileService {
         Long memberIdx = sessionInfo.getMemberIdx();
         if (Objects.isNull(memberIdx))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+        return this.getMemberProfile(memberIdx);
+    }
 
+    /**
+     * 회원 프로필 조회
+     * @param memberIdx Long 조회할 사용자의 idx
+     * @return MemberProfile
+     */
+    @Override
+    public ResponseEntity<CommonResponse> getMemberProfile(Long memberIdx) {
         Member member = memberService.getMember(memberIdx);
         if (Objects.isNull(member))
             return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);

@@ -109,10 +109,20 @@ public interface BoardService {
      * 내가 작성한 게시글 목록 조회
      * @param idx Long 조회 시작 idx
      * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long memberIdx);
+
+    /**
+     * 내가 작성한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
      * @param studyIdx Long 조회할 스터디 idx
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
-    ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long studyIdx);
+    ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long memberIdx, Long studyIdx);
 
     /**
      * 내가 좋아요를 누른 게시글 목록 조회
@@ -126,10 +136,20 @@ public interface BoardService {
      * 내가 좋아요를 누른 게시글 목록 조회
      * @param idx Long 조회 시작 idx
      * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long memberIdx);
+
+    /**
+     * 내가 좋아요를 누른 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
      * @param studyIdx Long 조회할 스터디 idx
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
-    ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long studyIdx);
+    ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size, Long memberIdx, Long studyIdx);
 
     /**
      * 북마크한 게시글 목록 조회
@@ -143,10 +163,20 @@ public interface BoardService {
      * 북마크한 게시글 목록 조회
      * @param idx Long 조회 시작 idx
      * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
+     * @return ResponseEntity<CommonResponse> 게시글 목록
+     */
+    ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long memberIdx);
+
+    /**
+     * 북마크한 게시글 목록 조회
+     * @param idx Long 조회 시작 idx
+     * @param size int 조회할 목록 갯수
+     * @param memberIdx Long 조회할 멤버 idx
      * @param studyIdx Long 조회할 스터디 idx
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
-    ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long studyIdx);
+    ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size, Long memberIdx, Long studyIdx);
 
     /**
      * 인기글 게시글 목록 조회
