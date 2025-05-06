@@ -102,4 +102,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.UNAUTHORIZED
         );
     }
+
+    // BadRequest 예외 처리
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CommonResponse> handleBadRequestException(BadRequestException ex) {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(ex.getResultCode()),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
