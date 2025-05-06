@@ -36,7 +36,7 @@ public class LikeRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     // boardType은 엔드포인트 구색 맞추기용
     @PostMapping("/board/{boardType}/{boardIdx}")
@@ -61,7 +61,8 @@ public class LikeRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다."),
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     @PostMapping("/reply/{boardType}/{replyIdx}")
     public ResponseEntity<CommonResponse> setLikeReply(@PathVariable("boardType") String boardType,

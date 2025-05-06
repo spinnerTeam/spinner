@@ -43,7 +43,7 @@ public class ProfilesRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40008", description = "존재하지 않는 사용자입니다.")
             })
     @GetMapping("/me")
     public ResponseEntity<CommonResponse> getMemberProfile() {
@@ -69,7 +69,6 @@ public class ProfilesRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommonResponse> updateMemberProfile(@RequestPart(value = "profileRequest") MemberProfileUpdateRequest profileRequest
@@ -96,7 +95,7 @@ public class ProfilesRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40008", description = "존재하지 않는 사용자입니다.")
             })
     @GetMapping("/{memberIdx}")
     public ResponseEntity<CommonResponse> getMemberProfile(@PathVariable(value = "memberIdx") Long memberIdx) {
@@ -118,7 +117,6 @@ public class ProfilesRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/me/board")
     public ResponseEntity<CommonResponse> findAllMemberBoards(@RequestParam(value = "idx", required = false) Long idx,
@@ -141,7 +139,6 @@ public class ProfilesRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
             })
     @GetMapping("/{memberIdx}/board")
     public ResponseEntity<CommonResponse> findAllMemberBoards(@PathVariable(value = "memberIdx") Long memberIdx,
@@ -164,8 +161,7 @@ public class ProfilesRestController {
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
-                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다.")
             })
     @GetMapping("/me/likedBoard")
     public ResponseEntity<CommonResponse> findAllLikedBoards(@RequestParam(value = "idx", required = false) Long idx,
@@ -187,8 +183,7 @@ public class ProfilesRestController {
             responses = {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
-                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40101", description = "권한이 없습니다.")
             })
     @GetMapping("/me/bookmarkedBoard")
     public ResponseEntity<CommonResponse> findAllBookmarkedBoards(@RequestParam(value = "idx", required = false) Long idx,
