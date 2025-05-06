@@ -10,14 +10,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/reply")
-
-// TODO 스터디 게시판 분기 처리할 것(스터디 원인지 확인 등)
+@PreAuthorize("@sessionInfo.memberIdx != null")
 public class ReplyRestController {
 
     private final ReplyService replyService;

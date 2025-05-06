@@ -6,8 +6,8 @@ import com.spinner.www.bookmark.entity.Bookmark;
 import com.spinner.www.bookmark.io.BookmarkBoardResponse;
 import com.spinner.www.bookmark.mapper.BookmarkMapper;
 import com.spinner.www.bookmark.repository.BookmarkRepo;
+import com.spinner.www.common.exception.UnauthorizedException;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
 import com.spinner.www.member.entity.Member;
 import com.spinner.www.member.service.MemberService;
@@ -43,24 +43,15 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public ResponseEntity<CommonResponse> upsertBoard(Long boardIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Board board = boardService.getBoardOrThrow(boardIdx);
-
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<Bookmark> bookmarks = this.findByBoard(board);
 
-        Bookmark bookmark = bookmarks.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Bookmark bookmark = bookmarks.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(bookmark)) {
-            return this.insertBoard(boardIdx);
+            return this.insertBoard(member, board);
         }
 
         return this.update(bookmark);
@@ -68,40 +59,30 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     /**
      * 북마크 생성
-     * @param studyIdx Long
      * @param boardIdx Long
+     * @param studyIdx Long
      * @return ResponseEntity<CommonResponse> 북마크 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx) {
+    public ResponseEntity<CommonResponse> upsertBoard(Long boardIdx, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
         Board board = boardService.getBoardOrThrow(boardIdx);
-
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
         List<Bookmark> bookmarks = this.findByBoard(board);
 
-        Bookmark bookmark = bookmarks.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Bookmark bookmark = bookmarks.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(bookmark)) {
-            return this.insertBoard(boardIdx);
+            return this.insertBoard(member, board);
         }
 
         return this.update(bookmark);
@@ -109,20 +90,12 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     /**
      * 북마크 생성
-     * @param boardIdx Long
+     * @param member Member
+     * @param board Board
      * @return ResponseEntity<CommonResponse> 북마크 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insertBoard(Long boardIdx) {
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Board board = boardService.getBoardOrThrow(boardIdx);
+    public ResponseEntity<CommonResponse> insertBoard(Member member, Board board) {
         Bookmark bookmark = Bookmark.builder()
                 .member(member)
                 .board(board)
@@ -143,25 +116,11 @@ public class BookmarkServiceImpl implements BookmarkService {
      */
     @Override
     public ResponseEntity<CommonResponse> update(Bookmark bookmark) {
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         bookmark.update();
         bookmarkRepo.save(bookmark);
 
-        if(Objects.isNull(bookmark.getBoard())){
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-        }else {
-
-            BookmarkBoardResponse response = bookmarkMapper.bookmarkToBookmarkBoardResponse(bookmark);
-
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
-        }
+        BookmarkBoardResponse response = bookmarkMapper.bookmarkToBookmarkBoardResponse(bookmark);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
     }
 
     /**

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +44,7 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
             })
     @PostMapping("/{boardType}")
+    @PreAuthorize("@sessionInfo.memberIdx != null")
     public ResponseEntity<CommonResponse> insert(
             @PathVariable("boardType") String boardType,
             @RequestPart(value="boardRequest") BoardCreateRequest boardRequest, // JSON 데이터
@@ -118,6 +120,7 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     @PatchMapping("/{boardType}/{boardIdx}")
+    @PreAuthorize("@sessionInfo.memberIdx != null")
     public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType,
                                                  @PathVariable("boardIdx") Long boardIdx,
                                                  @RequestBody BoardUpdateRequest boardRequest) {
@@ -143,6 +146,7 @@ public class BoardRestController {
                     @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     @DeleteMapping("/{boardType}/{boardIdx}")
+    @PreAuthorize("@sessionInfo.memberIdx != null")
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType,
                                                  @PathVariable("boardIdx") Long boardIdx) {
         return boardService.delete(boardType, boardIdx);

@@ -3,6 +3,7 @@ package com.spinner.www.bookmark.service;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.bookmark.entity.Bookmark;
 import com.spinner.www.common.io.CommonResponse;
+import com.spinner.www.member.entity.Member;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -18,18 +19,19 @@ public interface BookmarkService {
 
     /**
      * 북마크 생성
-     * @param studyIdx Long
      * @param boardIdx Long
+     * @param studyIdx Long
      * @return ResponseEntity<CommonResponse> 북마크 상세 정보
      */
-    ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx);
+    ResponseEntity<CommonResponse> upsertBoard(Long boardIdx, Long studyIdx);
 
     /**
      * 북마크 생성
-     * @param boardIdx Long
+     * @param member Member
+     * @param board Board
      * @return ResponseEntity<CommonResponse> 북마크 상세 정보
      */
-    ResponseEntity<CommonResponse> insertBoard(Long boardIdx);
+    ResponseEntity<CommonResponse> insertBoard(Member member, Board board);
 
     /**
      * 북마크 업데이트
