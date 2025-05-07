@@ -1,8 +1,7 @@
 package com.spinner.www.report.service;
 
 import com.spinner.www.board.service.BoardService;
-import com.spinner.www.common.exception.MemberNotFoundException;
-import com.spinner.www.common.exception.UnauthorizedException;
+import com.spinner.www.common.exception.NotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.spinner.www.report.entity.Report.create;
 
@@ -53,8 +51,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public ResponseEntity<CommonResponse> insertReport(ReportBoardCreateRequest reportBoardCreateRequest) {
-        Long memberIdx = Optional.ofNullable(sessionInfo.getMemberIdx())
-                                 .orElseThrow(UnauthorizedException::new);
+        Long memberIdx = sessionInfo.getMemberIdx();
         Member reporterMember = memberService.getMember(memberIdx);
 
         ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportBoardCreateRequest);
@@ -81,15 +78,14 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public ResponseEntity<CommonResponse> insertReport(ReportMemberCreateRequest reportMemberCreateRequest) {
-        Long memberIdx = Optional.ofNullable(sessionInfo.getMemberIdx())
-                                 .orElseThrow(UnauthorizedException::new);
+        Long memberIdx = sessionInfo.getMemberIdx();
         Member reporterMember = memberService.getMember(memberIdx);
 
         ReportCreateDto reportInsertDto = reportCreatRequestToReportToDto(reportMemberCreateRequest);
         ReportType reportType = reportTypeRepo.findById(reportInsertDto.getReportTypeIdx())
                 .orElseThrow(() -> new RuntimeException("ReportType를 찾을 수 없습니다."));
         Member reportedMember = memberService.getMember(reportInsertDto.getReportedMemberIdx());
-        if(Objects.isNull(reportedMember)) throw new MemberNotFoundException();
+        if(Objects.isNull(reportedMember)) throw new NotFoundException(CommonResultCode.NOT_FOUND_MEMBER);
         Report report = create(reportType, reporterMember, reportedMember);
 
         // 신고 데이터 중 포스트와 멤버가 동일한 데이터가 있을 경우 중복 처리
