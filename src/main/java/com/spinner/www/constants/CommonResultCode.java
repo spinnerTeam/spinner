@@ -64,7 +64,12 @@ public enum CommonResultCode {
     /**
      * 투표 리스트가 없는 경우
      */
-    VOTE_NOT_FOUND(41005, "투표를 찾을 수 없습니다."),
+    NOT_FOUND_VOTE(41005, "투표를 찾을 수 없습니다."),
+
+    /**
+     * 투표 리스트가 없는 경우
+     */
+    NOT_FOUND_VOTE_ITEM(41006, "투표 항목을 찾을 수 없습니다."),
 
     /**
      * 투표 결과를 확인할 수 없는 권한의 경우

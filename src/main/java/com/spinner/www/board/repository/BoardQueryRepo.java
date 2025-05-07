@@ -94,13 +94,13 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(
                                                 like.board.boardIdx.eq(board.boardIdx)
-                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(Objects.isNull(memberIdx) ? null : like.member.memberIdx.eq(memberIdx))
                                                         .and(like.likeIsLiked.eq(IS_LIKE))),
                                 JPAExpressions
                                         .select(bookmark.count())
                                         .from(bookmark)
                                         .where(bookmark.board.boardIdx.eq(board.boardIdx)
-                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(Objects.isNull(memberIdx) ? null : bookmark.member.memberIdx.eq(memberIdx))
                                                 .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate
@@ -170,13 +170,13 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(
                                                 like.board.boardIdx.eq(board.boardIdx)
-                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(Objects.isNull(memberIdx) ? null : like.member.memberIdx.eq(memberIdx))
                                                         .and(like.likeIsLiked.eq(IS_LIKE))),
                                 JPAExpressions
                                         .select(bookmark.count())
                                         .from(bookmark)
                                         .where(bookmark.board.boardIdx.eq(board.boardIdx)
-                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(Objects.isNull(memberIdx) ? null : bookmark.member.memberIdx.eq(memberIdx))
                                                 .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate
@@ -239,13 +239,13 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(
                                                 like.board.boardIdx.eq(board.boardIdx)
-                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(Objects.isNull(memberIdx) ? null : like.member.memberIdx.eq(memberIdx))
                                                         .and(like.likeIsLiked.eq(IS_LIKE))),
                                 JPAExpressions
                                         .select(bookmark.count())
                                         .from(bookmark)
                                         .where(bookmark.board.boardIdx.eq(board.boardIdx)
-                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(Objects.isNull(memberIdx) ? null : bookmark.member.memberIdx.eq(memberIdx))
                                                 .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate
@@ -303,13 +303,13 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(
                                                 like.board.boardIdx.eq(board.boardIdx)
-                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(Objects.isNull(memberIdx) ? null : like.member.memberIdx.eq(memberIdx))
                                                         .and(like.likeIsLiked.eq(IS_LIKE))),
                                 JPAExpressions
                                         .select(bookmark.count())
                                         .from(bookmark)
                                         .where(bookmark.board.boardIdx.eq(board.boardIdx)
-                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(Objects.isNull(memberIdx) ? null : bookmark.member.memberIdx.eq(memberIdx))
                                                 .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate
@@ -367,13 +367,13 @@ public class BoardQueryRepo {
                                         .from(like)
                                         .where(
                                                 like.board.boardIdx.eq(board.boardIdx)
-                                                        .and(like.member.memberIdx.eq(memberIdx))
+                                                        .and(Objects.isNull(memberIdx) ? null : like.member.memberIdx.eq(memberIdx))
                                                         .and(like.likeIsLiked.eq(IS_LIKE))),
                                 JPAExpressions
                                         .select(bookmark.count())
                                         .from(bookmark)
                                         .where(bookmark.board.boardIdx.eq(board.boardIdx)
-                                                .and(bookmark.member.memberIdx.eq(memberIdx))
+                                                .and(Objects.isNull(memberIdx) ? null : bookmark.member.memberIdx.eq(memberIdx))
                                                 .and(bookmark.isBookmarked.eq(1))),
                                 board.createdDate,
                                 board.modifiedDate

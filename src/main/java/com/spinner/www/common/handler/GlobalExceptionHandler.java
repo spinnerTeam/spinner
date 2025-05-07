@@ -7,6 +7,7 @@ import com.spinner.www.util.ResponseVOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -66,39 +67,48 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    // 게시글 NOT_FOUND Exception 처리
-    @ExceptionHandler(BoardNotFoundException.class)
-    public ResponseEntity<CommonResponse> handleBoardNotFoundException() {
+    // 공통 NOT_FOUND Exception 처리
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<CommonResponse> handleNotFoundException(NotFoundException ex) {
         return new ResponseEntity<>(
-                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_BOARD),
+                ResponseVOUtils.getFailResponse(ex.getResultCode()),
                 HttpStatus.NOT_FOUND
         );
     }
 
-    // 댓글 NOT_FOUND Exception 처리
-    @ExceptionHandler(ReplyNotFoundException.class)
-    public ResponseEntity<CommonResponse> handleReplyNotFoundException() {
+    // 올바르지 않은 접근 Exception 처리
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CommonResponse> handleForbiddenException(ForbiddenException ex) {
         return new ResponseEntity<>(
-                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_BOARD),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
-    // 멤버 NOT_FOUND Exception 처리
-    @ExceptionHandler(MemberNotFoundException.class)
-    public ResponseEntity<CommonResponse> handleMemberNotFoundException() {
-        return new ResponseEntity<>(
-                ResponseVOUtils.getFailResponse(CommonResultCode.NOT_FOUND_MEMBER),
-                HttpStatus.NOT_FOUND
+                ResponseVOUtils.getFailResponse(ex.getResultCode()),
+                HttpStatus.FORBIDDEN
         );
     }
 
     // 멤버 NOT_FOUND Exception 처리
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<CommonResponse> UnauthorizedException() {
+    public ResponseEntity<CommonResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(ex.getResultCode()),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    // 로그인 안되어 있을때 예외 처리
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CommonResponse> handleAccessDeniedException() {
         return new ResponseEntity<>(
                 ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED),
                 HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    // BadRequest 예외 처리
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CommonResponse> handleBadRequestException(BadRequestException ex) {
+        return new ResponseEntity<>(
+                ResponseVOUtils.getFailResponse(ex.getResultCode()),
+                HttpStatus.BAD_REQUEST
         );
     }
 }

@@ -1,6 +1,7 @@
 package com.spinner.www.profile.service;
 
 import com.spinner.www.board.service.BoardService;
+import com.spinner.www.common.exception.NotFoundException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.ServerInfo;
 import com.spinner.www.constants.CommonResultCode;
@@ -90,8 +91,6 @@ public class ProfileServiceImpl implements ProfileService {
      */
     public ResponseEntity<CommonResponse> getMemberProfile() {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
         return this.getMemberProfile(memberIdx);
     }
 
@@ -104,16 +103,14 @@ public class ProfileServiceImpl implements ProfileService {
     public ResponseEntity<CommonResponse> getMemberProfile(Long memberIdx) {
         Member member = memberService.getMember(memberIdx);
         if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_MEMBER);
 
         MemberFile memberFile = memberFileService.getMemberFile(member);
-
         Long fileIdx = null;
         if (!Objects.isNull(memberFile))
             fileIdx = memberFile.getFiles().getFileIdx();
 
         List<MemberInterestResponse> interestsResponses =memberInterestService.getAllMemberInterestResponses(member);
-
 
         MemberProfileResponse memberProfileResponse = MemberProfileResponse.builder()
                 .nickName(member.getMemberNickname())

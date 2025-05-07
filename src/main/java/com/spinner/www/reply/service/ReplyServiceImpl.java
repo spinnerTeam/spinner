@@ -1,7 +1,9 @@
 package com.spinner.www.reply.service;
 
 import com.spinner.www.board.constants.CommonBoardCode;
-import com.spinner.www.common.exception.ReplyNotFoundException;
+import com.spinner.www.common.exception.ForbiddenException;
+import com.spinner.www.common.exception.NotFoundException;
+import com.spinner.www.common.exception.UnauthorizedException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.member.dto.SessionInfo;
@@ -62,8 +64,6 @@ public class ReplyServiceImpl implements ReplyService {
     public ResponseEntity<CommonResponse> insert(String boardType, Long studyIdx, ReplyCreateRequest replyRequest) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
 
@@ -72,13 +72,13 @@ public class ReplyServiceImpl implements ReplyService {
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
         Board board = boardService.getBoardOrThrow(replyRequest.getBoardIdx(), codeIdx);
         if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         ReplyCreateDto replyDto = replyMapper.replyCreateRequestToReplyCreateDto(replyRequest);
         Long replyParentIdx = Objects.isNull(replyDto.getParentIdx()) ? null :replyDto.getParentIdx();
@@ -106,7 +106,7 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Reply getReplyOrThrow(Long replyIdx) {
         int isNotRemove = 0;
-        return replyRepo.findByReplyIdxAndReplyIsRemoved(replyIdx, isNotRemove).orElseThrow(ReplyNotFoundException::new);
+        return replyRepo.findByReplyIdxAndReplyIsRemoved(replyIdx, isNotRemove).orElseThrow(() -> new NotFoundException(CommonResultCode.NOT_FOUND_REPLY));
     }
 
     /**
@@ -118,7 +118,7 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Reply getReplyOrThrow(Long replyIdx, Long codeIdx) {
         Reply reply = this.getReplyOrThrow(replyIdx);
-        if(!Objects.equals(reply.getBoard().getCommonCode().getCodeIdx(), codeIdx)) throw new ReplyNotFoundException();
+        if(!Objects.equals(reply.getBoard().getCommonCode().getCodeIdx(), codeIdx)) throw new NotFoundException(CommonResultCode.NOT_FOUND_REPLY);
         return reply;
     }
 
@@ -132,7 +132,7 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Reply getReplyOrThrow(Long replyIdx, Long codeIdx, Study study) {
         Reply reply = this.getReplyOrThrow(replyIdx, codeIdx);
-        if(!Objects.equals(reply.getBoard().getStudy(), study)) throw new ReplyNotFoundException();
+        if(!Objects.equals(reply.getBoard().getStudy(), study)) throw new NotFoundException(CommonResultCode.NOT_FOUND_REPLY);
         return reply;
     }
 
@@ -149,19 +149,16 @@ public class ReplyServiceImpl implements ReplyService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
 
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
 
         Reply reply = this.getReplyOrThrow(replyIdx, codeIdx);
 
         if (!Objects.equals(reply.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
 
         Board board = reply.getBoard();
         if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
         reply.update(replyDto.getReplyContent());
@@ -190,25 +187,22 @@ public class ReplyServiceImpl implements ReplyService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
 
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
         Study study = studyService.getStudyOrThrow(studyIdx);
 
         boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
         if(!isStudyMember) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         Reply reply = this.getReplyOrThrow(replyIdx, codeIdx, study);
 
         if (!Objects.equals(reply.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
 
         Board board = reply.getBoard();
         if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         ReplyUpdateDto replyDto = replyMapper.replyUpdateRequestToReplyUpdateDto(replyRequest);
         reply.update(replyDto.getReplyContent());
@@ -235,23 +229,20 @@ public class ReplyServiceImpl implements ReplyService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
 
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
 
         Reply reply= this.getReplyOrThrow(replyIdx, codeIdx);
 
         if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         if (!Objects.equals(reply.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
 
 
         Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx(), codeIdx);
         if (Objects.isNull(board) || !board.getCommonCode().getCodeIdx().equals(codeIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         reply.delete();
 
@@ -271,32 +262,27 @@ public class ReplyServiceImpl implements ReplyService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
 
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Study study = studyService.getStudyOrThrow(studyIdx);
 
         boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
         if(!isStudyMember) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         Reply reply= this.getReplyOrThrow(replyIdx, codeIdx, study);
 
         if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         if (!Objects.equals(reply.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
 
 
         Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx(), codeIdx);
         if (Objects.isNull(board) || !board.getCommonCode().getCodeIdx().equals(codeIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         reply.delete();
 

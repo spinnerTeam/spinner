@@ -3,6 +3,7 @@ package com.spinner.www.like.service;
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.like.entity.Like;
+import com.spinner.www.member.entity.Member;
 import com.spinner.www.reply.entity.Reply;
 import org.springframework.http.ResponseEntity;
 
@@ -43,17 +44,19 @@ public interface LikeService {
 
     /**
      * 좋아요 생성
-     * @param boardIdx Long
+     * @param member Member
+     * @param board Board
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
-    ResponseEntity<CommonResponse> insertBoard(Long boardIdx);
+    ResponseEntity<CommonResponse> insertBoard(Member member, Board board);
 
     /**
      * 좋아요 생성
-     * @param replyIdx Long
+     * @param member Member
+     * @param reply Reply
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
-    ResponseEntity<CommonResponse> insertReply(Long replyIdx);
+    ResponseEntity<CommonResponse> insertReply(Member member, Reply reply);
 
     /**
      * 좋아요 업데이트

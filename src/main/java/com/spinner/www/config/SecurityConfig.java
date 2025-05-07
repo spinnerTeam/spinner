@@ -6,6 +6,7 @@ import com.spinner.www.member.service.OauthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +22,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity(
+        securedEnabled = true,  // @Secured 활성화
+        jsr250Enabled  = true   // @RolesAllowed 활성화
+)
 public class SecurityConfig {
 
     /** 추 후 url 추가 예정 */
@@ -29,6 +34,7 @@ public class SecurityConfig {
     private final SessionInfo sessionInfo;
     private final CustomerLogoutHandler customerLogoutHandler;
     private final JwtTokenFilter jwtTokenFilter;
+
 
     /**
      * 비밀번호 단방향 암호화

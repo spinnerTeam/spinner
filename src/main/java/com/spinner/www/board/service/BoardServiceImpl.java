@@ -3,7 +3,9 @@ package com.spinner.www.board.service;
 import com.spinner.www.board.constants.CommonBoardCode;
 import com.spinner.www.board.io.*;
 import com.spinner.www.common.entity.CommonCode;
-import com.spinner.www.common.exception.BoardNotFoundException;
+import com.spinner.www.common.exception.ForbiddenException;
+import com.spinner.www.common.exception.NotFoundException;
+import com.spinner.www.common.exception.UnauthorizedException;
 import com.spinner.www.common.io.CommonResponse;
 import com.spinner.www.common.service.CommonCodeService;
 import com.spinner.www.common.service.ServerInfo;
@@ -72,8 +74,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> insert(String boardType, Long studyIdx, BoardCreateRequest boardRequest,List<MultipartFile> uploadFiles) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
 
@@ -81,10 +82,10 @@ public class BoardServiceImpl implements BoardService {
 
         Member member = memberService.getMember(memberIdx);
 
-        if(!Objects.isNull(study)) {
+        if(!Objects.isNull(study) && !Objects.isNull(member)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
@@ -122,7 +123,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board getBoardOrThrow(Long boardIdx) {
         int isNotRemove = 0;
-        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElseThrow(BoardNotFoundException::new);
+        return boardRepo.findByBoardIdxAndBoardIsRemoved(boardIdx, isNotRemove).orElseThrow(() -> new NotFoundException(CommonResultCode.NOT_FOUND_BOARD));
     }
 
     /**
@@ -135,7 +136,7 @@ public class BoardServiceImpl implements BoardService {
     public Board getBoardOrThrow(Long boardIdx, Long codeIdx) {
         Board board = getBoardOrThrow(boardIdx);
         if(!Objects.equals(board.getCommonCode().getCodeIdx(),codeIdx)) {
-            throw new BoardNotFoundException();
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
         }
         return board;
     }
@@ -151,7 +152,7 @@ public class BoardServiceImpl implements BoardService {
     public Board getBoardOrThrow(Long boardIdx, Long codeIdx, Study study) {
         Board board = getBoardOrThrow(boardIdx, codeIdx);
         if(!Objects.equals(board.getStudy(), study)) {
-            throw new BoardNotFoundException();
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
         }
         return board;
     }
@@ -192,7 +193,7 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberService.getMember(memberIdx);
         boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
         if(!isStudyMember) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         board.increaseHitCount();
@@ -228,15 +229,14 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfBoard(String boardType, Long idx, int size, String keyword, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
-        if(!Objects.isNull(study)) {
+        if(!Objects.isNull(study) && !Objects.isNull(memberIdx)) {
             Member member = memberService.getMember(memberIdx);
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
@@ -266,8 +266,6 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         return getSliceOfMemberBoard(idx, size, memberIdx);
     }
@@ -294,13 +292,14 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public ResponseEntity<CommonResponse> getSliceOfMemberBoard(Long idx, int size, Long memberIdx, Long studyIdx) {
+        Member member = memberService.getMember(memberIdx);
+
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
-        if(!Objects.isNull(study)) {
-            Member member = memberService.getMember(memberIdx);
+        if(!Objects.isNull(study) && !Objects.isNull(member)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
@@ -325,8 +324,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfLikedBoard(Long idx, int size) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+
         return getSliceOfLikedBoard(idx, size, memberIdx);
     }
 
@@ -355,10 +353,10 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberService.getMember(memberIdx);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
-        if(!Objects.isNull(study)) {
+        if(!Objects.isNull(study) && !Objects.isNull(member)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
@@ -381,9 +379,8 @@ public class BoardServiceImpl implements BoardService {
      * @return ResponseEntity<CommonResponse> 게시글 목록
      */
     @Override
-    public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<CommonResponse> getSliceOfBookmarkedBoard(Long idx, int size) {
+        Long memberIdx = sessionInfo.getMemberIdx();
 
         return getSliceOfBookmarkedBoard(idx, size, memberIdx);
     }
@@ -413,10 +410,10 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberService.getMember(memberIdx);
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
-        if(!Objects.isNull(study)) {
+        if(!Objects.isNull(study) && !Objects.isNull(member)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
@@ -454,21 +451,21 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public ResponseEntity<CommonResponse> getSliceOfHotBoard(String boardType, Long idx, int size, Long studyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-        Member member = memberService.getMember(memberIdx);
+
+
         Study study = !Objects.isNull(studyIdx) ? studyService.getStudyOrThrow(studyIdx) : null;
 
-        if(!Objects.isNull(study)) {
+        if(!Objects.isNull(study) && !Objects.isNull(memberIdx)) {
+            Member member = memberService.getMember(memberIdx);
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
         Long codeIdx = CommonBoardCode.getCode(boardType);
         if(Objects.isNull(codeIdx))
-            throw new BoardNotFoundException();
+            throw new NotFoundException(CommonResultCode.NOT_FOUND_BOARD);
 
         List<BoardListResponse> list = this.boardQueryRepo.getSliceOfHotBoard(codeIdx,
                                                                                 idx,
@@ -496,13 +493,11 @@ public class BoardServiceImpl implements BoardService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
 
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
         boolean isAuth = this.isCreatedByMember(boardIdx, member);
         if(!isAuth) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         Board board = this.getBoardOrThrow(boardIdx, codeIdx);
@@ -527,8 +522,6 @@ public class BoardServiceImpl implements BoardService {
         Long codeIdx = CommonBoardCode.getCode(boardType);
 
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
 
@@ -536,12 +529,12 @@ public class BoardServiceImpl implements BoardService {
 
         boolean isAuth = this.isCreatedByMember(boardIdx, member, study);
         if(!isAuth) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
         if(!isStudyMember) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         Board board = this.getBoardOrThrow(boardIdx, codeIdx, study);
@@ -564,13 +557,11 @@ public class BoardServiceImpl implements BoardService {
     public ResponseEntity<CommonResponse> delete(String boardType, Long boardIdx) {
         Long codeIdx = CommonBoardCode.getCode(boardType);
         Long memberIdx = sessionInfo.getMemberIdx();
-        if(Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
 
         Member member = memberService.getMember(memberIdx);
         boolean isAuth = this.isCreatedByMember(boardIdx, member);
         if(!isAuth) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         Board board = this.getBoardOrThrow(boardIdx, codeIdx);
@@ -598,12 +589,12 @@ public class BoardServiceImpl implements BoardService {
 
         boolean isAuth = this.isCreatedByMember(boardIdx, member, study);
         if(!isAuth) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
         if(!isStudyMember) {
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         Board board = this.getBoardOrThrow(boardIdx, codeIdx, study);

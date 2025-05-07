@@ -10,14 +10,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/reply")
-
-// TODO 스터디 게시판 분기 처리할 것(스터디 원인지 확인 등)
+@PreAuthorize("@sessionInfo.memberIdx != null")
 public class ReplyRestController {
 
     private final ReplyService replyService;
@@ -37,7 +37,7 @@ public class ReplyRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다."),
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다."),
             })
     @PostMapping("/{boardType}")
     public ResponseEntity<CommonResponse> insert(@PathVariable("boardType") String boardType,
@@ -62,7 +62,8 @@ public class ReplyRestController {
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "40301", description = "올바르지 않은 접근입니다."),
-                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다.")
+                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다."),
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     @PatchMapping("/{boardType}/{replyIdx}")
     public ResponseEntity<CommonResponse> update(@PathVariable("boardType") String boardType,
@@ -87,7 +88,8 @@ public class ReplyRestController {
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
                     @ApiResponse(responseCode = "40301", description = "올바르지 않은 접근입니다."),
-                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다.")
+                    @ApiResponse(responseCode = "40007", description = "존재하지 않는 댓글입니다."),
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다."),
             })
     @DeleteMapping("/{boardType}/{replyIdx}")
     public ResponseEntity<CommonResponse> delete(@PathVariable("boardType") String boardType,

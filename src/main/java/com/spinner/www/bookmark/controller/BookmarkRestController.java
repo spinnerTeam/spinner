@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/bookmark")
+@PreAuthorize("@sessionInfo.memberIdx != null")
 public class BookmarkRestController {
 
     private final BookmarkService bookmarkService;
@@ -33,7 +35,7 @@ public class BookmarkRestController {
                     @ApiResponse(content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "20000", description = "요청 성공"),
                     @ApiResponse(responseCode = "40101", description = "권한이 없습니다."),
-                    @ApiResponse(responseCode = "50001", description = "데이터를 찾을 수 없음.")
+                    @ApiResponse(responseCode = "40006", description = "존재하지 않는 게시글입니다.")
             })
     @PostMapping("/board/{boardType}/{boardIdx}")
     public ResponseEntity<CommonResponse> setBookmark(@PathVariable("boardIdx") Long boardIdx) {

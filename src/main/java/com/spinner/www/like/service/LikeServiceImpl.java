@@ -2,8 +2,8 @@ package com.spinner.www.like.service;
 
 import com.spinner.www.board.entity.Board;
 import com.spinner.www.board.service.BoardService;
+import com.spinner.www.common.exception.UnauthorizedException;
 import com.spinner.www.common.io.CommonResponse;
-import com.spinner.www.constants.CommonResultCode;
 import com.spinner.www.like.entity.Like;
 import com.spinner.www.like.io.LikeBoardResponse;
 import com.spinner.www.like.io.LikeReplyResponse;
@@ -46,23 +46,14 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> upsertBoard(Long boardIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Board board = boardService.getBoardOrThrow(boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<Like> likes = this.findByBoard(board);
-
-        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Like like = likes.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(like)) {
-            return this.insertBoard(boardIdx);
+            return this.insertBoard(member, board);
         }
 
         return this.update(like);
@@ -77,32 +68,23 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> upsertBoard(Long studyIdx, Long boardIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
 
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
         Board board = boardService.getBoardOrThrow(boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         List<Like> likes = this.findByBoard(board);
-
-        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Like like = likes.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(like)) {
-            return this.insertBoard(boardIdx);
+            return this.insertBoard(member, board);
         }
 
         return this.update(like);
@@ -117,36 +99,24 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> upsertReply(Long studyIdx, Long replyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Reply reply= replyService.getReplyOrThrow(replyIdx);
-        if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
 
         Study study = Objects.isNull(studyIdx) ? null : studyService.getStudyOrThrow(studyIdx);
-
         if(!Objects.isNull(study)) {
             boolean isStudyMember = studyMemberService.existsByStudyAndMember(study, member);
             if(!isStudyMember) {
-                return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
+                throw new UnauthorizedException();
             }
         }
 
-        Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
 
         List<Like> likes = this.findByReply(reply);
-
-        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Like like = likes.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(like)) {
-            return this.insertReply(replyIdx);
+            return this.insertReply(member, reply);
         }
 
         return this.update(like);
@@ -160,27 +130,15 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public ResponseEntity<CommonResponse> upsertReply(Long replyIdx) {
         Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
         Reply reply= replyService.getReplyOrThrow(replyIdx);
-        if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
-        Board board = boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
+        boardService.getBoardOrThrow(reply.getBoard().getBoardIdx());
 
         List<Like> likes = this.findByReply(reply);
-
-        Like like = likes.stream().filter(val -> val.getMember().getMemberIdx().equals(memberIdx)).findFirst().orElse(null);
+        Like like = likes.stream().filter(val -> val.getMember().equals(member)).findFirst().orElse(null);
 
         if(Objects.isNull(like)) {
-            return this.insertReply(replyIdx);
+            return this.insertReply(member, reply);
         }
 
         return this.update(like);
@@ -188,23 +146,12 @@ public class LikeServiceImpl implements LikeService {
 
     /**
      * 좋아요 생성
-     * @param boardIdx Long
+     * @param member Member
+     * @param board Board
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insertBoard(Long boardIdx) {
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Board board = boardService.getBoardOrThrow(boardIdx);
-        if (Objects.isNull(board))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
+    public ResponseEntity<CommonResponse> insertBoard(Member member, Board board) {
         Like like = Like.builder()
                 .member(member)
                 .board(board)
@@ -214,29 +161,17 @@ public class LikeServiceImpl implements LikeService {
         likeRepo.save(like);
 
         LikeBoardResponse response = likeMapper.likeToLikeBoardResponse(like);
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
     }
 
     /**
      * 좋아요 생성
-     * @param replyIdx Long
+     * @param member Member
+     * @param reply Reply
      * @return ResponseEntity<CommonResponse> 좋아요 상세 정보
      */
     @Override
-    public ResponseEntity<CommonResponse> insertReply(Long replyIdx) {
-        Long memberIdx = sessionInfo.getMemberIdx();
-        if (Objects.isNull(memberIdx))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Member member = memberService.getMember(memberIdx);
-        if (Objects.isNull(member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
-
-        Reply reply = replyService.getReplyOrThrow(replyIdx);
-        if (Objects.isNull(reply))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.DATA_NOT_FOUND), HttpStatus.NOT_FOUND);
-
+    public ResponseEntity<CommonResponse> insertReply(Member member, Reply reply) {
         Like like = Like.builder()
                 .member(member)
                 .reply(reply)
@@ -246,7 +181,6 @@ public class LikeServiceImpl implements LikeService {
         likeRepo.save(like);
 
         LikeReplyResponse response = likeMapper.likeToLikeReplyResponse(like);
-
         return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.CREATED);
     }
 
@@ -268,24 +202,11 @@ public class LikeServiceImpl implements LikeService {
      */
     @Override
     public ResponseEntity<CommonResponse> update(Like like) {
-        Long memberIdx = sessionInfo.getMemberIdx();
-        Member member = memberService.getMember(memberIdx);
-
-        if (!Objects.equals(like.getMember(), member))
-            return new ResponseEntity<>(ResponseVOUtils.getFailResponse(CommonResultCode.FORBIDDEN), HttpStatus.FORBIDDEN);
-
         like.update();
         likeRepo.save(like);
 
-        if(Objects.isNull(like.getBoard())){
-            LikeReplyResponse response = likeMapper.likeToLikeReplyResponse(like);
+        LikeBoardResponse response = likeMapper.likeToLikeBoardResponse(like);
+        return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
 
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
-        }else {
-
-            LikeBoardResponse response = likeMapper.likeToLikeBoardResponse(like);
-
-            return new ResponseEntity<>(ResponseVOUtils.getSuccessResponse(response), HttpStatus.OK);
-        }
     }
 }
